@@ -13,14 +13,14 @@ Compilation has been tested on Ubuntu 14.04 (gcc/clang) with ROS Indigo.
 Compilation requires:
 
 * [ROS](http://www.ros.org/) with a working [catkin workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace)
-* [SpaceVecAlg](https://github.com/jrl-umi3218/SpaceVecAlg)
-* [RBDyn](https://github.com/jrl-umi3218/RBDyn/)
-* [eigen-qld](https://github.com/jrl-umi3218/eigen-qld)
-* [sch-core](https://github.com/jrl-umi3218/sch-core)
-* [Tasks](https://github.com/jrl-umi3218/Tasks/)
-* [mc\_rbdyn\_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf)
-* [eigen-cddlib](https://github.com/vsamy/eigen-cddlib)
-* [Copra](https://github.com/vsamy/Copra-deprecated)
+* [SpaceVecAlg](https://github.com/jrl-umi3218/SpaceVecAlg): spatial vector algebra
+* [RBDyn](https://github.com/jrl-umi3218/RBDyn/): rigid body dynamics
+* [eigen-qld](https://github.com/jrl-umi3218/eigen-qld): quadratic programming
+* [sch-core](https://github.com/jrl-umi3218/sch-core): collision detection
+* [Tasks](https://github.com/jrl-umi3218/Tasks/): inverse kinematics
+* [mc\_rbdyn\_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf): robot model loader
+* [eigen-cddlib](https://github.com/vsamy/eigen-cddlib): polyhedron double description
+* [Copra](https://github.com/vsamy/Copra-deprecated): linear model predictive control
 
 The following dependencies are not publicly released yet but available upon
 request to [Pierre Gergondet](mailto:pierre.gergondet@gmail.com):
@@ -34,25 +34,19 @@ redundant with *eigen-qld* and will be removed in a future update.
 
 ### Building from source on Linux
 
-Link `lipm_walking_controller` from the ``src/`` folder of your catkin
-workspace, then follow the standard catkin workflow:
-
+Link `lipm_walking_controller` from the source folder of your catkin workspace,
+then follow the standard catkin workflow:
 ```sh
 catkin_make -DCMAKE_BUILD_TYPE=RelWithDebInfo && catkin_make install
 ```
 
 ## Usage
 
-### Visualization
-
-Launch RViz by:
+First, launch RViz by:
 ```sh
 roslaunch lipm_walking_controller display.launch
 ```
-
-### Execution
-
-Run your mc\_rtc interface on the main confuguration file:
+Then, run your mc\_rtc interface on the main confuguration file:
 ```sh
 <mc_rtc_interface> lipm_walking_controller/etc/mc_rtc.conf
 ```
