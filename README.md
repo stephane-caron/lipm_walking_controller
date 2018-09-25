@@ -25,9 +25,9 @@ Compilation requires:
 The following dependencies are not publicly released yet but available upon
 request to [Pierre Gergondet](mailto:pierre.gergondet@gmail.com):
 
-* [mc\_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc)
-* [mc\_rtc\_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros)
-* [mc\_rtc\_ros\_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data)
+* [mc\_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc): robot controller library (includes mc_control, mc_rbdyn, mc_solver and mc_tasks)
+* [mc\_rtc\_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros): ROS tools for mc_rtc
+* [mc\_rtc\_ros\_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data): ROS environment and object descriptions for mc_rtc
 
 There is currently an additional dependency to the *EigenQP* library. It is
 redundant with *eigen-qld* and will be removed in a future update.
