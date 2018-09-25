@@ -244,7 +244,7 @@
         { "pose": { "translation": [0.035,  0.09, 0.0] }, "ref_vel": [0.0, 0.0, 0.0], "surface": "LeftFootCenter" }
       ]
     },
-    "backnforth_30cm_steps":
+    "backnforth_15cm_steps":
     {
       "com_height": 0.78,
       "double_support_duration": 0.2,
@@ -264,7 +264,7 @@
         { "pose": { "translation": [0.0,   0.09, 0.0] }, "ref_vel": [0.0,   0.0, 0.0], "surface": "LeftFootCenter" }
       ]
     },
-    "backnforth_40cm_steps":
+    "backnforth_20cm_steps":
     {
       "com_height": 0.78,
       "double_support_duration": 0.25,
@@ -284,7 +284,7 @@
         { "pose": { "translation": [0.0, -0.09, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "RightFootCenter" }
       ]
     },
-    "backnforth_50cm_steps":
+    "backnforth_25cm_steps":
     {
       "com_height": 0.78,
       "double_support_duration": 0.3,
@@ -373,7 +373,7 @@
         { "pose": { "translation": [1.0,  0.09, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter" }
       ]
     },
-    "straight_30cm_steps":
+    "straight_15cm_steps":
     {
       "com_height": 0.78,
       "double_support_duration": 0.1,
@@ -391,7 +391,7 @@
         { "pose": { "translation": [0.75,  0.09, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter" }
       ]
     },
-    "straight_40cm_steps":
+    "straight_20cm_steps":
     {
       "com_height": 0.78,
       "double_support_duration": 0.1,
@@ -409,7 +409,7 @@
         { "pose": { "translation": [1.0,  0.09, 0.0] }, "ref_vel": [0.0, 0.0, 0.0], "surface": "LeftFootCenter" }
       ]
     },
-    "straight_50cm_steps":
+    "straight_25cm_steps":
     {
       "com_height": 0.78,
       "double_support_duration": 0.1,
@@ -427,7 +427,7 @@
         { "pose": { "translation": [1.15, 0.09, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter" }
       ]
     },
-    "straight_60cm_steps":
+    "straight_30cm_steps":
     {
       "com_height": 0.78,
       "double_support_duration": 0.2,
@@ -445,7 +445,7 @@
         { "pose": { "translation": [1.3,  0.09, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter" }
       ]
     },
-    "straight_70cm_steps":
+    "straight_35cm_steps":
     {
       "com_height": 0.78,
       "double_support_duration": 0.2,
