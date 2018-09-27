@@ -491,8 +491,8 @@ namespace lipm_walking
     //
     // Constraints
     // -----------
-    // WFC X_0_lc* w_l_0 <= 0  -- left foot wrench within wrench friction cone
-    // WFC X_0_rc* w_r_0 <= 0  -- right foot wrench within wrench friction cone
+    // CWC X_0_lc* w_l_0 <= 0  -- left foot wrench within contact wrench cone
+    // CWC X_0_rc* w_r_0 <= 0  -- right foot wrench within contact wrench cone
     // (X_0_lc* w_l_0).z() > minPressure  -- minimum left foot contact pressure
     // (X_0_rc* w_r_0).z() > minPressure  -- minimum right foot contact pressure
 
