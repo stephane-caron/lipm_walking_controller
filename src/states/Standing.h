@@ -36,7 +36,7 @@ namespace lipm_walking
      *
      * Applies a simple CoM set-point task:
      *
-     *    comdd = stiffness * (com_f - com) - damping * comd
+     *    comdd = stiffness * (comTarget - com) - damping * comd
      *
      * with critical damping = 2 * sqrt(stiffness).
      *

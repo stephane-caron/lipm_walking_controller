@@ -186,14 +186,14 @@ namespace lipm_walking
 
     auto & pendulum = ctl.pendulum();
 
-    Eigen::Vector3d com_f = copTarget_ + Eigen::Vector3d{0., 0., ctl.comHeight()};
+    Eigen::Vector3d comTarget = copTarget_ + Eigen::Vector3d{0., 0., ctl.comHeight()};
     const Eigen::Vector3d & com_i = pendulum.com();
     const Eigen::Vector3d & comd_i = pendulum.comd();
     const Eigen::Vector3d & cop_f = copTarget_;
 
     double K = COM_STIFFNESS;
     double D = 2 * std::sqrt(K);
-    Eigen::Vector3d comdd = K * (com_f - com_i) - D * comd_i;
+    Eigen::Vector3d comdd = K * (comTarget - com_i) - D * comd_i;
     Eigen::Vector3d n = ctl.supportContact().normal();
     double lambda = n.dot(comdd - world::gravity) / n.dot(com_i - cop_f);
     Eigen::Vector3d zmp = com_i + (world::gravity - comdd) / lambda;
