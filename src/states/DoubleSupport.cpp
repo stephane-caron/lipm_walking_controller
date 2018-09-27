@@ -97,9 +97,10 @@ namespace lipm_walking
     auto & ctl = controller();
     double dt = ctl.timeStep;
 
-    if (remTime_ > 0 && timeSinceLastPreviewUpdate_ > HorizontalMPC::SAMPLING_PERIOD && !(stopDuringThisDSP_ && remTime_ < 1 * HorizontalMPC::SAMPLING_PERIOD))
+    if (remTime_ > 0 && timeSinceLastPreviewUpdate_ > HorizontalMPC::SAMPLING_PERIOD &&
+        !(stopDuringThisDSP_ && remTime_ < 1 * HorizontalMPC::SAMPLING_PERIOD))
     {
-      updateHMPC();
+      updatePreview();
     }
 
     double x = clamp(remTime_ / duration_, 0., 1.);
@@ -136,7 +137,7 @@ namespace lipm_walking
     return false;
   }
 
-  void states::DoubleSupport::updateHMPC()
+  void states::DoubleSupport::updatePreview()
   {
     auto & ctl = controller();
     ctl.hmpc.contacts(ctl.prevContact(), ctl.supportContact(), ctl.targetContact());
@@ -148,7 +149,7 @@ namespace lipm_walking
     {
       ctl.hmpc.phaseDurations(0., remTime_, ctl.singleSupportDuration());
     }
-    if (ctl.updateHMPC())
+    if (ctl.updatePreview())
     {
       timeSinceLastPreviewUpdate_ = 0.;
     }

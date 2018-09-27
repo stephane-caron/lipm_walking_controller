@@ -370,7 +370,7 @@ namespace lipm_walking
     LOG_INFO("Loaded footstep plan \"" << name << "\"");
   }
 
-  bool Controller::updateHMPC()
+  bool Controller::updatePreview()
   {
     hmpc.initState(pendulum());
     hmpc.comHeight(plan.comHeight());

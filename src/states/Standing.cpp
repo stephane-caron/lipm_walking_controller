@@ -294,7 +294,7 @@ namespace lipm_walking
 
     ctl.hmpc.contacts(ctl.supportContact(), ctl.targetContact(), ctl.nextContact());
     ctl.hmpc.phaseDurations(0., ctl.initDSPDuration, ctl.singleSupportDuration());
-    if (ctl.updateHMPC())
+    if (ctl.updatePreview())
     {
       ctl.nextDoubleSupportDuration(ctl.initDSPDuration);
       ctl.startLogSegment(ctl.plan.name);

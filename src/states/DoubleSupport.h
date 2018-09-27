@@ -57,10 +57,10 @@ namespace lipm_walking
        */
       void runState() override;
 
-      /** Update MPC preview.
+      /** Update horizontal MPC preview.
        *
        */
-      void updateHMPC();
+      void updatePreview();
 
     private:
       bool stopDuringThisDSP_;

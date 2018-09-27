@@ -110,7 +110,7 @@ namespace lipm_walking
     updateSwingFoot();
     if (timeSinceLastPreviewUpdate_ > HorizontalMPC::SAMPLING_PERIOD)
     {
-      updateHMPC();
+      updatePreview();
     }
 
     ctl.preview->integrate(pendulum(), dt);
@@ -157,7 +157,7 @@ namespace lipm_walking
     }
   }
 
-  void states::SingleSupport::updateHMPC()
+  void states::SingleSupport::updatePreview()
   {
     auto & ctl = controller();
     ctl.hmpc.contacts(ctl.supportContact(), ctl.targetContact(), ctl.nextContact());
@@ -170,7 +170,7 @@ namespace lipm_walking
     {
       ctl.hmpc.phaseDurations(remTime_, ctl.doubleSupportDuration(), ctl.singleSupportDuration());
     }
-    if (ctl.updateHMPC())
+    if (ctl.updatePreview())
     {
       timeSinceLastPreviewUpdate_ = 0.;
       hasUpdatedMPCOnce_ = true;

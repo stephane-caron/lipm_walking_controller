@@ -147,10 +147,10 @@ namespace lipm_walking
       return stabilizer_;
     }
 
-    /** Update horizontal-floor MPC preview.
+    /** Update horizontal MPC preview.
      *
      */
-    bool updateHMPC();
+    bool updatePreview();
 
     /** Get fraction of total weight that should be sustained by the left foot.
      *
