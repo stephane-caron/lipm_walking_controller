@@ -28,6 +28,8 @@ namespace lipm_walking
     config("com_height", comHeight_);
     config("contacts", contacts_);
     config("double_support_duration", doubleSupportDuration_);
+    config("final_dsp_duration", finalDSPDuration_);
+    config("init_dsp_duration", initDSPDuration_);
     config("landing_pitch", landingPitch_);
     config("landing_ratio", landingRatio_);
     config("single_support_duration", singleSupportDuration_);
@@ -41,6 +43,8 @@ namespace lipm_walking
     config.add("com_height", comHeight_);
     config.add("contacts", contacts_);
     config.add("double_support_duration", doubleSupportDuration_);
+    config.add("final_dsp_duration", finalDSPDuration_);
+    config.add("init_dsp_duration", initDSPDuration_);
     config.add("landing_pitch", landingPitch_);
     config.add("landing_ratio", landingRatio_);
     config.add("single_support_duration", singleSupportDuration_);

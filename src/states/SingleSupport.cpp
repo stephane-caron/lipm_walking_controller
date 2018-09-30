@@ -163,8 +163,8 @@ namespace lipm_walking
     ctl.hmpc.contacts(ctl.supportContact(), ctl.targetContact(), ctl.nextContact());
     if (ctl.isLastSSP() || ctl.pauseWalking || ctl.prevContact().pauseAfterSwing)
     {
-      ctl.nextDoubleSupportDuration(ctl.finalDSPDuration);
-      ctl.hmpc.phaseDurations(remTime_, ctl.finalDSPDuration, 0.);
+      ctl.nextDoubleSupportDuration(ctl.plan.finalDSPDuration());
+      ctl.hmpc.phaseDurations(remTime_, ctl.plan.finalDSPDuration(), 0.);
     }
     else
     {

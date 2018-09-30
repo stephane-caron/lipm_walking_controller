@@ -136,32 +136,60 @@ namespace lipm_walking
       doubleSupportDuration_ = clamp(duration, MIN_DS_DURATION, MAX_DS_DURATION);
     }
 
-    /** Next contact in plan.
+    /** Get final double support phase duration.
      *
      */
-    inline const Contact & nextContact() const
+    inline double finalDSPDuration() const
     {
-      return nextContact_;
+      return finalDSPDuration_;
     }
 
-    /** Previous contact in plan.
+    /** Set final double support phase duration.
      *
      */
-    inline const Contact & prevContact() const
+
+    inline void finalDSPDuration(double duration)
     {
-      return prevContact_;
+      finalDSPDuration_ = clamp(duration, 0., 1.6);
+    }
+
+    /** Get initial double support phase duration.
+     *
+     */
+    inline double initDSPDuration() const
+    {
+      return initDSPDuration_;
+    }
+
+    /** Set initial double support phase duration.
+     *
+     */
+
+    inline void initDSPDuration(double duration)
+    {
+      initDSPDuration_ = clamp(duration, 0., 1.6);
     }
 
     /** Get swing foot landing ratio.
      *
      */
-    double landingRatio()
+    inline double landingRatio() const
     {
       if (supportContact_.swingConfig.has("landing_ratio"))
       {
         return supportContact_.swingConfig("landing_ratio");
       }
       return landingRatio_;
+    }
+
+    /** Set swing foot landing ratio.
+     *
+     * \param ratio New ratio.
+     *
+     */
+    inline void landingRatio(double ratio)
+    {
+      landingRatio_ = clamp(ratio, 0., 0.5);
     }
 
     /** Get swing foot landing pitch angle.
@@ -186,14 +214,20 @@ namespace lipm_walking
       landingPitch_ = clamp(pitch, MIN_LANDING_PITCH, MAX_LANDING_PITCH);
     }
 
-    /** Set swing foot landing ratio.
-     *
-     * \param ratio New ratio.
+    /** Next contact in plan.
      *
      */
-    void landingRatio(double ratio)
+    inline const Contact & nextContact() const
     {
-      landingRatio_ = clamp(ratio, 0., 0.5);
+      return nextContact_;
+    }
+
+    /** Previous contact in plan.
+     *
+     */
+    inline const Contact & prevContact() const
+    {
+      return prevContact_;
     }
 
     /** Get reference velocity.
@@ -264,6 +298,26 @@ namespace lipm_walking
       swingHeight_ = clamp(height, MIN_SWING_FOOT_HEIGHT, MAX_SWING_FOOT_HEIGHT);
     }
 
+    /** Get swing foot takeoff offset.
+     *
+     */
+    inline Eigen::Vector3d takeoffOffset() const
+    {
+      if (prevContact_.swingConfig.has("takeoff_offset"))
+      {
+        return prevContact_.swingConfig("takeoff_offset");
+      }
+      return takeoffOffset_;
+    }
+
+    /** Set swing foot takeoff offset.
+     *
+     */
+    inline void takeoffOffset(const Eigen::Vector3d & offset)
+    {
+      takeoffOffset_ = offset;
+    }
+
     /** Get swing foot takeoff pitch angle.
      *
      */
@@ -286,26 +340,6 @@ namespace lipm_walking
       takeoffPitch_ = clamp(pitch, MIN_TAKEOFF_PITCH, MAX_TAKEOFF_PITCH);
     }
 
-    /** Get swing foot takeoff offset.
-     *
-     */
-    inline Eigen::Vector3d takeoffOffset() const
-    {
-      if (prevContact_.swingConfig.has("takeoff_offset"))
-      {
-        return prevContact_.swingConfig("takeoff_offset");
-      }
-      return takeoffOffset_;
-    }
-
-    /** Set swing foot takeoff offset.
-     *
-     */
-    inline void takeoffOffset(const Eigen::Vector3d & offset)
-    {
-      takeoffOffset_ = offset;
-    }
-
     /** Current target contact.
      *
      */
@@ -317,7 +351,7 @@ namespace lipm_walking
     /** Get swing foot takeoff ratio.
      *
      */
-    double takeoffRatio()
+    inline double takeoffRatio() const
     {
       if (supportContact_.swingConfig.has("takeoff_ratio"))
       {
@@ -331,7 +365,7 @@ namespace lipm_walking
      * \param ratio New ratio.
      *
      */
-    void takeoffRatio(double ratio)
+    inline void takeoffRatio(double ratio)
     {
       takeoffRatio_ = clamp(ratio, 0., 0.5);
     }
@@ -348,6 +382,8 @@ namespace lipm_walking
     Eigen::Vector3d takeoffOffset_ = Eigen::Vector3d::Zero();
     double comHeight_ = 0.78; // [m]
     double doubleSupportDuration_ = 0.2; // [s]
+    double finalDSPDuration_ = 0.6; // [s]
+    double initDSPDuration_ = 0.6; // [s]
     double landingPitch_ = 0.;
     double landingRatio_ = 0.05;
     double singleSupportDuration_ = 0.8; // [s]

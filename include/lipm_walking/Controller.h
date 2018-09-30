@@ -297,8 +297,6 @@ namespace lipm_walking
     Sole sole;
     bool emergencyStop = false;
     bool pauseWalking = false;
-    double finalDSPDuration = 0.6;
-    double initDSPDuration = 0.6;
     std::shared_ptr<HorizontalMPCSolution> preview;
     std::string curFootstepPlan;
     std::vector<std::vector<double>> halfSitPose;

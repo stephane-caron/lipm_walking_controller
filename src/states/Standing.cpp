@@ -293,10 +293,10 @@ namespace lipm_walking
     }
 
     ctl.hmpc.contacts(ctl.supportContact(), ctl.targetContact(), ctl.nextContact());
-    ctl.hmpc.phaseDurations(0., ctl.initDSPDuration, ctl.singleSupportDuration());
+    ctl.hmpc.phaseDurations(0., ctl.plan.initDSPDuration(), ctl.singleSupportDuration());
     if (ctl.updatePreview())
     {
-      ctl.nextDoubleSupportDuration(ctl.initDSPDuration);
+      ctl.nextDoubleSupportDuration(ctl.plan.initDSPDuration());
       ctl.startLogSegment(ctl.plan.name);
       output("DoubleSupport");
       return true;

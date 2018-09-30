@@ -102,8 +102,8 @@ namespace lipm_walking
     logger().addLogEntry("pendulum_zmp", [this]() { return pendulum_.zmp(); });
     logger().addLogEntry("plan_com_height", [this]() { return plan.comHeight(); });
     logger().addLogEntry("plan_double_support_duration", [this]() { return plan.doubleSupportDuration(); });
-    logger().addLogEntry("plan_final_dsp_duration", [this]() { return finalDSPDuration; });
-    logger().addLogEntry("plan_init_dsp_duration", [this]() { return initDSPDuration; });
+    logger().addLogEntry("plan_final_dsp_duration", [this]() { return plan.finalDSPDuration(); });
+    logger().addLogEntry("plan_init_dsp_duration", [this]() { return plan.initDSPDuration(); });
     logger().addLogEntry("plan_landing_pitch", [this]() { return plan.landingPitch(); });
     logger().addLogEntry("plan_landing_ratio", [this]() { return plan.landingRatio(); });
     logger().addLogEntry("plan_ref_vel", [this]() { return plan.supportContact().refVel; });
@@ -173,21 +173,21 @@ namespace lipm_walking
           [this]() { return plan.comHeight(); },
           [this](double height) { plan.comHeight(height); }),
         NumberInput(
-          "DSP duration [s]",
-          [this]() { return plan.doubleSupportDuration(); },
-          [this](double duration) { plan.doubleSupportDuration(duration); }),
+          "Initial DSP duration [s]",
+          [this]() { return plan.initDSPDuration(); },
+          [this](double duration) { plan.initDSPDuration(duration); }),
         NumberInput(
           "SSP duration [s]",
           [this]() { return plan.singleSupportDuration(); },
           [this](double duration) { plan.singleSupportDuration(duration); }),
         NumberInput(
-          "Initial DSP duration [s]",
-          [this]() { return initDSPDuration; },
-          [this](double duration) { initDSPDuration = clamp(duration, 0., 1.6); }),
+          "DSP duration [s]",
+          [this]() { return plan.doubleSupportDuration(); },
+          [this](double duration) { plan.doubleSupportDuration(duration); }),
         NumberInput(
           "Final DSP duration [s]",
-          [this]() { return finalDSPDuration; },
-          [this](double duration) { finalDSPDuration = clamp(duration, 0., 1.6); }),
+          [this]() { return plan.finalDSPDuration(); },
+          [this](double duration) { plan.finalDSPDuration(duration); }),
         NumberInput(
           "Swing height [m]",
           [this]() { return plan.swingHeight(); },
