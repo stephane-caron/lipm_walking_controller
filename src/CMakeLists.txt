@@ -38,7 +38,12 @@ set(CONTROLLER_HDR
 
 set(FSM_CONTROLLER_LIB mc_control_fsm)
 add_library(${PROJECT_NAME} SHARED ${CONTROLLER_SRC} ${CONTROLLER_HDR})
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DMC_CONTROL_EXPORTS" PREFIX "")
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES
+    COMPILE_FLAGS "-DMC_CONTROL_EXPORTS"
+    PREFIX ""
+    OUTPUT_NAME "${PROJECT_NAME}"
+    LIBRARY_OUTPUT_DIRECTORY "${CATKIN_DEVEL_PREFIX}/lib/${PROJECT_NAME}")
 pkg_config_use_dependency(${PROJECT_NAME} mc_rtc)
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} roslib ${FSM_CONTROLLER_LIB} copra eigen-cddlib)
