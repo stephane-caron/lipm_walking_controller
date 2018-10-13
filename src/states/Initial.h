@@ -78,7 +78,6 @@ namespace lipm_walking
 
     private:
       AvgStdEstimator massEstimator_;
-      bool comOnlyUsesLowerBody_;
       bool isWeighing_;
       bool pleaseReWeigh_;
       bool postureTaskIsActive_;
