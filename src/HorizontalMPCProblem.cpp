@@ -303,7 +303,7 @@ namespace lipm_walking
 
     if (!lmpc.solve())
     {
-      LOG_ERROR("Horizontal MPC has no solution");
+      LOG_ERROR("Horizontal MPC problem has no solution");
       solution_ = HorizontalMPCSolution(initState_);
       //writePython("failure");
       return false;
