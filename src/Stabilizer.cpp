@@ -501,9 +501,6 @@ namespace lipm_walking
     sva::PTransformd X_0_lankle = leftFootContact.anklePose();
     sva::PTransformd X_0_rankle = rightFootContact.anklePose();
 
-    Eigen::Matrix<double, 1, 6> fzSelect;
-    fzSelect << 0., 0., 0., 0., 0., 1.;
-
     constexpr unsigned NB_VAR = 6 + 6;
     constexpr unsigned COST_DIM = 6 + NB_VAR + 1;
     Eigen::MatrixXd A;
@@ -530,8 +527,8 @@ namespace lipm_walking
     // |(1 - lfr) * w_l_lc.force().z() - lfr * w_r_rc.force().z()|^2
     double lfr = leftFootRatio_;
     auto A_pressure = A.block<1, 12>(18, 0);
-    A_pressure.block<1, 6>(0, 0) = (1 - lfr) * fzSelect * X_0_lc.dualMatrix();
-    A_pressure.block<1, 6>(0, 6) = -lfr * fzSelect * X_0_rc.dualMatrix();
+    A_pressure.block<1, 6>(0, 0) = (1 - lfr) * X_0_lc.dualMatrix().bottomRows<1>();
+    A_pressure.block<1, 6>(0, 6) = -lfr * X_0_rc.dualMatrix().bottomRows<1>();
 
     // Apply weights
     A_net *= qpWeights_.netWrenchSqrt;
@@ -559,8 +556,8 @@ namespace lipm_walking
     buCons.segment<16>(6).setZero();
     // w_l_lc.force().z() >= MIN_DS_PRESSURE
     // w_r_rc.force().z() >= MIN_DS_PRESSURE
-    C.block<1, 6>(32, 0) = fzSelect * X_0_lc.dualMatrix();
-    C.block<1, 6>(33, 6) = fzSelect * X_0_rc.dualMatrix();
+    C.block<1, 6>(32, 0) = X_0_lc.dualMatrix().bottomRows<1>();
+    C.block<1, 6>(33, 6) = X_0_rc.dualMatrix().bottomRows<1>();
     blCons.segment<2>(32).setConstant(MIN_DS_PRESSURE);
     buCons.segment<2>(32).setConstant(+1e5);
 
