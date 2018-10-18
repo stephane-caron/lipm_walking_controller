@@ -126,7 +126,7 @@ namespace lipm_walking
         0, 1, 0, 0, 0, -zeta_;
     }
 
-    /** Solve the capture problem with an external optimization over alpha.
+    /** Solve the horizontal MPC problem.
      *
      * \returns solutionFound Did the solver find a solution?
      *
