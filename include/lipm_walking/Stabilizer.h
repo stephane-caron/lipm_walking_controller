@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <EigenQP/LSSOL_LS.h>
+#include <eigen-lssol/LSSOL_LS.h>
 #include <mc_tasks/CoMTask.h>
 #include <mc_tasks/CoPTask.h>
 #include <mc_tasks/OrientationTask.h>

@@ -29,8 +29,9 @@ request to [Pierre Gergondet](mailto:pierre.gergondet@gmail.com):
 * [mc\_rtc\_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros): ROS tools for mc_rtc
 * [mc\_rtc\_ros\_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data): ROS environment and object descriptions for mc_rtc
 
-There is currently an additional dependency to the *EigenQP* library. It is
-redundant with *eigen-qld* and will be removed in a future update.
+There is currently an additional dependency to the *eigen-lssol* library. It
+will be replaced by [eigen-qld](https://github.com/jrl-umi3218/eigen-qld) in a
+future update.
 
 ### Building from source on Linux
 
