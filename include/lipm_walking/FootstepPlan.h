@@ -230,24 +230,6 @@ namespace lipm_walking
       return prevContact_;
     }
 
-    /** Get reference velocity.
-     *
-     */
-    inline const Eigen::Vector3d & refVel() const
-    {
-      return refVel_;
-    }
-
-    /** Set reference velocity.
-     *
-     * \param vel Desired CoM velocity.
-     *
-     */
-    inline void refVel(const Eigen::Vector3d & vel)
-    {
-      refVel_ = vel;
-    }
-
     /** Default single-support duration.
      *
      */
@@ -378,7 +360,6 @@ namespace lipm_walking
     Contact prevContact_;
     Contact supportContact_;
     Contact targetContact_;
-    Eigen::Vector3d refVel_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d takeoffOffset_ = Eigen::Vector3d::Zero();
     double comHeight_ = 0.78; // [m]
     double doubleSupportDuration_ = 0.2; // [s]
