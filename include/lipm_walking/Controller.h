@@ -298,7 +298,6 @@ namespace lipm_walking
     bool emergencyStop = false;
     bool pauseWalking = false;
     std::shared_ptr<HorizontalMPCSolution> preview;
-    std::string curFootstepPlan;
     std::vector<std::vector<double>> halfSitPose;
 
   private: /* hidden from FSM states */
