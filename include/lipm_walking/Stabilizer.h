@@ -116,7 +116,7 @@ namespace lipm_walking
 
     /** Add GUI panel.
      *
-     * \param gui GUI handle (optional).
+     * \param gui GUI handle.
      *
      */
     void addGUIElements(std::shared_ptr<mc_rtc::gui::StateBuilder> gui);
