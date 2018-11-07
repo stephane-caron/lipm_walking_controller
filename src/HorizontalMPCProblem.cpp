@@ -143,7 +143,7 @@ namespace lipm_walking
     }
     sva::PTransformd X_0_c = contact.pose;
     worldHrepMat = contactHrepMat * X_0_c.rotation().topLeftCorner<2, 2>();
-    worldHrepVec = contactHrepMat * X_0_c.translation().head<2>() + contactHrepVec;
+    worldHrepVec = worldHrepMat * X_0_c.translation().head<2>() + contactHrepVec;
     return Eigen::HrepXd(worldHrepMat, worldHrepVec);
   }
 
