@@ -131,7 +131,7 @@ namespace lipm_walking
       +1, 0,
       -1, 0,
       0, +1,
-      0, -1,
+      0, -1;
     contactHrepVec <<
       contact.halfLength,
       contact.halfLength,
