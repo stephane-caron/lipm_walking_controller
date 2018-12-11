@@ -68,7 +68,7 @@ namespace lipm_walking
   {
     sva::PTransformd X_0_l = robot.surface("LeftFoot").X_0_s(robot);
     sva::PTransformd X_0_r = robot.surface("RightFoot").X_0_s(robot);
-    return sva::interpolate(X_0_l, X_0_r, leftFootRatio_);
+    return sva::interpolate(X_0_r, X_0_l, leftFootRatio_);
   }
 
   void FloatingBaseObserver::update(mc_rbdyn::Robot & realRobot)
