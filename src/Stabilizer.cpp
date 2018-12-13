@@ -563,9 +563,9 @@ namespace lipm_walking
 
     Eigen::MatrixXd A0 = A; // A is modified by solve()
     Eigen::VectorXd b0 = b; // b is modified by solve()
-    wrenchSolver_.solve(A, b, C, bl, bu);
+    bool solverSuccess = wrenchSolver_.solve(A, b, C, bl, bu);
     Eigen::VectorXd x = wrenchSolver_.result();
-    if (wrenchSolver_.inform() != Eigen::lssol::eStatus::STRONG_MINIMUM)
+    if (!solverSuccess)
     {
       LOG_ERROR("DS force distribution QP failed to run");
       wrenchSolver_.print_inform();
