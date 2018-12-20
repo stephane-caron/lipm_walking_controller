@@ -178,7 +178,6 @@ namespace lipm_walking
     Eigen::Matrix<double, 2, HorizontalMPC::STATE_SIZE> dcmFromState_;
     Eigen::Matrix<double, 2, HorizontalMPC::STATE_SIZE> velFromState_;
     Eigen::Matrix<double, 2, HorizontalMPC::STATE_SIZE> zmpFromState_;
-    Eigen::Polyhedron cdd_;
     Eigen::VectorXd initState_;
     HorizontalMPCSolution solution_;
     double comHeight_;
