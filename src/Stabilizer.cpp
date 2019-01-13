@@ -576,7 +576,7 @@ namespace lipm_walking
     qpNetWrenchCost_ = error.segment<6>(0).norm() / qpWeights_.netWrenchSqrt;
     qpLeftAnkleCost_ = error.segment<6>(6).norm() / qpWeights_.complianceSqrt;
     qpRightAnkleCost_ = error.segment<6>(12).norm() / qpWeights_.complianceSqrt;
-    qpPressureCost_ = error.segment<1>(13).norm() / qpWeights_.pressureSqrt;
+    qpPressureCost_ = error.segment<1>(18).norm() / qpWeights_.pressureSqrt;
 
     sva::ForceVecd w_l_0(x.segment<3>(0), x.segment<3>(3));
     sva::ForceVecd w_r_0(x.segment<3>(6), x.segment<3>(9));
