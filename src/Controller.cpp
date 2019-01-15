@@ -29,9 +29,9 @@ namespace lipm_walking
   Controller::Controller(std::shared_ptr<mc_rbdyn::RobotModule> robotModule, double dt, const mc_rtc::Configuration & config)
     : mc_control::fsm::Controller(robotModule, dt, config),
       halfSitPose(controlRobot().mbc().q),
+      comVelFilter_(dt, /* cutoff period = */ 0.01),
       pendulumObserver_(dt),
       stabilizer_(controlRobot(), pendulum_, dt, getPostureTask(robot().name())),
-      comVelFilter_(dt),
       floatingBaseObserver_(controlRobot())
   {
     postureTask = getPostureTask(robot().name());
@@ -53,10 +53,6 @@ namespace lipm_walking
     sole = config("sole");
     std::string initialPlan = plans_.keys()[0];
     config("initial_plan", initialPlan);
-    if (config.has("com_velocity_filter"))
-    {
-      comVelFilter_.configure(config("com_velocity_filter"));
-    }
     if (config.has("stabilizer"))
     {
       stabilizer_.configure(config("stabilizer"));

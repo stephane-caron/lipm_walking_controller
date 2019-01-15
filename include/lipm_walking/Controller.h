@@ -44,7 +44,7 @@
 #include <lipm_walking/Sole.h>
 #include <lipm_walking/Stabilizer.h>
 #include <lipm_walking/defs.h>
-#include <lipm_walking/utils/VelocityFilter.h>
+#include <lipm_walking/utils/LowPassVelocityFilter.h>
 #include <lipm_walking/utils/clamp.h>
 #include <lipm_walking/utils/rotations.h>
 
@@ -305,10 +305,10 @@ namespace lipm_walking
     Eigen::Vector3d controlComd_;
     Eigen::Vector3d realCom_;
     Eigen::Vector3d realComd_;
+    LowPassVelocityFilter<Eigen::Vector3d> comVelFilter_;
     Pendulum pendulum_;
     PendulumObserver pendulumObserver_;
     Stabilizer stabilizer_;
-    VelocityFilter<Eigen::Vector3d> comVelFilter_;
     bool isInTheAir_ = false;
     bool leftFootRatioJumped_ = false;
     double ctlTime_ = 0.;

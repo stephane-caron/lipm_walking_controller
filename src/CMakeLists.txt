@@ -29,7 +29,7 @@ set(CONTROLLER_HDR
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/defs.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/AvgStdEstimator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/Integrator.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/VelocityFilter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/LowPassVelocityFilter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/clamp.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/polynomials.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/ros.h
