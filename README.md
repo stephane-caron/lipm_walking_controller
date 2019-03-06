@@ -19,8 +19,7 @@ Compilation requires:
 * [sch-core](https://github.com/jrl-umi3218/sch-core): collision detection
 * [Tasks](https://github.com/jrl-umi3218/Tasks/): inverse kinematics
 * [mc\_rbdyn\_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf): robot model loader
-* [eigen-cddlib](https://github.com/vsamy/eigen-cddlib): polyhedron double description
-* [Copra](https://github.com/vsamy/Copra-deprecated): linear model predictive control
+* [copra](https://github.com/vsamy/copra): linear model predictive control
 
 The following dependencies are not publicly released yet but available upon
 request to [Pierre Gergondet](mailto:pierre.gergondet@gmail.com):

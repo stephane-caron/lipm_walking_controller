@@ -1,4 +1,4 @@
-/* Copyright 2018 CNRS-UM LIRMM
+/* Copyright 2018-2019 CNRS-UM LIRMM
  *
  * \author Stéphane Caron
  *
@@ -37,8 +37,7 @@
 #include <lipm_walking/Contact.h>
 #include <lipm_walking/FloatingBaseObserver.h>
 #include <lipm_walking/FootstepPlan.h>
-#include <lipm_walking/HorizontalMPCProblem.h>
-#include <lipm_walking/HorizontalMPCSolution.h>
+#include <lipm_walking/ModelPredictiveControl.h>
 #include <lipm_walking/Pendulum.h>
 #include <lipm_walking/PendulumObserver.h>
 #include <lipm_walking/Sole.h>
@@ -50,6 +49,11 @@
 
 namespace lipm_walking
 {
+  /** Preview update period, same as MPC sampling period.
+   *
+   */
+  constexpr double PREVIEW_UPDATE_PERIOD = ModelPredictiveControl::SAMPLING_PERIOD;
+
   /** Walking controller.
    *
    */
@@ -155,7 +159,7 @@ namespace lipm_walking
     /** Get fraction of total weight that should be sustained by the left foot.
      *
      */
-    double leftFootRatio()
+    inline double leftFootRatio()
     {
       return leftFootRatio_;
     }
@@ -205,10 +209,18 @@ namespace lipm_walking
       return duration;
     }
 
+    /** Get model predictive control solver.
+     *
+     */
+    inline ModelPredictiveControl & mpc()
+    {
+      return mpc_;
+    }
+
     /** Get next contact in plan.
      *
      */
-    inline const Contact & nextContact()
+    inline const Contact & nextContact() const
     {
       return plan.nextContact();
     }
@@ -226,7 +238,7 @@ namespace lipm_walking
     /** Get previous contact in plan.
      *
      */
-    inline const Contact & prevContact()
+    inline const Contact & prevContact() const
     {
       return plan.prevContact();
     }
@@ -293,11 +305,10 @@ namespace lipm_walking
 
   public: /* visible to FSM states */
     FootstepPlan plan;
-    HorizontalMPCProblem hmpc;
     Sole sole;
     bool emergencyStop = false;
     bool pauseWalking = false;
-    std::shared_ptr<HorizontalMPCSolution> preview;
+    std::shared_ptr<Preview> preview;
     std::vector<std::vector<double>> halfSitPose;
 
   private: /* hidden from FSM states */
@@ -305,7 +316,9 @@ namespace lipm_walking
     Eigen::Vector3d controlComd_;
     Eigen::Vector3d realCom_;
     Eigen::Vector3d realComd_;
+    FloatingBaseObserver floatingBaseObserver_;
     LowPassVelocityFilter<Eigen::Vector3d> comVelFilter_;
+    ModelPredictiveControl mpc_;
     Pendulum pendulum_;
     PendulumObserver pendulumObserver_;
     Stabilizer stabilizer_;
@@ -315,12 +328,10 @@ namespace lipm_walking
     double doubleSupportDurationOverride_ = -1.; // [s]
     double leftFootRatio_ = 0.5;
     double robotMass_ = 0.; // [kg]
-    FloatingBaseObserver floatingBaseObserver_;
-    mc_rtc::Configuration hmpcConfig_;
+    mc_rtc::Configuration mpcConfig_;
     mc_rtc::Configuration plans_;
     std::string segmentName_ = "";
-    unsigned nbHMPCFailures_ = 0;
-    unsigned nbHMPCUpdates_ = 0;
+    unsigned nbMPCFailures_ = 0;
     unsigned nbLogSegments_ = 100;
 
   private: /* ROS */

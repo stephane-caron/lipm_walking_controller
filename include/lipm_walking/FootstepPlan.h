@@ -1,4 +1,4 @@
-/* Copyright 2018 CNRS-UM LIRMM
+/* Copyright 2018-2019 CNRS-UM LIRMM
  *
  * \author Stéphane Caron
  *
@@ -24,7 +24,6 @@
 #include <string>
 
 #include <lipm_walking/Contact.h>
-#include <lipm_walking/HorizontalMPC.h>
 #include <lipm_walking/Sole.h>
 #include <lipm_walking/utils/clamp.h>
 
@@ -126,14 +125,12 @@ namespace lipm_walking
 
     /** Set default double-support duration.
      *
+     * \param duration New duration.
+     *
      */
     inline void doubleSupportDuration(double duration)
     {
-      constexpr double MIN_DS_DURATION = 0.;
-      constexpr double MAX_DS_DURATION = 1.;
-      constexpr double T = HorizontalMPC::SAMPLING_PERIOD;
-      duration = std::round(duration / T) * T;
-      doubleSupportDuration_ = clamp(duration, MIN_DS_DURATION, MAX_DS_DURATION);
+      doubleSupportDuration_ = clamp(duration, 0., 1.);
     }
 
     /** Get final double support phase duration.
@@ -146,8 +143,9 @@ namespace lipm_walking
 
     /** Set final double support phase duration.
      *
+     * \param duration New duration.
+     *
      */
-
     inline void finalDSPDuration(double duration)
     {
       finalDSPDuration_ = clamp(duration, 0., 1.6);
@@ -243,11 +241,7 @@ namespace lipm_walking
      */
     inline void singleSupportDuration(double duration)
     {
-      constexpr double MIN_SS_DURATION = 0.;
-      constexpr double MAX_SS_DURATION = 2.;
-      constexpr double T = HorizontalMPC::SAMPLING_PERIOD;
-      duration = std::round(duration / T) * T;
-      singleSupportDuration_ = clamp(duration, MIN_SS_DURATION, MAX_SS_DURATION);
+      singleSupportDuration_ = clamp(duration, 0., 2.);
     }
 
     /** Current support contact.

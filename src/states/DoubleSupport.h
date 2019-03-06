@@ -1,4 +1,4 @@
-/* Copyright 2018 CNRS-UM LIRMM
+/* Copyright 2018-2019 CNRS-UM LIRMM
  *
  * \author Stéphane Caron
  *
@@ -25,7 +25,6 @@
 #include <mc_control/fsm/State.h>
 
 #include <lipm_walking/Controller.h>
-#include <lipm_walking/HorizontalMPCProblem.h>
 #include <lipm_walking/State.h>
 
 namespace lipm_walking

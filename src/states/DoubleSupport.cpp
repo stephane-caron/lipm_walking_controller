@@ -1,4 +1,4 @@
-/* Copyright 2018 CNRS-UM LIRMM
+/* Copyright 2018-2019 CNRS-UM LIRMM
  *
  * \author Stéphane Caron
  *
@@ -31,8 +31,8 @@ namespace lipm_walking
     initLeftFootRatio_ = ctl.leftFootRatio();
     remTime_ = duration_;
     stateTime_ = 0.;
-    stopDuringThisDSP_ = ctl.pauseWalking || ctl.prevContact().pauseAfterSwing;
-    timeSinceLastPreviewUpdate_ = 2 * HorizontalMPC::SAMPLING_PERIOD; // update at transition
+    stopDuringThisDSP_ = ctl.pauseWalking;
+    timeSinceLastPreviewUpdate_ = 2 * PREVIEW_UPDATE_PERIOD; // update at transition
 
     const std::string & targetSurfaceName = ctl.targetContact().surfaceName;
     auto actualTargetPose = ctl.controlRobot().surfacePose(targetSurfaceName);
@@ -97,8 +97,8 @@ namespace lipm_walking
     auto & ctl = controller();
     double dt = ctl.timeStep;
 
-    if (remTime_ > 0 && timeSinceLastPreviewUpdate_ > HorizontalMPC::SAMPLING_PERIOD &&
-        !(stopDuringThisDSP_ && remTime_ < 1 * HorizontalMPC::SAMPLING_PERIOD))
+    if (remTime_ > 0 && timeSinceLastPreviewUpdate_ > PREVIEW_UPDATE_PERIOD &&
+        !(stopDuringThisDSP_ && remTime_ < PREVIEW_UPDATE_PERIOD))
     {
       updatePreview();
     }
@@ -108,8 +108,7 @@ namespace lipm_walking
 
     ctl.preview->integrate(pendulum(), dt);
     pendulum().completeIPM(ctl.prevContact());
-    double height = ctl.comHeight();
-    pendulum().resetCoMHeight(height, ctl.prevContact());
+    pendulum().resetCoMHeight(ctl.comHeight(), ctl.prevContact());
     stabilizer().run();
 
     remTime_ -= dt;
@@ -140,18 +139,23 @@ namespace lipm_walking
   void states::DoubleSupport::updatePreview()
   {
     auto & ctl = controller();
-    ctl.hmpc.contacts(ctl.prevContact(), ctl.supportContact(), ctl.targetContact());
+    ctl.mpc().contacts(ctl.prevContact(), ctl.supportContact(), ctl.targetContact());
     if (stopDuringThisDSP_)
     {
-      ctl.hmpc.phaseDurations(0., remTime_, 0.);
+      ctl.mpc().phaseDurations(0., remTime_, 0.);
     }
     else
     {
-      ctl.hmpc.phaseDurations(0., remTime_, ctl.singleSupportDuration());
+      ctl.mpc().phaseDurations(0., remTime_, ctl.singleSupportDuration());
     }
     if (ctl.updatePreview())
     {
       timeSinceLastPreviewUpdate_ = 0.;
+    }
+    else
+    {
+      LOG_WARNING("No capture trajectory, resuming walking");
+      stopDuringThisDSP_ = false;
     }
   }
 }

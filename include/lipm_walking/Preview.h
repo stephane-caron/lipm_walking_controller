@@ -1,4 +1,4 @@
-/* Copyright 2018 CNRS-UM LIRMM
+/* Copyright 2018-2019 CNRS-UM LIRMM
  *
  * \author Stéphane Caron
  *
@@ -21,18 +21,43 @@
 
 #pragma once
 
+#include <lipm_walking/Pendulum.h>
+#include <lipm_walking/defs.h>
+
 namespace lipm_walking
 {
-  /** MPC parameters.
-   *
-   * These parameters are shared between MPC problems and solutions.
+  /** Solution to a model predictive control problem.
    *
    */
-  namespace HorizontalMPC
+  struct Preview
   {
-    constexpr double SAMPLING_PERIOD = 0.1; // [s]
-    constexpr unsigned INPUT_SIZE = 2; // input is 2D CoM jerk
-    constexpr unsigned NB_STEPS = 16; // number of sampling steps
-    constexpr unsigned STATE_SIZE = 6; // state is CoM [pos, vel, accel]
-  }
+    /** Integrate preview on a given inverted pendulum state.
+     *
+     * \param pendulum Inverted pendulum model.
+     *
+     * \param dt Duration.
+     *
+     */
+    virtual void integrate(Pendulum & state, double dt) = 0;
+
+    /** Get current playback step.
+     *
+     */
+    inline unsigned playbackStep()
+    {
+      return playbackStep_;
+    }
+
+    /** Get current playback time.
+     *
+     */
+    inline double playbackTime()
+    {
+      return playbackTime_;
+    }
+
+  protected:
+    double playbackTime_ = 0.;
+    unsigned playbackStep_ = 0;
+  };
 }

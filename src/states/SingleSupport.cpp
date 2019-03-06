@@ -1,4 +1,4 @@
-/* Copyright 2018 CNRS-UM LIRMM
+/* Copyright 2018-2019 CNRS-UM LIRMM
  *
  * \author Stéphane Caron
  *
@@ -108,7 +108,7 @@ namespace lipm_walking
     double dt = ctl.timeStep;
 
     updateSwingFoot();
-    if (timeSinceLastPreviewUpdate_ > HorizontalMPC::SAMPLING_PERIOD)
+    if (timeSinceLastPreviewUpdate_ > PREVIEW_UPDATE_PERIOD)
     {
       updatePreview();
     }
@@ -160,15 +160,15 @@ namespace lipm_walking
   void states::SingleSupport::updatePreview()
   {
     auto & ctl = controller();
-    ctl.hmpc.contacts(ctl.supportContact(), ctl.targetContact(), ctl.nextContact());
-    if (ctl.isLastSSP() || ctl.pauseWalking || ctl.prevContact().pauseAfterSwing)
+    ctl.mpc().contacts(ctl.supportContact(), ctl.targetContact(), ctl.nextContact());
+    if (ctl.isLastSSP() || ctl.pauseWalking)
     {
       ctl.nextDoubleSupportDuration(ctl.plan.finalDSPDuration());
-      ctl.hmpc.phaseDurations(remTime_, ctl.plan.finalDSPDuration(), 0.);
+      ctl.mpc().phaseDurations(remTime_, ctl.plan.finalDSPDuration(), 0.);
     }
     else
     {
-      ctl.hmpc.phaseDurations(remTime_, ctl.doubleSupportDuration(), ctl.singleSupportDuration());
+      ctl.mpc().phaseDurations(remTime_, ctl.doubleSupportDuration(), ctl.singleSupportDuration());
     }
     if (ctl.updatePreview())
     {

@@ -1,4 +1,4 @@
-/* Copyright 2018 CNRS-UM LIRMM
+/* Copyright 2018-2019 CNRS-UM LIRMM
  *
  * \author Stéphane Caron
  *
@@ -26,7 +26,7 @@
 
 #include <lipm_walking/Controller.h>
 #include <lipm_walking/State.h>
-#include <lipm_walking/utils/AvgStdEstimator.h>
+#include <lipm_walking/utils/stats.h>
 
 namespace lipm_walking
 {

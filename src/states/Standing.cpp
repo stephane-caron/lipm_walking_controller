@@ -1,4 +1,4 @@
-/* Copyright 2018 CNRS-UM LIRMM
+/* Copyright 2018-2019 CNRS-UM LIRMM
  *
  * \author Stéphane Caron
  *
@@ -292,8 +292,8 @@ namespace lipm_walking
       return false;
     }
 
-    ctl.hmpc.contacts(ctl.supportContact(), ctl.targetContact(), ctl.nextContact());
-    ctl.hmpc.phaseDurations(0., ctl.plan.initDSPDuration(), ctl.singleSupportDuration());
+    ctl.mpc().contacts(ctl.supportContact(), ctl.targetContact(), ctl.nextContact());
+    ctl.mpc().phaseDurations(0., ctl.plan.initDSPDuration(), ctl.singleSupportDuration());
     if (ctl.updatePreview())
     {
       ctl.nextDoubleSupportDuration(ctl.plan.initDSPDuration());

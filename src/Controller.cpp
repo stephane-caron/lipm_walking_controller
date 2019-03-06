@@ -1,4 +1,4 @@
-/* Copyright 2018 CNRS-UM LIRMM
+/* Copyright 2018-2019 CNRS-UM LIRMM
  *
  * \author Stéphane Caron
  *
@@ -31,8 +31,8 @@ namespace lipm_walking
       halfSitPose(controlRobot().mbc().q),
       comVelFilter_(dt, /* cutoff period = */ 0.01),
       pendulumObserver_(dt),
-      stabilizer_(controlRobot(), pendulum_, dt, getPostureTask(robot().name())),
-      floatingBaseObserver_(controlRobot())
+      floatingBaseObserver_(controlRobot()),
+      stabilizer_(controlRobot(), pendulum_, dt, getPostureTask(robot().name()))
   {
     postureTask = getPostureTask(robot().name());
 
@@ -49,7 +49,7 @@ namespace lipm_walking
 
     // Read settings from configuration file
     plans_ = config("plans");
-    hmpcConfig_ = config("hmpc");
+    mpcConfig_ = config("mpc");
     sole = config("sole");
     std::string initialPlan = plans_.keys()[0];
     config("initial_plan", initialPlan);
@@ -80,13 +80,10 @@ namespace lipm_walking
     logger().addLogEntry("estimator_comd",[this]() { return pendulumObserver_.comd(); });
     logger().addLogEntry("estimator_dcm", [this]() { return pendulumObserver_.dcm(); });
     logger().addLogEntry("estimator_zmp", [this]() { return pendulumObserver_.zmp(); });
-    logger().addLogEntry("hmpc_failures", [this]() { return nbHMPCFailures_; });
-    logger().addLogEntry("hmpc_pbstep", [this]() { return (preview) ? preview->playbackStep() : 0; });
-    logger().addLogEntry("hmpc_pbtime", [this]() { return (preview) ? preview->playbackTime() : -0.42; });
-    logger().addLogEntry("hmpc_updates", [this]() { return nbHMPCUpdates_; });
-    logger().addLogEntry("hmpc_weights_jerk", [this]() { return hmpc.jerkWeight; });
-    logger().addLogEntry("hmpc_weights_vel", [this]() { return hmpc.velWeights; });
-    logger().addLogEntry("hmpc_weights_zmp", [this]() { return hmpc.zmpWeight; });
+    logger().addLogEntry("mpc_failures", [this]() { return nbMPCFailures_; });
+    logger().addLogEntry("mpc_weights_jerk", [this]() { return mpc_.jerkWeight; });
+    logger().addLogEntry("mpc_weights_vel", [this]() { return mpc_.velWeights; });
+    logger().addLogEntry("mpc_weights_zmp", [this]() { return mpc_.zmpWeight; });
     logger().addLogEntry("left_foot_ratio", [this]() { return leftFootRatio_; });
     logger().addLogEntry("left_foot_ratio_measured", [this]() { return measuredLeftFootRatio(); });
     logger().addLogEntry("observers_kin_posW", [this]() { return floatingBaseObserver_.posW(); });
@@ -146,20 +143,6 @@ namespace lipm_walking
         Label("Mass [kg]",
           [this]() { return std::round(robotMass_ * 100.) / 100.; }));
       gui_->addElement(
-        {"Walking", "HMPC"},
-        NumberInput(
-          "Jerk weight",
-          [this]() { return hmpc.jerkWeight; },
-          [this](double weight) { hmpc.jerkWeight = weight; }),
-        ArrayInput(
-          "Velocity weights", {"vx", "vy"},
-          [this]() { return hmpc.velWeights; },
-          [this](const Eigen::Vector2d & weights) { hmpc.velWeights = weights; }),
-        NumberInput(
-          "ZMP weight",
-          [this]() { return hmpc.zmpWeight; },
-          [this](double weight) { hmpc.zmpWeight = weight; }));
-      gui_->addElement(
         {"Walking", "Plan"},
         Label(
           "Name",
@@ -175,11 +158,21 @@ namespace lipm_walking
         NumberInput(
           "SSP duration [s]",
           [this]() { return plan.singleSupportDuration(); },
-          [this](double duration) { plan.singleSupportDuration(duration); }),
+          [this](double duration)
+          {
+            constexpr double T = ModelPredictiveControl::SAMPLING_PERIOD;
+            duration = std::round(duration / T) * T;
+            plan.singleSupportDuration(duration);
+          }),
         NumberInput(
           "DSP duration [s]",
           [this]() { return plan.doubleSupportDuration(); },
-          [this](double duration) { plan.doubleSupportDuration(duration); }),
+          [this](double duration)
+          {
+            constexpr double T = ModelPredictiveControl::SAMPLING_PERIOD;
+            duration = std::round(duration / T) * T;
+            plan.doubleSupportDuration(duration);
+          }),
         NumberInput(
           "Final DSP duration [s]",
           [this]() { return plan.finalDSPDuration(); },
@@ -204,6 +197,7 @@ namespace lipm_walking
           "Landing ratio",
           [this]() { return plan.landingRatio(); },
           [this](double ratio) { plan.landingRatio(ratio); }));
+      mpc_.addGUIElements(gui_);
       stabilizer_.addGUIElements(gui_);
     }
 
@@ -248,8 +242,7 @@ namespace lipm_walking
     controlComd_ = Eigen::Vector3d::Zero();
     leftFootRatioJumped_ = false;
     leftFootRatio_ = 0.5;
-    nbHMPCFailures_ = 0;
-    nbHMPCUpdates_ = 0;
+    nbMPCFailures_ = 0;
     pauseWalking = false;
     realCom_ = initCom; // realRobot() may not be initialized yet
     realComd_ = Eigen::Vector3d::Zero();
@@ -358,27 +351,26 @@ namespace lipm_walking
     plan.complete(sole);
     plan.name = name;
     plan.reset();
-    hmpc.configure(hmpcConfig_);
-    if (plans_(name).has("hmpc"))
+    mpc_.configure(mpcConfig_);
+    if (plans_(name).has("mpc"))
     {
-      hmpc.configure(plans_(name)("hmpc"));
+      mpc_.configure(plans_(name)("mpc"));
     }
     LOG_INFO("Loaded footstep plan \"" << name << "\"");
   }
 
   bool Controller::updatePreview()
   {
-    hmpc.initState(pendulum());
-    hmpc.comHeight(plan.comHeight());
-    if (hmpc.solve())
+    mpc_.initState(pendulum());
+    mpc_.comHeight(plan.comHeight());
+    if (mpc_.solve())
     {
-      preview.reset(new HorizontalMPCSolution(hmpc.solution()));
-      nbHMPCUpdates_++;
+      preview = mpc_.solution();
       return true;
     }
     else
     {
-      nbHMPCFailures_++;
+      nbMPCFailures_++;
       return false;
     }
   }

@@ -1,4 +1,4 @@
-/* Copyright 2018 CNRS-UM LIRMM
+/* Copyright 2018-2019 CNRS-UM LIRMM
  *
  * \author Stéphane Caron
  *
@@ -26,6 +26,11 @@
 #include <mc_tasks/CoPTask.h>
 
 #include <lipm_walking/defs.h>
+
+namespace Eigen
+{
+  using HrepXd = std::pair<Eigen::MatrixXd, Eigen::VectorXd>;
+}
 
 namespace lipm_walking
 {
@@ -289,6 +294,33 @@ namespace lipm_walking
       return maxCoord<2>();
     }
 
+    /** Halfspace representation of contact area in world frame.
+     *
+     */
+    inline Eigen::HrepXd hrep() const
+    {
+      Eigen::Matrix<double, 4, 2> localHrepMat, worldHrepMat;
+      Eigen::Matrix<double, 4, 1> localHrepVec, worldHrepVec;
+      localHrepMat <<
+        +1, 0,
+        -1, 0,
+        0, +1,
+        0, -1;
+      localHrepVec <<
+        halfLength,
+        halfLength,
+        halfWidth,
+        halfWidth;
+      if ((normal() - world::e_z).norm() > 1e-3)
+      {
+        LOG_WARNING("Contact is not horizontal");
+      }
+      const sva::PTransformd & X_0_c = pose;
+      worldHrepMat = localHrepMat * X_0_c.rotation().topLeftCorner<2, 2>();
+      worldHrepVec = worldHrepMat * X_0_c.translation().head<2>() + localHrepVec;
+      return Eigen::HrepXd(worldHrepMat, worldHrepVec);
+    }
+
     /** Move contact by a given magnitude in a random direction.
      *
      * \param magnitude Absolute displacement after noising.
@@ -305,7 +337,6 @@ namespace lipm_walking
 
   public:
     Eigen::Vector3d refVel;
-    bool pauseAfterSwing = false;
     double halfLength;
     double halfWidth;
     mc_rtc::Configuration swingConfig;
@@ -342,10 +373,6 @@ namespace mc_rtc
       config("half_width", contact.halfWidth);
       config("ref_vel", contact.refVel);
       config("surface", contact.surfaceName);
-      if (config.has("pause_after_swing"))
-      {
-        contact.pauseAfterSwing = config("pause_after_swing");
-      }
       if (config.has("swing"))
       {
         contact.swingConfig = config("swing");
@@ -361,10 +388,6 @@ namespace mc_rtc
       config.add("pose", contact.pose);
       config.add("ref_vel", contact.refVel);
       config.add("surface", contact.surfaceName);
-      if (contact.pauseAfterSwing)
-      {
-        config.add("pause_after_swing", true);
-      }
       if (!contact.swingConfig.empty())
       {
         config("swing") = contact.swingConfig;
