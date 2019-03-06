@@ -175,10 +175,6 @@ namespace lipm_walking
       timeSinceLastPreviewUpdate_ = 0.;
       hasUpdatedMPCOnce_ = true;
     }
-    else
-    {
-      ctl.hmpc.writePython("SSP-fail");
-    }
   }
 }
 

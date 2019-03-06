@@ -153,10 +153,6 @@ namespace lipm_walking
     {
       timeSinceLastPreviewUpdate_ = 0.;
     }
-    else
-    {
-      ctl.hmpc.writePython("DSP-fail");
-    }
   }
 }
 

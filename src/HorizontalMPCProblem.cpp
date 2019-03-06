@@ -305,13 +305,11 @@ namespace lipm_walking
     {
       LOG_ERROR("Horizontal MPC problem has no solution");
       solution_ = HorizontalMPCSolution(initState_);
-      //writePython("failure");
       return false;
     }
     else
     {
       solution_ = HorizontalMPCSolution(lmpc.trajectory(), lmpc.control());
-      //writePython("success");
       return true;
     }
   }

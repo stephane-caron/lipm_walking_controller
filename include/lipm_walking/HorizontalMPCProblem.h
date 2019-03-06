@@ -133,13 +133,6 @@ namespace lipm_walking
      */
     bool solve();
 
-    /** Write problem and solution to Python script.
-     *
-     * \param suffix File name suffix.
-     *
-     */
-    void writePython(const std::string & suffix = "");
-
   private:
     Eigen::HrepXd getDoubleSupportHrep(const Contact & contact1, const Contact & contact2);
 
@@ -156,12 +149,6 @@ namespace lipm_walking
     void updateVelCost();
 
     void updateZMPCost();
-
-    void writePythonContact(const Contact & contact, const std::string & label);
-
-    void writePythonSerializedVector(const Eigen::VectorXd & vec, const std::string & label, unsigned index, unsigned nbChunks);
-
-    void writePythonSolution();
 
   public:
     Eigen::Vector2d velWeights = {10., 10.};
@@ -195,6 +182,5 @@ namespace lipm_walking
     unsigned nbInitSupportSteps_;
     unsigned nbNextDoubleSupportSteps_;
     unsigned nbTargetSupportSteps_;
-    unsigned nbWritePythonCalls_ = 0;
   };
 }

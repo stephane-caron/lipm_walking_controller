@@ -6,7 +6,6 @@ set(CONTROLLER_SRC
     HorizontalMPCSolution.cpp
     Pendulum.cpp
     PendulumObserver.cpp
-    Python.cpp
     Stabilizer.cpp
     SwingFoot.cpp
     ros.cpp
