@@ -76,10 +76,6 @@ namespace lipm_walking
     logger().addLogEntry("error_comd", [this]() -> Eigen::Vector3d { return controlComd_ - realComd_; });
     logger().addLogEntry("error_dcm", [this]() -> Eigen::Vector3d { return (controlCom_ - realCom_) + (controlComd_ - realComd_) / pendulum_.omega(); });
     logger().addLogEntry("error_zmp", [this]() -> Eigen::Vector3d { return stabilizer_.distribZMP() - pendulumObserver_.zmp(); });
-    logger().addLogEntry("estimator_com", [this]() { return pendulumObserver_.com(); });
-    logger().addLogEntry("estimator_comd",[this]() { return pendulumObserver_.comd(); });
-    logger().addLogEntry("estimator_dcm", [this]() { return pendulumObserver_.dcm(); });
-    logger().addLogEntry("estimator_zmp", [this]() { return pendulumObserver_.zmp(); });
     logger().addLogEntry("mpc_failures", [this]() { return nbMPCFailures_; });
     logger().addLogEntry("mpc_weights_jerk", [this]() { return mpc_.jerkWeight; });
     logger().addLogEntry("mpc_weights_vel", [this]() { return mpc_.velWeights; });
@@ -111,8 +107,10 @@ namespace lipm_walking
     logger().addLogEntry("realRobot_RightFootCenter", [this]() { return realRobot().surfacePose("RightFootCenter"); });
     logger().addLogEntry("realRobot_com", [this]() { return realCom_; });
     logger().addLogEntry("realRobot_comd", [this]() { return realComd_; });
+    logger().addLogEntry("realRobot_contactForce", [this]() { return pendulumObserver_.contactForce(); });
     logger().addLogEntry("realRobot_dcm", [this]() -> Eigen::Vector3d { return realCom_ + realComd_ / pendulum_.omega(); });
     logger().addLogEntry("realRobot_posW", [this]() { return realRobot().posW(); });
+    logger().addLogEntry("realRobot_zmp", [this]() { return pendulumObserver_.zmp(); });
     stabilizer_.addLogEntries(logger());
 
     if (gui_)
