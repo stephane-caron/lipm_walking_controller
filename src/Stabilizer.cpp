@@ -53,7 +53,6 @@ namespace lipm_walking
             return -3;
         }
       });
-    logger.addLogEntry("stabilizer_distrib_zmp", [this]() { return distribZMP(); });
     logger.addLogEntry("stabilizer_errors_com", [this]() { return comError_; });
     logger.addLogEntry("stabilizer_errors_comd", [this]() { return comdError_; });
     logger.addLogEntry("stabilizer_errors_dcm", [this]() { return dcmError_; });
@@ -81,6 +80,7 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_vfc_dfz_target", [this]() { return logTargetDFz_; });
     logger.addLogEntry("stabilizer_vfc_stz_measured", [this]() { return logMeasuredSTz_; });
     logger.addLogEntry("stabilizer_vfc_stz_target", [this]() { return logTargetSTz_; });
+    logger.addLogEntry("stabilizer_zmp", [this]() { return distribZMP(); });
     logger.addLogEntry("stabilizer_zmpcc_comdd_offset", [this]() { return zmpccAccelOffset_; });
   }
 
