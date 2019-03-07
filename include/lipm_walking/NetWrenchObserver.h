@@ -29,60 +29,67 @@
 
 namespace lipm_walking
 {
-  /** IPM observer from force/torque measurements.
+  /** Observe net contact wrench from force/torque measurements.
    *
    */
-  struct PendulumObserver : Pendulum
+  struct NetWrenchObserver
   {
     /** Constructor.
      *
      * \param dt Controller time step.
      *
      */
-    PendulumObserver(double dt);
+    NetWrenchObserver(double dt)
+      : dt_(dt),
+        sensorNames_({"LeftFootForceSensor", "RightFootForceSensor"})
+    {
+    }
+
+    /** Constructor.
+     *
+     * \param dt Controller time step.
+     *
+     * \param sensorNames Identifiers of end-effector force-torque sensors.
+     *
+     */
+    NetWrenchObserver(double dt, const std::vector<std::string> & sensorNames)
+      : dt_(dt),
+        sensorNames_(sensorNames)
+    {
+    }
+
+    /** Net contact wrench.
+     *
+     */
+    inline const sva::ForceVecd & wrench()
+    {
+      return netWrench_;
+    }
+
+    /** Zero-tilting moment point in the latest contact frame.
+     *
+     */
+    inline const Eigen::Vector3d & zmp()
+    {
+      return netZMP_;
+    }
 
     /** Update estimates based on the sensed net contact wrench.
      *
-     * \param comGuess Guess for the CoM position.
-     *
-     * \param contactWrench Net contact wrench expressed at the origin of the
-     * inertial frame.
-     *
-     * \param contact Support contact.
+     * \param contact Support contact frame.
      *
      */
-    void update(const Eigen::Vector3d & mb_com, const sva::ForceVecd & contactWrench, const Contact & contact);
-
-    /** Get contact force.
-     *
-     */
-    inline Eigen::Vector3d contactForce() const
-    {
-      double lambda = std::pow(omega_, 2);
-      return mass_ * lambda * (com_ - zmp_);
-    }
-
-    /** Get contact force from other pendulum with current omega.
-     *
-     * \param other Other pendulum.
-     *
-     */
-    Eigen::Vector3d contactForce(const Pendulum & other) const
-    {
-      double lambda = std::pow(other.omega(), 2);
-      return mass_ * lambda * (other.com() - other.zmp());
-    }
-
-    /** Set robot mass.
-     *
-     */
-    void mass(double mass)
-    {
-      mass_ = mass;
-    }
+    void update(const mc_rbdyn::Robot & robot, const Contact & contact);
 
   private:
-    double mass_;
+    void updateNetWrench(const mc_rbdyn::Robot & robot);
+
+    void updateNetZMP(const Contact & contact);
+
+  private:
+    Eigen::Vector3d netZMP_;
     double dt_;
+    std::vector<std::string> sensorNames_;
+    sva::ForceVecd netWrench_;
   };
 }

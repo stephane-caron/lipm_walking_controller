@@ -29,9 +29,9 @@ namespace lipm_walking
   Controller::Controller(std::shared_ptr<mc_rbdyn::RobotModule> robotModule, double dt, const mc_rtc::Configuration & config)
     : mc_control::fsm::Controller(robotModule, dt, config),
       halfSitPose(controlRobot().mbc().q),
-      comVelFilter_(dt, /* cutoff period = */ 0.01),
-      pendulumObserver_(dt),
       floatingBaseObserver_(controlRobot()),
+      comVelFilter_(dt, /* cutoff period = */ 0.01),
+      netWrenchObs_(dt),
       stabilizer_(controlRobot(), pendulum_, dt, getPostureTask(robot().name()))
   {
     postureTask = getPostureTask(robot().name());
@@ -75,7 +75,7 @@ namespace lipm_walking
     logger().addLogEntry("error_com", [this]() -> Eigen::Vector3d { return controlCom_ - realCom_; });
     logger().addLogEntry("error_comd", [this]() -> Eigen::Vector3d { return controlComd_ - realComd_; });
     logger().addLogEntry("error_dcm", [this]() -> Eigen::Vector3d { return (controlCom_ - realCom_) + (controlComd_ - realComd_) / pendulum_.omega(); });
-    logger().addLogEntry("error_zmp", [this]() -> Eigen::Vector3d { return stabilizer_.distribZMP() - pendulumObserver_.zmp(); });
+    logger().addLogEntry("error_zmp", [this]() -> Eigen::Vector3d { return stabilizer_.distribZMP() - netWrenchObs_.zmp(); });
     logger().addLogEntry("mpc_failures", [this]() { return nbMPCFailures_; });
     logger().addLogEntry("mpc_weights_jerk", [this]() { return mpc_.jerkWeight; });
     logger().addLogEntry("mpc_weights_vel", [this]() { return mpc_.velWeights; });
@@ -107,10 +107,10 @@ namespace lipm_walking
     logger().addLogEntry("realRobot_RightFootCenter", [this]() { return realRobot().surfacePose("RightFootCenter"); });
     logger().addLogEntry("realRobot_com", [this]() { return realCom_; });
     logger().addLogEntry("realRobot_comd", [this]() { return realComd_; });
-    logger().addLogEntry("realRobot_contactForce", [this]() { return pendulumObserver_.contactForce(); });
     logger().addLogEntry("realRobot_dcm", [this]() -> Eigen::Vector3d { return realCom_ + realComd_ / pendulum_.omega(); });
     logger().addLogEntry("realRobot_posW", [this]() { return realRobot().posW(); });
-    logger().addLogEntry("realRobot_zmp", [this]() { return pendulumObserver_.zmp(); });
+    logger().addLogEntry("realRobot_wrench", [this]() { return netWrenchObs_.wrench(); });
+    logger().addLogEntry("realRobot_zmp", [this]() { return netWrenchObs_.zmp(); });
     stabilizer_.addLogEntries(logger());
 
     if (gui_)
@@ -205,7 +205,6 @@ namespace lipm_walking
   void Controller::updateRobotMass(double mass)
   {
     robotMass_ = mass;
-    pendulumObserver_.mass(mass);
     stabilizer_.mass(mass);
     LOG_INFO("Robot mass updated to " << mass << " [kg]");
   }
@@ -229,7 +228,7 @@ namespace lipm_walking
 
     comVelFilter_.reset(initCom);
 
-    pendulumObserver_.reset(initCom);
+    netWrenchObs_.update(realRobot(), supportContact());
     pendulum_.reset(initCom);
     plan.reset();
     postureTask->posture(halfSitPose);
@@ -317,9 +316,8 @@ namespace lipm_walking
     }
     realComd_ = comVelFilter_.vel();
 
-    sva::ForceVecd contactWrench = measuredContactWrench();
-    pendulumObserver_.update(/* comGuess = */ realCom_, contactWrench, supportContact());
-    stabilizer_.updateState(realCom_, realComd_, contactWrench, leftFootRatio_);
+    netWrenchObs_.update(realRobot(), supportContact());
+    stabilizer_.updateState(realCom_, realComd_, netWrenchObs_.wrench(), leftFootRatio_);
 
     bool ret = mc_control::fsm::Controller::run();
     if (mc_control::fsm::Controller::running())
@@ -327,20 +325,6 @@ namespace lipm_walking
       postureTask->posture(halfSitPose); // reset posture in case the FSM updated it
     }
     return ret;
-  }
-
-  sva::ForceVecd Controller::measuredContactWrench()
-  {
-    sva::ForceVecd netWrench{Eigen::Vector6d::Zero()};
-    for (std::string sensorName : {"LeftFootForceSensor", "RightFootForceSensor"})
-    {
-      const auto & sensor = realRobot().forceSensor(sensorName);
-      if (sensor.force()[2] > 1.)
-      {
-        netWrench += sensor.worldWrench(realRobot());
-      }
-    }
-    return netWrench;
   }
 
   void Controller::loadFootstepPlan(std::string name)

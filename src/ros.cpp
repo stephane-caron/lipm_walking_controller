@@ -170,10 +170,22 @@ namespace lipm_walking
   {
     visualization_msgs::MarkerArray array;
     nextMarkerId_ = 0;
+    double lambda = std::pow(state.omega(), 2);
+    Eigen::Vector3d contactForce = robotMass_ * lambda * (state.com() - state.zmp());
     array.markers.push_back(getArrowMarker("robot_map", state.zmp(), state.com(), color, 0.1));
-    array.markers.push_back(getArrowMarker("robot_map", state.zmp(), state.zmp() + FORCE_SCALE * pendulumObserver_.contactForce(state), color));
+    array.markers.push_back(getArrowMarker("robot_map", state.zmp(), state.zmp() + FORCE_SCALE * contactForce, color));
     array.markers.push_back(getPointMarker("robot_map", state.com(), color));
     array.markers.push_back(getPointMarker("robot_map", state.zmp(), color));
+    return array;
+  }
+
+  visualization_msgs::MarkerArray Controller::getNetWrenchMarkerArray(char color)
+  {
+    visualization_msgs::MarkerArray array;
+    nextMarkerId_ = 0;
+    Eigen::Vector3d contactForce = netWrenchObs_.wrench().force();
+    array.markers.push_back(getArrowMarker("robot_map", netWrenchObs_.zmp(), netWrenchObs_.zmp() + FORCE_SCALE * contactForce, color));
+    array.markers.push_back(getPointMarker("robot_map", netWrenchObs_.zmp(), color));
     return array;
   }
 
@@ -203,7 +215,7 @@ namespace lipm_walking
     extraArray.markers.push_back(getPointMarker("robot_map", stabilizer_.distribZMP(), 'm'));
     extraPublisher_.publish(extraArray);
 
-    pendulumObserverPublisher_.publish(getPendulumMarkerArray(pendulumObserver_, 'r'));
+    netWrenchPublisher_.publish(getNetWrenchMarkerArray('r'));
     pendulumPublisher_.publish(getPendulumMarkerArray(pendulum_, 'y'));
 
     nextMarkerId_ = 0;
@@ -246,7 +258,7 @@ namespace lipm_walking
   {
     const auto & nodeHandle = mc_rtc::ROSBridge::get_node_handle();
 
-    pendulumObserverPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/lipm_walking/PendulumObserver", 1);
+    netWrenchPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/lipm_walking/NetWrenchObserver", 1);
     extraPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/lipm_walking/ExtraMarkers", 1);
     footstepPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/lipm_walking/FootstepMarkers", 1);
     pendulumPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/lipm_walking/PendulumReference", 1);

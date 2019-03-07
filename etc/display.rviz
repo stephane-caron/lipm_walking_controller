@@ -5,8 +5,9 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /TF1/Frames1
+        - /Net wrench observer1
       Splitter Ratio: 0.677507
-    Tree Height: 1044
+    Tree Height: 924
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -426,7 +427,7 @@ Visualization Manager:
       Marker Topic: /lipm_walking/ExtraMarkers
       Name: Extra markers
       Namespaces:
-        {}
+        "": true
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -434,7 +435,7 @@ Visualization Manager:
       Marker Topic: /lipm_walking/FootForceSensors
       Name: Foot force sensors
       Namespaces:
-        {}
+        "": true
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -442,15 +443,15 @@ Visualization Manager:
       Marker Topic: /lipm_walking/FootstepMarkers
       Name: Foot steps
       Namespaces:
-        {}
+        "": true
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /lipm_walking/PendulumObserver
-      Name: Pendulum observer
+      Marker Topic: /lipm_walking/NetWrenchObserver
+      Name: Net wrench observer
       Namespaces:
-        {}
+        "": true
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -458,7 +459,7 @@ Visualization Manager:
       Marker Topic: /lipm_walking/PendulumReference
       Name: Pendulum reference
       Namespaces:
-        {}
+        "": true
       Queue Size: 100
       Value: true
     - Alpha: 1

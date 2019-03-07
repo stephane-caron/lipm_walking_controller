@@ -21,8 +21,8 @@ set(CONTROLLER_SRC
     FloatingBaseObserver.cpp
     FootstepPlan.cpp
     ModelPredictiveControl.cpp
+    NetWrenchObserver.cpp
     Pendulum.cpp
-    PendulumObserver.cpp
     Stabilizer.cpp
     SwingFoot.cpp
     ros.cpp
@@ -34,8 +34,8 @@ set(CONTROLLER_HDR
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/FloatingBaseObserver.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/FootstepPlan.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/ModelPredictiveControl.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/NetWrenchObserver.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/Pendulum.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/PendulumObserver.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/Preview.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/Sole.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/Stabilizer.h

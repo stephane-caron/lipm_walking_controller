@@ -38,8 +38,8 @@
 #include <lipm_walking/FloatingBaseObserver.h>
 #include <lipm_walking/FootstepPlan.h>
 #include <lipm_walking/ModelPredictiveControl.h>
+#include <lipm_walking/NetWrenchObserver.h>
 #include <lipm_walking/Pendulum.h>
-#include <lipm_walking/PendulumObserver.h>
 #include <lipm_walking/Sole.h>
 #include <lipm_walking/Stabilizer.h>
 #include <lipm_walking/defs.h>
@@ -106,11 +106,6 @@ namespace lipm_walking
      */
     void loadFootstepPlan(std::string name);
 
-    /** Net contact wrench as measured by foot force sensors.
-     *
-     */
-    sva::ForceVecd measuredContactWrench();
-
     /** This getter is only used for consistency with the rest of mc_rtc.
      *
      */
@@ -125,14 +120,6 @@ namespace lipm_walking
     mc_rbdyn::Robot & controlRobot()
     {
       return mc_control::fsm::Controller::robot();
-    }
-
-    /** This getter is only used for consistency with the rest of mc_rtc.
-     *
-     */
-    PendulumObserver & pendulumObserver()
-    {
-      return pendulumObserver_;
     }
 
     /** Get observed robot state.
@@ -319,8 +306,8 @@ namespace lipm_walking
     FloatingBaseObserver floatingBaseObserver_;
     LowPassVelocityFilter<Eigen::Vector3d> comVelFilter_;
     ModelPredictiveControl mpc_;
+    NetWrenchObserver netWrenchObs_;
     Pendulum pendulum_;
-    PendulumObserver pendulumObserver_;
     Stabilizer stabilizer_;
     bool isInTheAir_ = false;
     bool leftFootRatioJumped_ = false;
@@ -331,8 +318,8 @@ namespace lipm_walking
     mc_rtc::Configuration mpcConfig_;
     mc_rtc::Configuration plans_;
     std::string segmentName_ = "";
-    unsigned nbMPCFailures_ = 0;
     unsigned nbLogSegments_ = 100;
+    unsigned nbMPCFailures_ = 0;
 
   private: /* ROS */
     visualization_msgs::Marker getArrowMarker(const std::string & frame_id, const Eigen::Vector3d & from, const Eigen::Vector3d & to, char color, double scale = 1.);
@@ -341,6 +328,7 @@ namespace lipm_walking
     visualization_msgs::Marker getPointMarker(const std::string & frame_id, const Eigen::Vector2d & pos, char color, double scale = 1.);
     visualization_msgs::Marker getPointMarker(const std::string & frame_id, const Eigen::Vector3d & pos, char color, double scale = 1.);
     visualization_msgs::Marker getContactMarker(const std::string & frame_id, char color);
+    visualization_msgs::MarkerArray getNetWrenchMarkerArray(char color);
     visualization_msgs::MarkerArray getPendulumMarkerArray(const Pendulum & state, char color);
     void publishMarkers();
     void publishTransforms();
@@ -351,7 +339,7 @@ namespace lipm_walking
     int nextMarkerId_ = 0;
     ros::Publisher extraPublisher_;
     ros::Publisher footstepPublisher_;
-    ros::Publisher pendulumObserverPublisher_;
+    ros::Publisher netWrenchPublisher_;
     ros::Publisher pendulumPublisher_;
     ros::Publisher sensorPublisher_;
     std::thread spinThread_;
