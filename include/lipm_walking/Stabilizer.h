@@ -274,22 +274,6 @@ namespace lipm_walking
      */
     Eigen::Vector3d computeOutputFrameZMP(const sva::ForceVecd & wrench) const;
 
-    /** ZMP target after force distribution.
-     *
-     */
-    Eigen::Vector3d distribZMP() const
-    {
-      return computeOutputFrameZMP(distribWrench_);
-    }
-
-    /** Update robot mass.
-     *
-     */
-    void mass(double mass)
-    {
-      mass_ = mass;
-    }
-
     /** Get contact state.
      *
      */
@@ -304,6 +288,22 @@ namespace lipm_walking
     void contactState(ContactState contactState)
     {
       contactState_ = contactState;
+    }
+
+    /** Update robot mass.
+     *
+     */
+    void mass(double mass)
+    {
+      mass_ = mass;
+    }
+
+    /** ZMP target after force distribution.
+     *
+     */
+    Eigen::Vector3d zmp() const
+    {
+      return computeOutputFrameZMP(distribWrench_);
     }
 
   private:

@@ -92,6 +92,13 @@ namespace lipm_walking
      */
     void addGUIElements(std::shared_ptr<mc_rtc::gui::StateBuilder> gui);
 
+    /** Add GUI markers.
+     *
+     * \param gui GUI handle.
+     *
+     */
+    void addGUIMarkers(std::shared_ptr<mc_rtc::gui::StateBuilder> gui);
+
     /** Update robot mass estimate in all components.
      *
      * \param mass New mass estimate.
@@ -340,30 +347,5 @@ namespace lipm_walking
     std::string segmentName_ = "";
     unsigned nbLogSegments_ = 100;
     unsigned nbMPCFailures_ = 0;
-
-  private: /* ROS */
-    visualization_msgs::Marker getArrowMarker(const std::string & frame_id, const Eigen::Vector3d & from, const Eigen::Vector3d & to, char color, double scale = 1.);
-    visualization_msgs::Marker getCoPMarker(const std::string & surfaceName, char color);
-    visualization_msgs::Marker getForceMarker(const std::string & surfaceName, char color);
-    visualization_msgs::Marker getPointMarker(const std::string & frame_id, const Eigen::Vector2d & pos, char color, double scale = 1.);
-    visualization_msgs::Marker getPointMarker(const std::string & frame_id, const Eigen::Vector3d & pos, char color, double scale = 1.);
-    visualization_msgs::Marker getContactMarker(const std::string & frame_id, char color);
-    visualization_msgs::MarkerArray getNetWrenchMarkerArray(char color);
-    visualization_msgs::MarkerArray getPendulumMarkerArray(const Pendulum & state, char color);
-    void publishMarkers();
-    void publishTransforms();
-    void spinner();
-
-  private: /* ROS */
-    bool isSpinning_ = false;
-    int nextMarkerId_ = 0;
-    ros::Publisher extraPublisher_;
-    ros::Publisher footstepPublisher_;
-    ros::Publisher netWrenchPublisher_;
-    ros::Publisher pendulumPublisher_;
-    ros::Publisher sensorPublisher_;
-    std::thread spinThread_;
-    std::unique_ptr<tf2_ros::TransformBroadcaster> tfBroadcaster_;
-    unsigned rosSeq_ = 0;
   };
 }

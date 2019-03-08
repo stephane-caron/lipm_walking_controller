@@ -25,7 +25,6 @@ set(CONTROLLER_SRC
     Pendulum.cpp
     Stabilizer.cpp
     SwingFoot.cpp
-    ros.cpp
 )
 
 set(CONTROLLER_HDR
@@ -46,7 +45,6 @@ set(CONTROLLER_HDR
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/LowPassVelocityFilter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/clamp.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/polynomials.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/ros.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/rotations.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/stats.h
 )
