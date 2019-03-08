@@ -103,7 +103,7 @@ namespace lipm_walking
      */
     Stabilizer(const mc_rbdyn::Robot & robot, const Pendulum & ref, double dt);
 
-    /** Add stabilizer entries to logs.
+    /** Log stabilizer entries.
      *
      * \param logger Logger.
      *

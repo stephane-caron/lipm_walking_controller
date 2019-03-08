@@ -93,144 +93,158 @@ namespace lipm_walking
     stabilizer_.reset(robots());
     stabilizer_.wrenchFaceMatrix(sole_);
 
-    logger().addLogEntry("controlRobot_LeftFoot", [this]() { return controlRobot().surfacePose("LeftFoot"); });
-    logger().addLogEntry("controlRobot_LeftFootCenter", [this]() { return controlRobot().surfacePose("LeftFootCenter"); });
-    logger().addLogEntry("controlRobot_RightFoot", [this]() { return controlRobot().surfacePose("RightFoot"); });
-    logger().addLogEntry("controlRobot_RightFootCenter", [this]() { return controlRobot().surfacePose("RightFootCenter"); });
-    logger().addLogEntry("controlRobot_com", [this]() { return controlCom_; });
-    logger().addLogEntry("controlRobot_comd", [this]() { return controlComd_; });
-    logger().addLogEntry("controlRobot_comd_norm", [this]() { return controlComd_.norm(); });
-    logger().addLogEntry("controlRobot_dcm", [this]() -> Eigen::Vector3d { return controlCom_ + controlComd_ / pendulum_.omega(); });
-    logger().addLogEntry("controlRobot_posW", [this]() { return controlRobot().posW(); });
-    logger().addLogEntry("error_com", [this]() -> Eigen::Vector3d { return controlCom_ - realCom_; });
-    logger().addLogEntry("error_comd", [this]() -> Eigen::Vector3d { return controlComd_ - realComd_; });
-    logger().addLogEntry("error_dcm", [this]() -> Eigen::Vector3d { return (controlCom_ - realCom_) + (controlComd_ - realComd_) / pendulum_.omega(); });
-    logger().addLogEntry("error_zmp", [this]() -> Eigen::Vector3d { return stabilizer_.distribZMP() - netWrenchObs_.zmp(); });
-    logger().addLogEntry("mpc_failures", [this]() { return nbMPCFailures_; });
-    logger().addLogEntry("mpc_weights_jerk", [this]() { return mpc_.jerkWeight; });
-    logger().addLogEntry("mpc_weights_vel", [this]() { return mpc_.velWeights; });
-    logger().addLogEntry("mpc_weights_zmp", [this]() { return mpc_.zmpWeight; });
-    logger().addLogEntry("left_foot_ratio", [this]() { return leftFootRatio_; });
-    logger().addLogEntry("left_foot_ratio_measured", [this]() { return measuredLeftFootRatio(); });
-    logger().addLogEntry("pendulum_com", [this]() { return pendulum_.com(); });
-    logger().addLogEntry("pendulum_comd", [this]() { return pendulum_.comd(); });
-    logger().addLogEntry("pendulum_comdd", [this]() { return pendulum_.comdd(); });
-    logger().addLogEntry("pendulum_dcm", [this]() { return pendulum_.dcm(); });
-    logger().addLogEntry("pendulum_omega", [this]() { return pendulum_.omega(); });
-    logger().addLogEntry("pendulum_zmp", [this]() { return pendulum_.zmp(); });
-    logger().addLogEntry("plan_com_height", [this]() { return plan.comHeight(); });
-    logger().addLogEntry("plan_double_support_duration", [this]() { return plan.doubleSupportDuration(); });
-    logger().addLogEntry("plan_final_dsp_duration", [this]() { return plan.finalDSPDuration(); });
-    logger().addLogEntry("plan_init_dsp_duration", [this]() { return plan.initDSPDuration(); });
-    logger().addLogEntry("plan_landing_duration", [this]() { return plan.landingDuration(); });
-    logger().addLogEntry("plan_landing_pitch", [this]() { return plan.landingPitch(); });
-    logger().addLogEntry("plan_ref_vel", [this]() { return plan.supportContact().refVel; });
-    logger().addLogEntry("plan_single_support_duration", [this]() { return plan.singleSupportDuration(); });
-    logger().addLogEntry("plan_swing_height", [this]() { return plan.swingHeight(); });
-    logger().addLogEntry("plan_takeoff_duration", [this]() { return plan.takeoffDuration(); });
-    logger().addLogEntry("plan_takeoff_offset", [this]() { return plan.takeoffOffset(); });
-    logger().addLogEntry("plan_takeoff_pitch", [this]() { return plan.takeoffPitch(); });
-    logger().addLogEntry("realRobot_LeftFoot", [this]() { return realRobot().surfacePose("LeftFoot"); });
-    logger().addLogEntry("realRobot_LeftFootCenter", [this]() { return realRobot().surfacePose("LeftFootCenter"); });
-    logger().addLogEntry("realRobot_RightFoot", [this]() { return realRobot().surfacePose("RightFoot"); });
-    logger().addLogEntry("realRobot_RightFootCenter", [this]() { return realRobot().surfacePose("RightFootCenter"); });
-    logger().addLogEntry("realRobot_com", [this]() { return realCom_; });
-    logger().addLogEntry("realRobot_comd", [this]() { return realComd_; });
-    logger().addLogEntry("realRobot_dcm", [this]() -> Eigen::Vector3d { return realCom_ + realComd_ / pendulum_.omega(); });
-    logger().addLogEntry("realRobot_posW", [this]() { return realRobot().posW(); });
-    logger().addLogEntry("realRobot_wrench", [this]() { return netWrenchObs_.wrench(); });
-    logger().addLogEntry("realRobot_zmp", [this]() { return netWrenchObs_.zmp(); });
-    stabilizer_.addLogEntries(logger());
-
+    addLogEntries(logger());
     if (gui_)
     {
-      using namespace mc_rtc::gui;
-      gui_->addElement(
-        {"Walking", "Controller"},
-        Button("# EMERGENCY STOP",
-          [this]()
-          {
-            emergencyStop = true;
-            this->interrupt();
-          }),
-        Button("Reset",
-          [this]() { this->resume("Initial"); }));
-      gui_->addElement({"Walking", "Advanced"},
-        Label("Mass [kg]",
-          [this]() { return std::round(robotMass_ * 100.) / 100.; }),
-        Label("Torso pitch [rad]",
-          [this]() { return torsoPitch_; }),
-        NumberInput("Velocity cutoff period [s]",
-          [this]() { return comVelFilter_.cutoffPeriod(); },
-          [this](double T) { comVelFilter_.cutoffPeriod(T); }),
-        NumberInput("Torso pitch override [rad]",
-          [this]() { return defaultTorsoPitch_; },
-          [this](double pitch)
-          {
-            pitch = clamp(pitch, MIN_CHEST_P, MAX_CHEST_P);
-            defaultTorsoPitch_ = pitch;
-            torsoPitch_ = pitch;
-          }));
-      gui_->addElement(
-        {"Walking", "Plan"},
-        Label(
-          "Name",
-          [this]() { return plan.name; }),
-        NumberInput(
-          "CoM height",
-          [this]() { return plan.comHeight(); },
-          [this](double height) { plan.comHeight(height); }),
-        NumberInput(
-          "Initial DSP duration [s]",
-          [this]() { return plan.initDSPDuration(); },
-          [this](double duration) { plan.initDSPDuration(duration); }),
-        NumberInput(
-          "SSP duration [s]",
-          [this]() { return plan.singleSupportDuration(); },
-          [this](double duration)
-          {
-            constexpr double T = ModelPredictiveControl::SAMPLING_PERIOD;
-            duration = std::round(duration / T) * T;
-            plan.singleSupportDuration(duration);
-          }),
-        NumberInput(
-          "DSP duration [s]",
-          [this]() { return plan.doubleSupportDuration(); },
-          [this](double duration)
-          {
-            constexpr double T = ModelPredictiveControl::SAMPLING_PERIOD;
-            duration = std::round(duration / T) * T;
-            plan.doubleSupportDuration(duration);
-          }),
-        NumberInput(
-          "Final DSP duration [s]",
-          [this]() { return plan.finalDSPDuration(); },
-          [this](double duration) { plan.finalDSPDuration(duration); }),
-        NumberInput(
-          "Swing height [m]",
-          [this]() { return plan.swingHeight(); },
-          [this](double height) { plan.swingHeight(height); }),
-        NumberInput(
-          "Takeoff duration",
-          [this]() { return plan.takeoffDuration(); },
-          [this](double duration) { plan.takeoffDuration(duration); }),
-        NumberInput(
-          "Takeoff pitch [rad]",
-          [this]() { return plan.takeoffPitch(); },
-          [this](double pitch) { plan.takeoffPitch(pitch); }),
-        NumberInput(
-          "Landing duration",
-          [this]() { return plan.landingDuration(); },
-          [this](double duration) { plan.landingDuration(duration); }),
-        NumberInput(
-          "Landing pitch [rad]",
-          [this]() { return plan.landingPitch(); },
-          [this](double pitch) { plan.landingPitch(pitch); }));
-      mpc_.addGUIElements(gui_);
-      stabilizer_.addGUIElements(gui_);
+      addGUIElements(gui_);
     }
 
     LOG_SUCCESS("LIPMWalking controller init done " << this)
+  }
+
+  void Controller::addLogEntries(mc_rtc::Logger & logger)
+  {
+    logger.addLogEntry("controlRobot_LeftFoot", [this]() { return controlRobot().surfacePose("LeftFoot"); });
+    logger.addLogEntry("controlRobot_LeftFootCenter", [this]() { return controlRobot().surfacePose("LeftFootCenter"); });
+    logger.addLogEntry("controlRobot_RightFoot", [this]() { return controlRobot().surfacePose("RightFoot"); });
+    logger.addLogEntry("controlRobot_RightFootCenter", [this]() { return controlRobot().surfacePose("RightFootCenter"); });
+    logger.addLogEntry("controlRobot_com", [this]() { return controlCom_; });
+    logger.addLogEntry("controlRobot_comd", [this]() { return controlComd_; });
+    logger.addLogEntry("controlRobot_comd_norm", [this]() { return controlComd_.norm(); });
+    logger.addLogEntry("controlRobot_dcm", [this]() -> Eigen::Vector3d { return controlCom_ + controlComd_ / pendulum_.omega(); });
+    logger.addLogEntry("controlRobot_posW", [this]() { return controlRobot().posW(); });
+    logger.addLogEntry("error_com", [this]() -> Eigen::Vector3d { return controlCom_ - realCom_; });
+    logger.addLogEntry("error_comd", [this]() -> Eigen::Vector3d { return controlComd_ - realComd_; });
+    logger.addLogEntry("error_dcm", [this]() -> Eigen::Vector3d { return (controlCom_ - realCom_) + (controlComd_ - realComd_) / pendulum_.omega(); });
+    logger.addLogEntry("error_zmp", [this]() -> Eigen::Vector3d { return stabilizer_.distribZMP() - netWrenchObs_.zmp(); });
+    logger.addLogEntry("mpc_failures", [this]() { return nbMPCFailures_; });
+    logger.addLogEntry("mpc_weights_jerk", [this]() { return mpc_.jerkWeight; });
+    logger.addLogEntry("mpc_weights_vel", [this]() { return mpc_.velWeights; });
+    logger.addLogEntry("mpc_weights_zmp", [this]() { return mpc_.zmpWeight; });
+    logger.addLogEntry("left_foot_ratio", [this]() { return leftFootRatio_; });
+    logger.addLogEntry("left_foot_ratio_measured", [this]() { return measuredLeftFootRatio(); });
+    logger.addLogEntry("pendulum_com", [this]() { return pendulum_.com(); });
+    logger.addLogEntry("pendulum_comd", [this]() { return pendulum_.comd(); });
+    logger.addLogEntry("pendulum_comdd", [this]() { return pendulum_.comdd(); });
+    logger.addLogEntry("pendulum_dcm", [this]() { return pendulum_.dcm(); });
+    logger.addLogEntry("pendulum_omega", [this]() { return pendulum_.omega(); });
+    logger.addLogEntry("pendulum_zmp", [this]() { return pendulum_.zmp(); });
+    logger.addLogEntry("plan_com_height", [this]() { return plan.comHeight(); });
+    logger.addLogEntry("plan_double_support_duration", [this]() { return plan.doubleSupportDuration(); });
+    logger.addLogEntry("plan_final_dsp_duration", [this]() { return plan.finalDSPDuration(); });
+    logger.addLogEntry("plan_init_dsp_duration", [this]() { return plan.initDSPDuration(); });
+    logger.addLogEntry("plan_landing_duration", [this]() { return plan.landingDuration(); });
+    logger.addLogEntry("plan_landing_pitch", [this]() { return plan.landingPitch(); });
+    logger.addLogEntry("plan_ref_vel", [this]() { return plan.supportContact().refVel; });
+    logger.addLogEntry("plan_single_support_duration", [this]() { return plan.singleSupportDuration(); });
+    logger.addLogEntry("plan_swing_height", [this]() { return plan.swingHeight(); });
+    logger.addLogEntry("plan_takeoff_duration", [this]() { return plan.takeoffDuration(); });
+    logger.addLogEntry("plan_takeoff_offset", [this]() { return plan.takeoffOffset(); });
+    logger.addLogEntry("plan_takeoff_pitch", [this]() { return plan.takeoffPitch(); });
+    logger.addLogEntry("realRobot_LeftFoot", [this]() { return realRobot().surfacePose("LeftFoot"); });
+    logger.addLogEntry("realRobot_LeftFootCenter", [this]() { return realRobot().surfacePose("LeftFootCenter"); });
+    logger.addLogEntry("realRobot_RightFoot", [this]() { return realRobot().surfacePose("RightFoot"); });
+    logger.addLogEntry("realRobot_RightFootCenter", [this]() { return realRobot().surfacePose("RightFootCenter"); });
+    logger.addLogEntry("realRobot_com", [this]() { return realCom_; });
+    logger.addLogEntry("realRobot_comd", [this]() { return realComd_; });
+    logger.addLogEntry("realRobot_dcm", [this]() -> Eigen::Vector3d { return realCom_ + realComd_ / pendulum_.omega(); });
+    logger.addLogEntry("realRobot_posW", [this]() { return realRobot().posW(); });
+    logger.addLogEntry("realRobot_wrench", [this]() { return netWrenchObs_.wrench(); });
+    logger.addLogEntry("realRobot_zmp", [this]() { return netWrenchObs_.zmp(); });
+    stabilizer_.addLogEntries(logger);
+  }
+
+  void Controller::addGUIElements(std::shared_ptr<mc_rtc::gui::StateBuilder> gui)
+  {
+    using namespace mc_rtc::gui;
+    gui->addElement(
+      {"Walking", "Controller"},
+      Button("# EMERGENCY STOP",
+        [this]()
+        {
+          emergencyStop = true;
+          this->interrupt();
+        }),
+      Button("Reset",
+        [this]() { this->resume("Initial"); }));
+    gui->addElement(
+      {"Walking", "Advanced"},
+      Label(
+        "Mass [kg]",
+        [this]() { return std::round(robotMass_ * 100.) / 100.; }),
+      Label(
+        "Torso pitch [rad]",
+        [this]() { return torsoPitch_; }),
+      NumberInput(
+        "Velocity cutoff period [s]",
+        [this]() { return comVelFilter_.cutoffPeriod(); },
+        [this](double T) { comVelFilter_.cutoffPeriod(T); }),
+      NumberInput(
+        "Torso pitch override [rad]",
+        [this]() { return defaultTorsoPitch_; },
+        [this](double pitch)
+        {
+          pitch = clamp(pitch, MIN_CHEST_P, MAX_CHEST_P);
+          defaultTorsoPitch_ = pitch;
+          torsoPitch_ = pitch;
+        }));
+    gui->addElement(
+      {"Walking", "Plan"},
+      Label(
+        "Name",
+        [this]() { return plan.name; }),
+      NumberInput(
+        "CoM height",
+        [this]() { return plan.comHeight(); },
+        [this](double height) { plan.comHeight(height); }),
+      NumberInput(
+        "Initial DSP duration [s]",
+        [this]() { return plan.initDSPDuration(); },
+        [this](double duration) { plan.initDSPDuration(duration); }),
+      NumberInput(
+        "SSP duration [s]",
+        [this]() { return plan.singleSupportDuration(); },
+        [this](double duration)
+        {
+          constexpr double T = ModelPredictiveControl::SAMPLING_PERIOD;
+          duration = std::round(duration / T) * T;
+          plan.singleSupportDuration(duration);
+        }),
+      NumberInput(
+        "DSP duration [s]",
+        [this]() { return plan.doubleSupportDuration(); },
+        [this](double duration)
+        {
+          constexpr double T = ModelPredictiveControl::SAMPLING_PERIOD;
+          duration = std::round(duration / T) * T;
+          plan.doubleSupportDuration(duration);
+        }),
+      NumberInput(
+        "Final DSP duration [s]",
+        [this]() { return plan.finalDSPDuration(); },
+        [this](double duration) { plan.finalDSPDuration(duration); }),
+      NumberInput(
+        "Swing height [m]",
+        [this]() { return plan.swingHeight(); },
+        [this](double height) { plan.swingHeight(height); }),
+      NumberInput(
+        "Takeoff duration",
+        [this]() { return plan.takeoffDuration(); },
+        [this](double duration) { plan.takeoffDuration(duration); }),
+      NumberInput(
+        "Takeoff pitch [rad]",
+        [this]() { return plan.takeoffPitch(); },
+        [this](double pitch) { plan.takeoffPitch(pitch); }),
+      NumberInput(
+        "Landing duration",
+        [this]() { return plan.landingDuration(); },
+        [this](double duration) { plan.landingDuration(duration); }),
+      NumberInput(
+        "Landing pitch [rad]",
+        [this]() { return plan.landingPitch(); },
+        [this](double pitch) { plan.landingPitch(pitch); }));
+    mpc_.addGUIElements(gui);
+    stabilizer_.addGUIElements(gui);
   }
 
   void Controller::updateRobotMass(double mass)

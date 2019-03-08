@@ -86,7 +86,7 @@ namespace lipm_walking
   {
     using namespace mc_rtc::gui;
     gui->addElement(
-      {"Walking", "Stabilizer"},
+      {"Stabilizer"},
       Label(
         "Contact state",
         [this]()

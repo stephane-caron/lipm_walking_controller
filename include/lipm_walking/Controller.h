@@ -78,6 +78,20 @@ namespace lipm_walking
      */
     //void reset(const mc_control::ControllerResetData & reset_data) override;
 
+    /** Log controller entries.
+     *
+     * \param logger Logger.
+     *
+     */
+    void addLogEntries(mc_rtc::Logger & logger);
+
+    /** Add GUI panel.
+     *
+     * \param gui GUI handle.
+     *
+     */
+    void addGUIElements(std::shared_ptr<mc_rtc::gui::StateBuilder> gui);
+
     /** Update robot mass estimate in all components.
      *
      * \param mass New mass estimate.
