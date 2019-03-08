@@ -40,11 +40,14 @@ First, launch RViz for the HRP-4 model by:
 ```sh
 roslaunch lipm_walking_controller display_hrp4.launch
 ```
-Then, run your mc\_rtc interface on the main configuration file:
+Enable the controller in your mc\_rtc configuration:
 ```sh
-<mc_rtc_interface> lipm_walking_controller/etc/mc_rtc.conf
+{
+  "MainRobot": "HRP4",
+  "Enabled": ["LIPMWalking"]
+}
 ```
-where ``<mc_rtc_interface>`` is for instance ``mc_vrep`` or ``MCControlTCP``.
+Finally, run your mc\_rtc interface, for instance ``mc_vrep`` or ``MCUDPControl``.
 
 ## Thanks
 
