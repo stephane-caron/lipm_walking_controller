@@ -309,48 +309,11 @@ namespace lipm_walking
     controlComd_ = controlRobot().comVelocity();
     ctlTime_ += timeStep;
 
-    // check contact state
-    const auto & lfSensor = realRobot().forceSensor("LeftFootForceSensor");
-    const auto & rfSensor = realRobot().forceSensor("RightFootForceSensor");
-    constexpr double CONTACT_THRESHOLD = 30.; // [N]
-    double leftFootPressure = lfSensor.force().z();
-    double rightFootPressure = rfSensor.force().z();
-    if (leftFootPressure < CONTACT_THRESHOLD && rightFootPressure < CONTACT_THRESHOLD)
-    {
-      if (!isInTheAir_)
-      {
-        LOG_WARNING("Robot is in the air");
-        isInTheAir_ = true;
-      }
-    }
-    else
-    {
-      if (isInTheAir_)
-      {
-        LOG_INFO("Robot is on the ground again");
-        isInTheAir_ = false;
-      }
-    }
+    warnIfRobotIsInTheAir();
 
-    // update kinematic observer
     floatingBaseObs_.leftFootRatio(leftFootRatio_);
     floatingBaseObs_.run(realRobot());
-
-    // update realCom_
-    floatingBaseObs_.update(realRobot());
-    realCom_ = realRobot().com();
-
-    // update realComd_
-    if (leftFootRatioJumped_)
-    {
-      comVelFilter_.updatePositionOnly(realCom_);
-      leftFootRatioJumped_ = false;
-    }
-    else
-    {
-      comVelFilter_.update(realCom_);
-    }
-    realComd_ = comVelFilter_.vel();
+    updateRealFromKinematics();
 
     sva::PTransformd X_0_a = floatingBaseObs_.getAnchorFrame(controlRobot());
     pelvisOrientation_ = X_0_a.rotation();
@@ -366,6 +329,46 @@ namespace lipm_walking
       postureTask->posture(halfSitPose); // reset posture in case the FSM updated it
     }
     return ret;
+  }
+
+  void Controller::warnIfRobotIsInTheAir()
+  {
+    static bool isInTheAir = false;
+    constexpr double CONTACT_THRESHOLD = 30.; // [N]
+    double leftFootPressure = realRobot().forceSensor("LeftFootForceSensor").force().z();
+    double rightFootPressure = realRobot().forceSensor("RightFootForceSensor").force().z();
+    if (leftFootPressure < CONTACT_THRESHOLD && rightFootPressure < CONTACT_THRESHOLD)
+    {
+      if (!isInTheAir)
+      {
+        LOG_WARNING("Robot is in the air");
+        isInTheAir = true;
+      }
+    }
+    else
+    {
+      if (isInTheAir)
+      {
+        LOG_INFO("Robot is on the ground again");
+        isInTheAir = false;
+      }
+    }
+  }
+
+  void Controller::updateRealFromKinematics()
+  {
+    floatingBaseObs_.updateRobot(realRobot());
+    realCom_ = realRobot().com();
+    if (!leftFootRatioJumped_)
+    {
+      comVelFilter_.update(realCom_);
+    }
+    else // don't update velocity when CoM position jumped
+    {
+      comVelFilter_.updatePositionOnly(realCom_);
+      leftFootRatioJumped_ = false;
+    }
+    realComd_ = comVelFilter_.vel();
   }
 
   void Controller::loadFootstepPlan(std::string name)

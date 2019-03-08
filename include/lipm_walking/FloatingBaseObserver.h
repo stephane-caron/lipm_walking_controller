@@ -57,7 +57,7 @@ namespace lipm_walking
      * \param robot Robot state to write to.
      *
      */
-    void update(mc_rbdyn::Robot & robot);
+    void updateRobot(mc_rbdyn::Robot & robot);
 
     /** Update floating-base orientation based on new observed gravity vector.
      *

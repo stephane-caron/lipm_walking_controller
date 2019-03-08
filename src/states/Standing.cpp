@@ -188,7 +188,7 @@ namespace lipm_walking
 
     auto & pendulum = ctl.pendulum();
 
-    Eigen::Vector3d comTarget = copTarget_ + Eigen::Vector3d{0., 0., ctl.comHeight()};
+    Eigen::Vector3d comTarget = copTarget_ + Eigen::Vector3d{0., 0., ctl.plan.comHeight()};
     const Eigen::Vector3d & com_i = pendulum.com();
     const Eigen::Vector3d & comd_i = pendulum.comd();
     const Eigen::Vector3d & cop_f = copTarget_;

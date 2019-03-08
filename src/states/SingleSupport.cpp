@@ -116,8 +116,7 @@ namespace lipm_walking
     ctl.preview->integrate(pendulum(), dt);
     if (hasUpdatedMPCOnce_)
     {
-      double height = ctl.comHeight();
-      pendulum().resetCoMHeight(height, ctl.supportContact());
+      pendulum().resetCoMHeight(ctl.plan.comHeight(), ctl.supportContact());
       pendulum().completeIPM(ctl.supportContact());
     }
     else // still in DSP of preview

@@ -71,7 +71,7 @@ namespace lipm_walking
     return sva::interpolate(X_0_r, X_0_l, leftFootRatio_);
   }
 
-  void FloatingBaseObserver::update(mc_rbdyn::Robot & realRobot)
+  void FloatingBaseObserver::updateRobot(mc_rbdyn::Robot & realRobot)
   {
     realRobot.posW(sva::PTransformd{orientation_, position_});
   }

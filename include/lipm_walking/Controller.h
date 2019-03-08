@@ -99,6 +99,13 @@ namespace lipm_walking
      */
     virtual bool run() override;
 
+    /** Set fraction of total weight that should be sustained by the left foot.
+     *
+     * \param ratio Number between 0 and 1.
+     *
+     */
+    void leftFootRatio(double ratio);
+
     /** Load footstep plan from configuration.
      *
      * \param name Plan name.
@@ -106,12 +113,39 @@ namespace lipm_walking
      */
     void loadFootstepPlan(std::string name);
 
-    /** This getter is only used for consistency with the rest of mc_rtc.
+    /** Start new log segment.
+     *
+     * \param label Segment label.
      *
      */
-    Pendulum & pendulum()
+    void startLogSegment(const std::string & label);
+
+    /** Stop current log segment.
+     *
+     */
+    void stopLogSegment();
+
+    /** Update horizontal MPC preview.
+     *
+     */
+    bool updatePreview();
+
+    /** Update measured robot's floating base from kinematic observer.
+     *
+     */
+    void updateRealFromKinematics();
+
+    /** Log a warning message when robot is in the air.
+     *
+     */
+    void warnIfRobotIsInTheAir();
+
+    /** List available contact plans.
+     *
+     */
+    std::vector<std::string> availablePlans() const
     {
-      return pendulum_;
+      return plans_.keys();
     }
 
     /** Get control robot state.
@@ -122,66 +156,10 @@ namespace lipm_walking
       return mc_control::fsm::Controller::robot();
     }
 
-    /** Get observed robot state.
-     *
-     */
-    mc_rbdyn::Robot & realRobot()
-    {
-      return real_robots->robot();
-    }
-
-    /** This getter is only used for consistency with the rest of mc_rtc.
-     *
-     */
-    Stabilizer & stabilizer()
-    {
-      return stabilizer_;
-    }
-
-    /** Update horizontal MPC preview.
-     *
-     */
-    bool updatePreview();
-
-    /** Get fraction of total weight that should be sustained by the left foot.
-     *
-     */
-    inline double leftFootRatio()
-    {
-      return leftFootRatio_;
-    }
-
-    /** Set fraction of total weight that should be sustained by the left foot.
-     *
-     * \param ratio Number between 0 and 1.
-     *
-     */
-    void leftFootRatio(double ratio);
-
-    /** Estimate left foot pressure ratio from force sensors.
-     *
-     */
-    inline double measuredLeftFootRatio()
-    {
-      double leftFootPressure = realRobot().forceSensor("LeftFootForceSensor").force().z();
-      double rightFootPressure = realRobot().forceSensor("RightFootForceSensor").force().z();
-      leftFootPressure = std::max(0., leftFootPressure);
-      rightFootPressure = std::max(0., rightFootPressure);
-      return leftFootPressure / (leftFootPressure + rightFootPressure);
-    }
-
-    /** Get desired CoM height.
-     *
-     */
-    inline double comHeight()
-    {
-      return plan.comHeight();
-    }
-
     /** Get next double support duration.
      *
      */
-    inline double doubleSupportDuration()
+    double doubleSupportDuration()
     {
       double duration;
       if (doubleSupportDurationOverride_ > 0.)
@@ -196,10 +174,46 @@ namespace lipm_walking
       return duration;
     }
 
+    /** True after the last step.
+     *
+     */
+    bool isLastDSP()
+    {
+      return (supportContact().id > targetContact().id);
+    }
+
+    /** True during the last step.
+     *
+     */
+    bool isLastSSP()
+    {
+      return (targetContact().id > nextContact().id);
+    }
+
+    /** Get fraction of total weight that should be sustained by the left foot.
+     *
+     */
+    double leftFootRatio()
+    {
+      return leftFootRatio_;
+    }
+
+    /** Estimate left foot pressure ratio from force sensors.
+     *
+     */
+    double measuredLeftFootRatio()
+    {
+      double leftFootPressure = realRobot().forceSensor("LeftFootForceSensor").force().z();
+      double rightFootPressure = realRobot().forceSensor("RightFootForceSensor").force().z();
+      leftFootPressure = std::max(0., leftFootPressure);
+      rightFootPressure = std::max(0., rightFootPressure);
+      return leftFootPressure / (leftFootPressure + rightFootPressure);
+    }
+
     /** Get model predictive control solver.
      *
      */
-    inline ModelPredictiveControl & mpc()
+    ModelPredictiveControl & mpc()
     {
       return mpc_;
     }
@@ -207,7 +221,7 @@ namespace lipm_walking
     /** Get next contact in plan.
      *
      */
-    inline const Contact & nextContact() const
+    const Contact & nextContact() const
     {
       return plan.nextContact();
     }
@@ -217,31 +231,55 @@ namespace lipm_walking
      * \param duration Custom DSP duration.
      *
      */
-    inline void nextDoubleSupportDuration(double duration)
+    void nextDoubleSupportDuration(double duration)
     {
       doubleSupportDurationOverride_ = duration;
+    }
+
+    /** This getter is only used for consistency with the rest of mc_rtc.
+     *
+     */
+    Pendulum & pendulum()
+    {
+      return pendulum_;
     }
 
     /** Get previous contact in plan.
      *
      */
-    inline const Contact & prevContact() const
+    const Contact & prevContact() const
     {
       return plan.prevContact();
+    }
+
+    /** Get observed robot state.
+     *
+     */
+    mc_rbdyn::Robot & realRobot()
+    {
+      return real_robots->robot();
     }
 
     /** Get next SSP duration.
      *
      */
-    inline double singleSupportDuration()
+    double singleSupportDuration()
     {
       return plan.singleSupportDuration();
+    }
+
+    /** This getter is only used for consistency with the rest of mc_rtc.
+     *
+     */
+    Stabilizer & stabilizer()
+    {
+      return stabilizer_;
     }
 
     /** Get current support contact.
      *
      */
-    inline const Contact & supportContact()
+    const Contact & supportContact()
     {
       return plan.supportContact();
     }
@@ -249,46 +287,10 @@ namespace lipm_walking
     /** Get current target contact.
      *
      */
-    inline const Contact & targetContact()
+    const Contact & targetContact()
     {
       return plan.targetContact();
     }
-
-    /** True during the last step.
-     *
-     */
-    inline bool isLastSSP()
-    {
-      return (targetContact().id > nextContact().id);
-    }
-
-    /** True after the last step.
-     *
-     */
-    inline bool isLastDSP()
-    {
-      return (supportContact().id > targetContact().id);
-    }
-
-    /** List available contact plans.
-     *
-     */
-    inline std::vector<std::string> availablePlans() const
-    {
-      return plans_.keys();
-    }
-
-    /** Start new log segment.
-     *
-     * \param label Segment label.
-     *
-     */
-    void startLogSegment(const std::string & label);
-
-    /** Stop current log segment.
-     *
-     */
-    void stopLogSegment();
 
   public: /* visible to FSM states */
     FootstepPlan plan;

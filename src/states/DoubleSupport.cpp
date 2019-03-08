@@ -108,7 +108,7 @@ namespace lipm_walking
 
     ctl.preview->integrate(pendulum(), dt);
     pendulum().completeIPM(ctl.prevContact());
-    pendulum().resetCoMHeight(ctl.comHeight(), ctl.prevContact());
+    pendulum().resetCoMHeight(ctl.plan.comHeight(), ctl.prevContact());
     stabilizer().run();
 
     remTime_ -= dt;
