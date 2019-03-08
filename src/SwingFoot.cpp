@@ -26,30 +26,13 @@
 
 namespace lipm_walking
 {
-  SwingFoot::SwingFoot()
-  {
-    takeoffOffset_ = {0., 0., 0.};
-    takeoffPitch_ = 0.; // [rad]
-    takeoffRatio_ = 0.;
-    landingPitch_ = 0.; // [rad]
-    landingRatio_ = 0.;
-  }
-
   void SwingFoot::reset(const sva::PTransformd & initPose, const sva::PTransformd & targetPose, double duration, double height)
   {
-    assert(0. <= takeoffRatio_ && takeoffRatio_ <= 0.5);
-    assert(0. <= landingRatio_ && landingRatio_ <= 0.5);
-
-    Eigen::Vector3d midPos = 0.5 * (initPose.translation() + targetPose.translation());
-    midPos.z() = std::min(initPose.translation().z(), targetPose.translation().z());
-    Eigen::Matrix3d E_0_mid = slerp(initPose.rotation(), targetPose.rotation(), 0.5);
-    //sva::PTransformd X_0_mid = sva::interpolate(initPose, targetPose, 0.5);
-    sva::PTransformd X_0_mid = {E_0_mid, midPos};
-    sva::PTransformd X_mid_air = {Eigen::Matrix3d::Identity(), {0., 0., height}};
+    assert(0. <= takeoffDuration_ && takeoffDuration_ <= 0.5 * duration);
+    assert(0. <= landingDuration_ && landingDuration_ <= 0.5 * duration);
 
     accel_ = Eigen::Vector3d::Zero();
-    aerialStart_ = takeoffRatio_ * duration;
-    airPose_ = X_mid_air * X_0_mid;
+    aerialStart_ = takeoffDuration_;
     duration_ = duration;
     height_ = height;
     initPose_ = initPose;
@@ -60,28 +43,23 @@ namespace lipm_walking
     vel_ = Eigen::Vector3d::Zero();
 
     const Eigen::Vector3d & initPos = initPose_.translation();
-    const Eigen::Vector3d & airPos = airPose_.translation();
     const Eigen::Vector3d & targetPos = targetPose_.translation();
-    double aerialDuration = (1. - takeoffRatio_ - landingRatio_) * duration;
+    double aerialDuration = duration - takeoffDuration_ - landingDuration_;
     double halfDuration = duration / 2;
-    double landingDuration = landingRatio_ * duration;
-    double takeoffDuration = takeoffRatio_ * duration;
 
-    //Eigen::Vector2d initVel = {0., 0.};
-    //Eigen::Vector2d targetVel = {0., 0.};
-    //Eigen::Vector2d initAccel = {-1., 0.};
-    //Eigen::Vector2d targetAccel = {0., 0.};
     Eigen::Vector3d aerialStartPos = initPos + takeoffOffset_;
-    xyTakeoffChunk_.reset(initPos.head<2>(), aerialStartPos.head<2>(), takeoffDuration);
+    xyTakeoffChunk_.reset(initPos.head<2>(), aerialStartPos.head<2>(), takeoffDuration_);
     xyAerialChunk_.reset(aerialStartPos.head<2>(), targetPos.head<2>(), aerialDuration);
 
+    Eigen::Vector3d airPos = 0.5 * (initPose.translation() + targetPose.translation());
+    airPos.z() = std::min(initPose.translation().z(), targetPose.translation().z()) + height;
     zFirstChunk_.reset(initPos.z(), airPos.z(), halfDuration);
     zSecondChunk_.reset(airPos.z(), targetPos.z(), halfDuration);
 
-    pitchTakeoffChunk_.reset(0., takeoffPitch_, takeoffDuration);
+    pitchTakeoffChunk_.reset(0., takeoffPitch_, takeoffDuration_);
     pitchAerialChunk1_.reset(takeoffPitch_, 0., aerialDuration / 2);
     pitchAerialChunk2_.reset(0., landingPitch_, aerialDuration / 2);
-    pitchLandingChunk_.reset(landingPitch_, 0., landingDuration);
+    pitchLandingChunk_.reset(landingPitch_, 0., landingDuration_);
 
     updatePose(/* t = */ 0.);
   }
@@ -113,7 +91,6 @@ namespace lipm_walking
   void SwingFoot::updatePose(double t)
   {
     updateZ(t);
-    //updateZSixthOrder(t);
     updateXY(t);
     updatePitch(t);
   }
@@ -165,13 +142,12 @@ namespace lipm_walking
     double aerialDuration = xyAerialChunk_.duration();
     if (t1 <= takeoffDuration)
     {
-      double s1 = pitchTakeoffChunk_.s(t1);
-      baseOri = slerp(initPose_.rotation(), airPose_.rotation(), s1);
+      baseOri = initPose_.rotation();
     }
     else if (t2 <= aerialDuration)
     {
       double s2 = xyAerialChunk_.s(t2);
-      baseOri = slerp(airPose_.rotation(), targetPose_.rotation(), s2);
+      baseOri = slerp(initPose_.rotation(), targetPose_.rotation(), s2);
     }
     else // (t2 > aerialDuration)
     {

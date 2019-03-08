@@ -89,8 +89,8 @@
       "double_support_duration": 0.2,
       "final_dsp_duration": 0.6,
       "swing_height": 0.24,
-      "landing_ratio": 0.1,
-      "takeoff_ratio": 0.3,
+      "landing_duration": 0.1,
+      "takeoff_duration": 0.42,
       "torso_pitch": 0.2,
       "contacts":
       [

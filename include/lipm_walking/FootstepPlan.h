@@ -92,7 +92,7 @@ namespace lipm_walking
     /** Default CoM height.
      *
      */
-    inline double comHeight() const
+    double comHeight() const
     {
       return comHeight_;
     }
@@ -100,7 +100,7 @@ namespace lipm_walking
     /** Set default CoM height.
      *
      */
-    inline void comHeight(double height)
+    void comHeight(double height)
     {
       constexpr double MIN_COM_HEIGHT = 0.7; // [m]
       constexpr double MAX_COM_HEIGHT = 0.85; // [m]
@@ -110,7 +110,7 @@ namespace lipm_walking
     /** Reference to list of contacts.
      *
      */
-    inline const std::vector<Contact> & contacts() const
+    const std::vector<Contact> & contacts() const
     {
       return contacts_;
     }
@@ -118,7 +118,7 @@ namespace lipm_walking
     /** Default double-support duration.
      *
      */
-    inline double doubleSupportDuration() const
+    double doubleSupportDuration() const
     {
       return doubleSupportDuration_;
     }
@@ -128,7 +128,7 @@ namespace lipm_walking
      * \param duration New duration.
      *
      */
-    inline void doubleSupportDuration(double duration)
+    void doubleSupportDuration(double duration)
     {
       doubleSupportDuration_ = clamp(duration, 0., 1.);
     }
@@ -136,7 +136,7 @@ namespace lipm_walking
     /** Get final double support phase duration.
      *
      */
-    inline double finalDSPDuration() const
+    double finalDSPDuration() const
     {
       return finalDSPDuration_;
     }
@@ -144,7 +144,7 @@ namespace lipm_walking
     /** Does the plan provide a reference torso pitch?
      *
      */
-    inline bool hasTorsoPitch() const
+    bool hasTorsoPitch() const
     {
       return (torsoPitch_ > -10.);
     }
@@ -154,7 +154,7 @@ namespace lipm_walking
      * \param duration New duration.
      *
      */
-    inline void finalDSPDuration(double duration)
+    void finalDSPDuration(double duration)
     {
       finalDSPDuration_ = clamp(duration, 0., 1.6);
     }
@@ -162,7 +162,7 @@ namespace lipm_walking
     /** Get initial double support phase duration.
      *
      */
-    inline double initDSPDuration() const
+    double initDSPDuration() const
     {
       return initDSPDuration_;
     }
@@ -170,8 +170,7 @@ namespace lipm_walking
     /** Set initial double support phase duration.
      *
      */
-
-    inline void initDSPDuration(double duration)
+    void initDSPDuration(double duration)
     {
       initDSPDuration_ = clamp(duration, 0., 1.6);
     }
@@ -179,29 +178,29 @@ namespace lipm_walking
     /** Get swing foot landing ratio.
      *
      */
-    inline double landingRatio() const
+    double landingDuration() const
     {
-      if (supportContact_.swingConfig.has("landing_ratio"))
+      if (supportContact_.swingConfig.has("landing_duration"))
       {
-        return supportContact_.swingConfig("landing_ratio");
+        return supportContact_.swingConfig("landing_duration");
       }
-      return landingRatio_;
+      return landingDuration_;
     }
 
-    /** Set swing foot landing ratio.
+    /** Set swing foot landing duration.
      *
-     * \param ratio New ratio.
+     * \param duration New duration.
      *
      */
-    inline void landingRatio(double ratio)
+    void landingDuration(double duration)
     {
-      landingRatio_ = clamp(ratio, 0., 0.5);
+      landingDuration_ = clamp(duration, 0., 0.5);
     }
 
     /** Get swing foot landing pitch angle.
      *
      */
-    inline double landingPitch() const
+    double landingPitch() const
     {
       if (prevContact_.swingConfig.has("landing_pitch"))
       {
@@ -213,7 +212,7 @@ namespace lipm_walking
     /** Set swing foot takeoff pitch angle.
      *
      */
-    inline void landingPitch(double pitch)
+    void landingPitch(double pitch)
     {
       constexpr double MIN_LANDING_PITCH = -1.;
       constexpr double MAX_LANDING_PITCH = 1.;
@@ -223,7 +222,7 @@ namespace lipm_walking
     /** Next contact in plan.
      *
      */
-    inline const Contact & nextContact() const
+    const Contact & nextContact() const
     {
       return nextContact_;
     }
@@ -231,7 +230,7 @@ namespace lipm_walking
     /** Previous contact in plan.
      *
      */
-    inline const Contact & prevContact() const
+    const Contact & prevContact() const
     {
       return prevContact_;
     }
@@ -239,7 +238,7 @@ namespace lipm_walking
     /** Default single-support duration.
      *
      */
-    inline double singleSupportDuration() const
+    double singleSupportDuration() const
     {
       return singleSupportDuration_;
     }
@@ -247,7 +246,7 @@ namespace lipm_walking
     /** Set single-support duration.
      *
      */
-    inline void singleSupportDuration(double duration)
+    void singleSupportDuration(double duration)
     {
       singleSupportDuration_ = clamp(duration, 0., 2.);
     }
@@ -255,7 +254,7 @@ namespace lipm_walking
     /** Current support contact.
      *
      */
-    inline const Contact & supportContact() const
+    const Contact & supportContact() const
     {
       return supportContact_;
     }
@@ -263,7 +262,7 @@ namespace lipm_walking
     /** Default swing-foot height.
      *
      */
-    inline double swingHeight() const
+    double swingHeight() const
     {
       if (prevContact_.swingConfig.has("height"))
       {
@@ -275,17 +274,39 @@ namespace lipm_walking
     /** Set default swing-foot height.
      *
      */
-    inline void swingHeight(double height)
+    void swingHeight(double height)
     {
       constexpr double MIN_SWING_FOOT_HEIGHT = 0.;
       constexpr double MAX_SWING_FOOT_HEIGHT = 0.25;
       swingHeight_ = clamp(height, MIN_SWING_FOOT_HEIGHT, MAX_SWING_FOOT_HEIGHT);
     }
 
+    /** Get swing foot takeoff duration.
+     *
+     */
+    double takeoffDuration() const
+    {
+      if (supportContact_.swingConfig.has("takeoff_duration"))
+      {
+        return supportContact_.swingConfig("takeoff_duration");
+      }
+      return takeoffDuration_;
+    }
+
+    /** Set swing foot takeoff duration.
+     *
+     * \param duration New duration.
+     *
+     */
+    void takeoffDuration(double duration)
+    {
+      takeoffDuration_ = clamp(duration, 0., 0.5);
+    }
+
     /** Get swing foot takeoff offset.
      *
      */
-    inline Eigen::Vector3d takeoffOffset() const
+    Eigen::Vector3d takeoffOffset() const
     {
       if (prevContact_.swingConfig.has("takeoff_offset"))
       {
@@ -297,7 +318,7 @@ namespace lipm_walking
     /** Set swing foot takeoff offset.
      *
      */
-    inline void takeoffOffset(const Eigen::Vector3d & offset)
+    void takeoffOffset(const Eigen::Vector3d & offset)
     {
       takeoffOffset_ = offset;
     }
@@ -305,7 +326,7 @@ namespace lipm_walking
     /** Get swing foot takeoff pitch angle.
      *
      */
-    inline double takeoffPitch() const
+    double takeoffPitch() const
     {
       if (prevContact_.swingConfig.has("takeoff_pitch"))
       {
@@ -317,7 +338,7 @@ namespace lipm_walking
     /** Set swing foot takeoff pitch angle.
      *
      */
-    inline void takeoffPitch(double pitch)
+    void takeoffPitch(double pitch)
     {
       constexpr double MIN_TAKEOFF_PITCH = -1.;
       constexpr double MAX_TAKEOFF_PITCH = 1.;
@@ -327,37 +348,15 @@ namespace lipm_walking
     /** Current target contact.
      *
      */
-    inline const Contact & targetContact() const
+    const Contact & targetContact() const
     {
       return targetContact_;
-    }
-
-    /** Get swing foot takeoff ratio.
-     *
-     */
-    inline double takeoffRatio() const
-    {
-      if (supportContact_.swingConfig.has("takeoff_ratio"))
-      {
-        return supportContact_.swingConfig("takeoff_ratio");
-      }
-      return takeoffRatio_;
-    }
-
-    /** Set swing foot takeoff ratio.
-     *
-     * \param ratio New ratio.
-     *
-     */
-    inline void takeoffRatio(double ratio)
-    {
-      takeoffRatio_ = clamp(ratio, 0., 0.5);
     }
 
     /** Reference torso pitch angle.
      *
      */
-    inline double torsoPitch() const
+    double torsoPitch() const
     {
       return torsoPitch_;
     }
@@ -371,19 +370,20 @@ namespace lipm_walking
     Contact prevContact_;
     Contact supportContact_;
     Contact targetContact_;
-    Eigen::Vector3d takeoffOffset_ = Eigen::Vector3d::Zero();
+    Eigen::Vector3d takeoffOffset_ = Eigen::Vector3d::Zero(); // [m]
     double comHeight_ = 0.78; // [m]
     double doubleSupportDuration_ = 0.2; // [s]
-    double finalDSPDuration_ = 0.6; // [s]
+    double finalDSPDuration_ = 0.3; // [s]
     double initDSPDuration_ = 0.6; // [s]
+    double landingDuration_ = 0.15; // [s]
     double landingPitch_ = 0.;
-    double landingRatio_ = 0.05;
     double singleSupportDuration_ = 0.8; // [s]
     double swingHeight_ = 0.04; // [m]
+    double takeoffDuration_ = 0.05; // [s]
     double takeoffPitch_ = 0.;
-    double takeoffRatio_ = 0.05;
     double torsoPitch_ = -100.;
     std::vector<Contact> contacts_;
+    sva::PTransformd X_0_init_;
     unsigned nextFootstep_ = 0;
   };
 }

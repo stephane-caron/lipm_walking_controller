@@ -51,11 +51,11 @@ namespace lipm_walking
       swingFootTask = stabilizer().leftFootTask;
     }
 
+    swingFoot_.landingDuration(ctl.plan.landingDuration());
     swingFoot_.landingPitch(ctl.plan.landingPitch());
-    swingFoot_.landingRatio(ctl.plan.landingRatio());
-    swingFoot_.takeoffPitch(ctl.plan.takeoffPitch());
-    swingFoot_.takeoffRatio(ctl.plan.takeoffRatio());
+    swingFoot_.takeoffDuration(ctl.plan.takeoffDuration());
     swingFoot_.takeoffOffset(ctl.plan.takeoffOffset());
+    swingFoot_.takeoffPitch(ctl.plan.takeoffPitch());
     swingFoot_.reset(
         swingFootTask->surfacePose(), targetContact.pose,
         duration_, ctl.plan.swingHeight());

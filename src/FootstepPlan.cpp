@@ -30,12 +30,12 @@ namespace lipm_walking
     config("double_support_duration", doubleSupportDuration_);
     config("final_dsp_duration", finalDSPDuration_);
     config("init_dsp_duration", initDSPDuration_);
+    config("landing_duration", landingDuration_);
     config("landing_pitch", landingPitch_);
-    config("landing_ratio", landingRatio_);
     config("single_support_duration", singleSupportDuration_);
     config("swing_height", swingHeight_);
+    config("takeoff_duration", takeoffDuration_);
     config("takeoff_pitch", takeoffPitch_);
-    config("takeoff_ratio", takeoffRatio_);
     config("torso_pitch", torsoPitch_);
     if (config.has("mpc"))
     {
@@ -50,12 +50,12 @@ namespace lipm_walking
     config.add("double_support_duration", doubleSupportDuration_);
     config.add("final_dsp_duration", finalDSPDuration_);
     config.add("init_dsp_duration", initDSPDuration_);
+    config.add("landing_duration", landingDuration_);
     config.add("landing_pitch", landingPitch_);
-    config.add("landing_ratio", landingRatio_);
     config.add("single_support_duration", singleSupportDuration_);
     config.add("swing_height", swingHeight_);
+    config.add("takeoff_duration", takeoffDuration_);
     config.add("takeoff_pitch", takeoffPitch_);
-    config.add("takeoff_ratio", takeoffRatio_);
     if (hasTorsoPitch())
     {
       config.add("torso_pitch", torsoPitch_);

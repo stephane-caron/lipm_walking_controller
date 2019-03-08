@@ -33,10 +33,7 @@ namespace lipm_walking
    */
   struct SwingFoot
   {
-    /** Initialize with default values.
-     *
-     */
-    SwingFoot();
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     /** Recompute swing foot trajectory for a new pair of contacts.
      *
@@ -80,22 +77,6 @@ namespace lipm_walking
       return (duration_ - playback_);
     }
 
-    /** Get current pose as Plucker transform.
-     *
-     */
-    sva::PTransformd pose() const
-    {
-      return sva::PTransformd(ori_, pos_);
-    }
-
-    /** Get current velocity as motion vector.
-     *
-     */
-    sva::MotionVecd vel() const
-    {
-      return sva::MotionVecd({0., 0., 0.}, vel_);
-    }
-
     /** Get current acceleration as motion vector.
      *
      */
@@ -112,12 +93,14 @@ namespace lipm_walking
       return pos_.z() - initPose_.translation().z();
     }
 
-    /** Fraction at end of trajectory for landing.
+    /** Duration of landing phase.
+     *
+     * \param duration New duration.
      *
      */
-    void landingRatio(double ratio)
+    void landingDuration(double duration)
     {
-      landingRatio_ = ratio;
+      landingDuration_ = duration;
     }
 
     /** Upward pitch angle before landing.
@@ -128,6 +111,24 @@ namespace lipm_walking
     void landingPitch(double pitch)
     {
       landingPitch_ = pitch;
+    }
+
+    /** Get current pose as Plucker transform.
+     *
+     */
+    sva::PTransformd pose() const
+    {
+      return sva::PTransformd(ori_, pos_);
+    }
+
+    /** Set duration of takeoff phase.
+     *
+     * \param duration New duration.
+     *
+     */
+    void takeoffDuration(double duration)
+    {
+      takeoffDuration_ = duration;
     }
 
     /** Offset applied to horizontal position after takeoff.
@@ -150,12 +151,12 @@ namespace lipm_walking
       takeoffPitch_ = pitch;
     }
 
-    /** Fraction at beginning of trajectory for takeoff.
+    /** Get current velocity as motion vector.
      *
      */
-    void takeoffRatio(double ratio)
+    sva::MotionVecd vel() const
     {
-      takeoffRatio_ = ratio;
+      return sva::MotionVecd({0., 0., 0.}, vel_);
     }
 
   private:
@@ -200,17 +201,16 @@ namespace lipm_walking
     RetimedPolynomial<QuinticHermitePolynomial, double> pitchLandingChunk_;
     RetimedPolynomial<QuinticHermitePolynomial, double> zFirstChunk_;
     RetimedPolynomial<QuinticHermitePolynomial, double> zSecondChunk_;
-    Eigen::Vector3d takeoffOffset_;
+    Eigen::Vector3d takeoffOffset_ = Eigen::Vector3d::Zero(); // [m]
     double aerialStart_;
     double duration_;
     double height_;
-    double landingPitch_;
-    double landingRatio_;
+    double landingPitch_ = 0.; // [rad]
+    double landingDuration_ = 0.; // [s]
     double pitch_;
     double playback_;
-    double takeoffPitch_;
-    double takeoffRatio_;
-    sva::PTransformd airPose_;
+    double takeoffPitch_ = 0.; // [rad]
+    double takeoffDuration_ = 0.; // [s]
     sva::PTransformd initPose_;
     sva::PTransformd targetPose_;
     sva::PTransformd touchdownPose_;

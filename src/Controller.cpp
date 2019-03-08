@@ -122,14 +122,14 @@ namespace lipm_walking
     logger().addLogEntry("plan_double_support_duration", [this]() { return plan.doubleSupportDuration(); });
     logger().addLogEntry("plan_final_dsp_duration", [this]() { return plan.finalDSPDuration(); });
     logger().addLogEntry("plan_init_dsp_duration", [this]() { return plan.initDSPDuration(); });
+    logger().addLogEntry("plan_landing_duration", [this]() { return plan.landingDuration(); });
     logger().addLogEntry("plan_landing_pitch", [this]() { return plan.landingPitch(); });
-    logger().addLogEntry("plan_landing_ratio", [this]() { return plan.landingRatio(); });
     logger().addLogEntry("plan_ref_vel", [this]() { return plan.supportContact().refVel; });
     logger().addLogEntry("plan_single_support_duration", [this]() { return plan.singleSupportDuration(); });
     logger().addLogEntry("plan_swing_height", [this]() { return plan.swingHeight(); });
+    logger().addLogEntry("plan_takeoff_duration", [this]() { return plan.takeoffDuration(); });
     logger().addLogEntry("plan_takeoff_offset", [this]() { return plan.takeoffOffset(); });
     logger().addLogEntry("plan_takeoff_pitch", [this]() { return plan.takeoffPitch(); });
-    logger().addLogEntry("plan_takeoff_ratio", [this]() { return plan.takeoffRatio(); });
     logger().addLogEntry("realRobot_LeftFoot", [this]() { return realRobot().surfacePose("LeftFoot"); });
     logger().addLogEntry("realRobot_LeftFootCenter", [this]() { return realRobot().surfacePose("LeftFootCenter"); });
     logger().addLogEntry("realRobot_RightFoot", [this]() { return realRobot().surfacePose("RightFoot"); });
@@ -211,21 +211,21 @@ namespace lipm_walking
           [this]() { return plan.swingHeight(); },
           [this](double height) { plan.swingHeight(height); }),
         NumberInput(
+          "Takeoff duration",
+          [this]() { return plan.takeoffDuration(); },
+          [this](double duration) { plan.takeoffDuration(duration); }),
+        NumberInput(
           "Takeoff pitch [rad]",
           [this]() { return plan.takeoffPitch(); },
           [this](double pitch) { plan.takeoffPitch(pitch); }),
         NumberInput(
+          "Landing duration",
+          [this]() { return plan.landingDuration(); },
+          [this](double duration) { plan.landingDuration(duration); }),
+        NumberInput(
           "Landing pitch [rad]",
           [this]() { return plan.landingPitch(); },
-          [this](double pitch) { plan.landingPitch(pitch); }),
-        NumberInput(
-          "Takeoff ratio",
-          [this]() { return plan.takeoffRatio(); },
-          [this](double ratio) { plan.takeoffRatio(ratio); }),
-        NumberInput(
-          "Landing ratio",
-          [this]() { return plan.landingRatio(); },
-          [this](double ratio) { plan.landingRatio(ratio); }));
+          [this](double pitch) { plan.landingPitch(pitch); }));
       mpc_.addGUIElements(gui_);
       stabilizer_.addGUIElements(gui_);
     }
