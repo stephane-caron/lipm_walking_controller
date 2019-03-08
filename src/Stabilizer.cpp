@@ -26,9 +26,8 @@
 
 namespace lipm_walking
 {
-  Stabilizer::Stabilizer(const mc_rbdyn::Robot & controlRobot, const Pendulum & pendulum, double dt, std::shared_ptr<mc_tasks::PostureTask> postureTask_)
-    : postureTask(postureTask_),
-      pendulum_(pendulum),
+  Stabilizer::Stabilizer(const mc_rbdyn::Robot & controlRobot, const Pendulum & pendulum, double dt)
+    : pendulum_(pendulum),
       controlRobot_(controlRobot),
       dt_(dt),
       mass_(controlRobot.mass()),
@@ -73,7 +72,6 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_qp_weights_compliance", [this]() { return std::pow(qpWeights_.complianceSqrt, 2); });
     logger.addLogEntry("stabilizer_qp_weights_net_wrench", [this]() { return std::pow(qpWeights_.netWrenchSqrt, 2); });
     logger.addLogEntry("stabilizer_qp_weights_pressure", [this]() { return std::pow(qpWeights_.pressureSqrt, 2); });
-    logger.addLogEntry("stabilizer_torso_pitch", [this]() { return torsoPitch_; });
     logger.addLogEntry("stabilizer_vfc_LeftFootVel", [this]() { return logVFCLeftFootVel_; });
     logger.addLogEntry("stabilizer_vfc_RightFootVel", [this]() { return logVFCRightFootVel_; });
     logger.addLogEntry("stabilizer_vfc_dfz_measured", [this]() { return logMeasuredDFz_; });
@@ -152,10 +150,6 @@ namespace lipm_walking
         "DCM Integral Gain",
         [this]() { return dcmIntegralGain_; },
         [this](double k_i) { dcmIntegralGain_ = clamp(k_i, 0., MAX_DCM_I_GAIN); }),
-      NumberInput(
-        "Torso pitch [rad]",
-        [this]() { return torsoPitch_; },
-        [this](double pitch) { torsoPitch_ = clamp(pitch, -0.5, 0.5); }),
       Button(
         "Reconfigure",
         [this]()
@@ -196,7 +190,6 @@ namespace lipm_walking
   {
     comAdmittance_ = config_("com_admittance");
     dfzAdmittance_ = config_("dfz_admittance");
-    torsoPitch_ = config_("torso_pitch");
     vdcFrequency_ = config_("vdc_frequency");
     vdcStiffness_ = config_("vdc_stiffness");
     if (config_.has("dcm_tracking"))
@@ -224,25 +217,10 @@ namespace lipm_walking
         tasks("contact")("stiffness", contactStiffness_);
         tasks("contact")("weight", contactWeight_);
       }
-      if (tasks.has("pelvis"))
-      {
-        tasks("pelvis")("stiffness", pelvisStiffness_);
-        tasks("pelvis")("weight", pelvisWeight_);
-      }
-      if (tasks.has("posture"))
-      {
-        tasks("posture")("stiffness", postureStiffness_);
-        tasks("posture")("weight", postureWeight_);
-      }
       if (tasks.has("swing_foot"))
       {
         tasks("swing_foot")("stiffness", swingFootStiffness_);
         tasks("swing_foot")("weight", swingFootWeight_);
-      }
-      if (tasks.has("torso"))
-      {
-        tasks("torso")("stiffness", torsoStiffness_);
-        tasks("torso")("weight", torsoWeight_);
       }
     }
   }
@@ -267,17 +245,6 @@ namespace lipm_walking
     setContact(leftFootTask, leftFootTask->surfacePose());
     setContact(rightFootTask, rightFootTask->surfacePose());
 
-    pelvisTask.reset(new mc_tasks::OrientationTask("base_link", robots, robotIndex));
-    pelvisTask->setGains(pelvisStiffness_, 2 * std::sqrt(pelvisStiffness_));
-    pelvisTask->weight(pelvisWeight_);
-
-    torsoTask.reset(new mc_tasks::OrientationTask("torso", robots, robotIndex));
-    torsoTask->setGains(torsoStiffness_, 2 * std::sqrt(torsoStiffness_));
-    torsoTask->weight(torsoWeight_);
-
-    postureTask->stiffness(postureStiffness_);
-    postureTask->weight(postureWeight_);
-
     dcmIntegrator.reset();
     dcmIntegrator.saturation(0.5);
   }
@@ -297,18 +264,14 @@ namespace lipm_walking
   {
     solver.addTask(comTask);
     solver.addTask(leftFootTask);
-    solver.addTask(pelvisTask);
     solver.addTask(rightFootTask);
-    solver.addTask(torsoTask);
   }
 
   void Stabilizer::removeTasks(mc_solver::QPSolver & solver)
   {
     solver.removeTask(comTask);
     solver.removeTask(leftFootTask);
-    solver.removeTask(pelvisTask);
     solver.removeTask(rightFootTask);
-    solver.removeTask(torsoTask);
   }
 
   void Stabilizer::setContact(std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact)
@@ -396,7 +359,6 @@ namespace lipm_walking
   {
     checkGains();
     setSupportFootGains();
-    updatePelvis();
 
     auto desiredWrench = computeDesiredWrench();
 
@@ -427,32 +389,6 @@ namespace lipm_walking
     updateCoMAccelZMPCC();
 
     updateFootForceDifferenceControl();
-  }
-
-  void Stabilizer::updatePelvis()
-  {
-    const sva::PTransformd & leftPose = leftFootContact.pose;
-    const sva::PTransformd & rightPose = rightFootContact.pose;
-    sva::PTransformd target;
-    switch (contactState_)
-    {
-      case ContactState::DoubleSupport:
-        target = sva::interpolate(leftPose, rightPose, 0.5);
-        break;
-      case ContactState::LeftFoot:
-        target = leftPose;
-        break;
-      case ContactState::RightFoot:
-        target = rightPose;
-        break;
-      default:
-        target = sva::PTransformd::Identity();
-        break;
-    }
-    pelvisTask->orientation(target.rotation());
-
-    Eigen::Matrix3d E_pitch = mc_rbdyn::rpyToMat(0., torsoPitch_, 0.);
-    torsoTask->orientation(E_pitch * target.rotation());
   }
 
   sva::ForceVecd Stabilizer::computeDesiredWrench()

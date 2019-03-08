@@ -19,7 +19,6 @@
   {
     "com_admittance": [20.0, 10.0, 0.0],
     "dfz_admittance": 0.0001,
-    "torso_pitch": 0.2,
     "vdc_frequency": 1.0,
     "vdc_stiffness": 1000.0,
     "dcm_tracking":
@@ -54,26 +53,30 @@
         },
         "weight": 10000.0
       },
-      "pelvis":
-      {
-        "stiffness": 10.0,
-        "weight": 100.0
-      },
-      "posture":
-      {
-        "stiffness": 1.0,
-        "weight": 10.0
-      },
       "swing_foot":
       {
         "stiffness": 2000.0,
         "weight": 500.0
-      },
-      "torso":
-      {
-        "stiffness": 10.0,
-        "weight": 100.0
       }
+    }
+  },
+  "tasks":
+  {
+    "pelvis":
+    {
+      "stiffness": 10.0,
+      "weight": 100.0
+    },
+    "posture":
+    {
+      "stiffness": 1.0,
+      "weight": 10.0
+    },
+    "torso":
+    {
+      "pitch": 0.1,
+      "stiffness": 10.0,
+      "weight": 100.0
     }
   },
   "plans":
@@ -88,6 +91,7 @@
       "swing_height": 0.24,
       "landing_ratio": 0.1,
       "takeoff_ratio": 0.3,
+      "torso_pitch": 0.2,
       "contacts":
       [
         {

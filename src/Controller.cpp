@@ -26,15 +26,45 @@
 
 namespace lipm_walking
 {
+  namespace
+  {
+    // The following constants depend on the robot model (here HRP-4)
+    constexpr double MAX_CHEST_P = +0.4; // [rad], DOF limit is +0.5 [rad]
+    constexpr double MIN_CHEST_P = -0.1; // [rad], DOF limit is -0.2 [rad]
+    constexpr char TORSO_BODY_NAME[] = "torso";
+  }
+
   Controller::Controller(std::shared_ptr<mc_rbdyn::RobotModule> robotModule, double dt, const mc_rtc::Configuration & config)
     : mc_control::fsm::Controller(robotModule, dt, config),
       halfSitPose(controlRobot().mbc().q),
-      floatingBaseObserver_(controlRobot()),
+      floatingBaseObs_(controlRobot()),
       comVelFilter_(dt, /* cutoff period = */ 0.01),
       netWrenchObs_(dt),
-      stabilizer_(controlRobot(), pendulum_, dt, getPostureTask(robot().name()))
+      stabilizer_(controlRobot(), pendulum_, dt)
   {
+    // Set up upper-body tasks
+    double pelvisStiffness = config("tasks")("pelvis")("stiffness");
+    double pelvisWeight = config("tasks")("pelvis")("weight");
+    std::string pelvisBodyName = robot().mb().body(0).name();
+    pelvisTask = std::make_shared<mc_tasks::OrientationTask>(pelvisBodyName, robots(), 0);
+    pelvisTask->orientation(pelvisOrientation_);
+    pelvisTask->stiffness(pelvisStiffness);
+    pelvisTask->weight(pelvisWeight);
+
+    double postureStiffness = config("tasks")("posture")("stiffness");
+    double postureWeight = config("tasks")("posture")("weight");
     postureTask = getPostureTask(robot().name());
+    postureTask->stiffness(postureStiffness);
+    postureTask->weight(postureWeight);
+
+    double torsoStiffness = config("tasks")("torso")("stiffness");
+    double torsoWeight = config("tasks")("torso")("weight");
+    config("tasks")("torso")("pitch", defaultTorsoPitch_);
+    torsoPitch_ = defaultTorsoPitch_;
+    torsoTask = std::make_shared<mc_tasks::OrientationTask>(TORSO_BODY_NAME, robots(), 0);
+    torsoTask->orientation(mc_rbdyn::rpyToMat({0, torsoPitch_, 0}) * pelvisOrientation_);
+    torsoTask->stiffness(torsoStiffness);
+    torsoTask->weight(torsoWeight);
 
     // Set half-sitting pose for posture task
     const auto & halfSit = robotModule->stance();
@@ -82,7 +112,6 @@ namespace lipm_walking
     logger().addLogEntry("mpc_weights_zmp", [this]() { return mpc_.zmpWeight; });
     logger().addLogEntry("left_foot_ratio", [this]() { return leftFootRatio_; });
     logger().addLogEntry("left_foot_ratio_measured", [this]() { return measuredLeftFootRatio(); });
-    logger().addLogEntry("observers_kin_posW", [this]() { return floatingBaseObserver_.posW(); });
     logger().addLogEntry("pendulum_com", [this]() { return pendulum_.com(); });
     logger().addLogEntry("pendulum_comd", [this]() { return pendulum_.comd(); });
     logger().addLogEntry("pendulum_comdd", [this]() { return pendulum_.comdd(); });
@@ -117,18 +146,6 @@ namespace lipm_walking
     {
       using namespace mc_rtc::gui;
       gui_->addElement(
-        {"Sensors"},
-        ArrayInput(
-          "IMU", {"R [deg]", "P [deg]", "Y [deg]"},
-          [this]() -> Eigen::Vector3d { return mc_rbdyn::rpyFromMat(realRobot().bodySensor().orientation().toRotationMatrix()) * 180. / M_PI; },
-          [](const Eigen::Vector3d &) {}),
-        Label(
-          "Left foot pressure [N]",
-          [this]() { return realRobot().forceSensor("LeftFootForceSensor").force()[2]; }),
-        Label(
-          "Right foot pressure [N]",
-          [this]() { return realRobot().forceSensor("RightFootForceSensor").force()[2]; }));
-      gui_->addElement(
         {"Walking", "Controller"},
         Button("# EMERGENCY STOP",
           [this]()
@@ -137,9 +154,23 @@ namespace lipm_walking
             this->interrupt();
           }),
         Button("Reset",
-          [this]() { this->resume("Initial"); }),
+          [this]() { this->resume("Initial"); }));
+      gui_->addElement({"Walking", "Advanced"},
         Label("Mass [kg]",
-          [this]() { return std::round(robotMass_ * 100.) / 100.; }));
+          [this]() { return std::round(robotMass_ * 100.) / 100.; }),
+        Label("Torso pitch [rad]",
+          [this]() { return torsoPitch_; }),
+        NumberInput("Velocity cutoff period [s]",
+          [this]() { return comVelFilter_.cutoffPeriod(); },
+          [this](double T) { comVelFilter_.cutoffPeriod(T); }),
+        NumberInput("Torso pitch override [rad]",
+          [this]() { return defaultTorsoPitch_; },
+          [this](double pitch)
+          {
+            pitch = clamp(pitch, MIN_CHEST_P, MAX_CHEST_P);
+            defaultTorsoPitch_ = pitch;
+            torsoPitch_ = pitch;
+          }));
       gui_->addElement(
         {"Walking", "Plan"},
         Label(
@@ -222,7 +253,7 @@ namespace lipm_walking
     controlRobot().setBaseLinkVelocity(Eigen::Vector6d::Zero());
     realRobot().posW(X_0_fb);
     realRobot().setBaseLinkVelocity(Eigen::Vector6d::Zero());
-    floatingBaseObserver_.reset(X_0_fb);
+    floatingBaseObs_.reset(X_0_fb);
 
     Eigen::Vector3d initCom = controlRobot().com();
 
@@ -231,8 +262,13 @@ namespace lipm_walking
     netWrenchObs_.update(realRobot(), supportContact());
     pendulum_.reset(initCom);
     plan.reset();
+
+    // reset solver tasks
     postureTask->posture(halfSitPose);
+    solver().removeTask(pelvisTask);
+    solver().removeTask(torsoTask);
     stabilizer_.reset(robots());
+
     stabilizer_.updateState(initCom, Eigen::Vector3d::Zero(), sva::ForceVecd{Eigen::Vector6d::Zero()});
 
     controlCom_ = initCom;
@@ -297,11 +333,11 @@ namespace lipm_walking
     }
 
     // update kinematic observer
-    floatingBaseObserver_.leftFootRatio(leftFootRatio_);
-    floatingBaseObserver_.run(realRobot());
+    floatingBaseObs_.leftFootRatio(leftFootRatio_);
+    floatingBaseObs_.run(realRobot());
 
     // update realCom_
-    floatingBaseObserver_.update(realRobot());
+    floatingBaseObs_.update(realRobot());
     realCom_ = realRobot().com();
 
     // update realComd_
@@ -315,6 +351,11 @@ namespace lipm_walking
       comVelFilter_.update(realCom_);
     }
     realComd_ = comVelFilter_.vel();
+
+    sva::PTransformd X_0_a = floatingBaseObs_.getAnchorFrame(controlRobot());
+    pelvisOrientation_ = X_0_a.rotation();
+    pelvisTask->orientation(pelvisOrientation_);
+    torsoTask->orientation(mc_rbdyn::rpyToMat({0, torsoPitch_, 0}) * pelvisOrientation_);
 
     netWrenchObs_.update(realRobot(), supportContact());
     stabilizer_.updateState(realCom_, realComd_, netWrenchObs_.wrench(), leftFootRatio_);
@@ -338,6 +379,7 @@ namespace lipm_walking
     {
       mpc_.configure(plans_(name)("mpc"));
     }
+    torsoPitch_ = (plan.hasTorsoPitch()) ? plan.torsoPitch() : defaultTorsoPitch_;
     LOG_INFO("Loaded footstep plan \"" << name << "\"");
   }
 

@@ -21,102 +21,99 @@
 
 #pragma once
 
-namespace lipm_walking
+/** Low-pass velocity filter from series of position measurements.
+ *
+ */
+template <typename T>
+struct LowPassVelocityFilter
 {
-  /** Low-pass velocity filter from series of position measurements.
+  /** Constructor.
+   *
+   * \param dt Sampling period.
    *
    */
-  template <typename T>
-  struct LowPassVelocityFilter
+  LowPassVelocityFilter(double dt)
+    : dt_(dt)
   {
-    /** Constructor.
-     *
-     * \param dt Sampling period.
-     *
-     */
-    LowPassVelocityFilter(double dt)
-      : dt_(dt)
-    {
-      reset(T::Zero());
-    }
+    reset(T::Zero());
+  }
 
-    /** Constructor with cutoff period.
-     *
-     * \param dt Sampling period.
-     *
-     * \param period Cutoff period.
-     *
-     */
-    LowPassVelocityFilter(double dt, double period)
-      : dt_(dt)
-    {
-      reset(T::Zero());
-      cutoffPeriod(period);
-    }
+  /** Constructor with cutoff period.
+   *
+   * \param dt Sampling period.
+   *
+   * \param period Cutoff period.
+   *
+   */
+  LowPassVelocityFilter(double dt, double period)
+    : dt_(dt)
+  {
+    reset(T::Zero());
+    cutoffPeriod(period);
+  }
 
-    /** Reset position to an initial rest value.
-     *
-     * \param pos New position.
-     *
-     */
-    void reset(T pos)
-    {
-      pos_ = pos;
-      vel_ = T::Zero();
-    }
+  /** Reset position to an initial rest value.
+   *
+   * \param pos New position.
+   *
+   */
+  void reset(T pos)
+  {
+    pos_ = pos;
+    vel_ = T::Zero();
+  }
 
-    /** Get cutoff period.
-     *
-     */
-    double cutoffPeriod() const
-    {
-      return cutoffPeriod_;
-    }
+  /** Get cutoff period.
+   *
+   */
+  double cutoffPeriod() const
+  {
+    return cutoffPeriod_;
+  }
 
-    /** Set cutoff period.
-     *
-     * \param period New cutoff period.
-     *
-     */
-    void cutoffPeriod(double period)
-    {
-      cutoffPeriod_ = period;
-    }
+  /** Set cutoff period.
+   *
+   * \param period New cutoff period.
+   *
+   */
+  void cutoffPeriod(double period)
+  {
+    cutoffPeriod_ = period;
+  }
 
-    /** Update velocity estimate from new position value.
-     *
-     * \param newPos New observed position.
-     *
-     */
-    void update(const T & newPos)
-    {
-      double x = (cutoffPeriod_ <= dt_) ? 1. : dt_ / cutoffPeriod_;
-      T discVel = (newPos - pos_) / dt_;
-      T newVel = x * discVel + (1. - x) * vel_;
-      pos_ = newPos;
-      vel_ = newVel;
-    }
+  /** Update velocity estimate from new position value.
+   *
+   * \param newPos New observed position.
+   *
+   */
+  void update(const T & newPos)
+  {
+    double x = (cutoffPeriod_ <= dt_) ? 1. : dt_ / cutoffPeriod_;
+    T discVel = (newPos - pos_) / dt_;
+    T newVel = x * discVel + (1. - x) * vel_;
+    pos_ = newPos;
+    vel_ = newVel;
+  }
 
-    /** Update position only.
-     *
-     */
-    void updatePositionOnly(const T & newPos)
-    {
-      pos_ = newPos;
-    }
+  /** Update position only.
+   *
+   */
+  void updatePositionOnly(const T & newPos)
+  {
+    pos_ = newPos;
+  }
 
-    /** Get filtered velocity.
-     *
-     */
-    const T & vel()
-    {
-      return vel_;
-    }
+  /** Get filtered velocity.
+   *
+   */
+  const T & vel()
+  {
+    return vel_;
+  }
 
-  private:
-    T pos_;
-    T vel_;
-    double cutoffPeriod_ = 0.;
-    double dt_ = 0.005; // [s]
-  };
-}
+private:
+  T pos_;
+  T vel_;
+  double cutoffPeriod_ = 0.;
+  double dt_ = 0.005; // [s]
+};

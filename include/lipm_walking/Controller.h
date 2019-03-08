@@ -296,14 +296,17 @@ namespace lipm_walking
     bool emergencyStop = false;
     bool pauseWalking = false;
     std::shared_ptr<Preview> preview;
+    std::shared_ptr<mc_tasks::OrientationTask> pelvisTask;
+    std::shared_ptr<mc_tasks::OrientationTask> torsoTask;
     std::vector<std::vector<double>> halfSitPose;
 
   private: /* hidden from FSM states */
+    Eigen::Matrix3d pelvisOrientation_ = Eigen::Matrix3d::Identity(); // keep pelvis upright
     Eigen::Vector3d controlCom_;
     Eigen::Vector3d controlComd_;
     Eigen::Vector3d realCom_;
     Eigen::Vector3d realComd_;
-    FloatingBaseObserver floatingBaseObserver_;
+    FloatingBaseObserver floatingBaseObs_;
     LowPassVelocityFilter<Eigen::Vector3d> comVelFilter_;
     ModelPredictiveControl mpc_;
     NetWrenchObserver netWrenchObs_;
@@ -312,9 +315,11 @@ namespace lipm_walking
     bool isInTheAir_ = false;
     bool leftFootRatioJumped_ = false;
     double ctlTime_ = 0.;
+    double defaultTorsoPitch_ = 0.;
     double doubleSupportDurationOverride_ = -1.; // [s]
     double leftFootRatio_ = 0.5;
     double robotMass_ = 0.; // [kg]
+    double torsoPitch_;
     mc_rtc::Configuration mpcConfig_;
     mc_rtc::Configuration plans_;
     std::string segmentName_ = "";

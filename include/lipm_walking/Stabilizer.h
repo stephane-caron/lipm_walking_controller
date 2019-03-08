@@ -24,8 +24,6 @@
 #include <eigen-lssol/LSSOL_LS.h>
 #include <mc_tasks/CoMTask.h>
 #include <mc_tasks/CoPTask.h>
-#include <mc_tasks/OrientationTask.h>
-#include <mc_tasks/PostureTask.h>
 
 #include <lipm_walking/Pendulum.h>
 #include <lipm_walking/Contact.h>
@@ -102,10 +100,8 @@ namespace lipm_walking
      *
      * \param dt Controller timestep.
      *
-     * \param postureTask_ Posture task.
-     *
      */
-    Stabilizer(const mc_rbdyn::Robot & robot, const Pendulum & ref, double dt, std::shared_ptr<mc_tasks::PostureTask> postureTask_);
+    Stabilizer(const mc_rbdyn::Robot & robot, const Pendulum & ref, double dt);
 
     /** Add stabilizer entries to logs.
      *
@@ -340,11 +336,6 @@ namespace lipm_walking
      */
     void distributeDesiredWrench(const sva::ForceVecd & desiredWrench);
 
-    /** Update pelvis orientation target.
-     *
-     */
-    void updatePelvis();
-
     /** Simplest CoM control law: no feedback.
      *
      */
@@ -404,9 +395,6 @@ namespace lipm_walking
     std::shared_ptr<mc_tasks::CoMTask> comTask;
     std::shared_ptr<mc_tasks::CoPTask> leftFootTask;
     std::shared_ptr<mc_tasks::CoPTask> rightFootTask;
-    std::shared_ptr<mc_tasks::OrientationTask> pelvisTask;
-    std::shared_ptr<mc_tasks::OrientationTask> torsoTask;
-    std::shared_ptr<mc_tasks::PostureTask> postureTask;
 
   private:
     ContactState contactState_ = ContactState::DoubleSupport;
@@ -439,19 +427,12 @@ namespace lipm_walking
     double logVFCLeftFootVel_ = 0.;
     double logVFCRightFootVel_ = 0.;
     double mass_ = 38.; // [kg]
-    double pelvisStiffness_ = 10.;
-    double pelvisWeight_ = 100.;
-    double postureStiffness_ = 10.;
-    double postureWeight_ = 100.;
     double qpLeftAnkleCost_ = 0.;
     double qpNetWrenchCost_ = 0.;
     double qpPressureCost_ = 0.;
     double qpRightAnkleCost_ = 0.;
     double swingFootStiffness_ = 2000.;
     double swingFootWeight_ = 100.;
-    double torsoPitch_ = 0.0; // [rad]
-    double torsoStiffness_ = 10.;
-    double torsoWeight_ = 100.;
     double vdcFrequency_ = 0.; /**< Vertical Drift Compensation frequency */
     double vdcStiffness_ = 1000.; /**< Vertical Drift Compensation stiffness */
     mc_rtc::Configuration config_;

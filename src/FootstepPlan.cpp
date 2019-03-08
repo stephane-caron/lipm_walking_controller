@@ -36,6 +36,7 @@ namespace lipm_walking
     config("swing_height", swingHeight_);
     config("takeoff_pitch", takeoffPitch_);
     config("takeoff_ratio", takeoffRatio_);
+    config("torso_pitch", torsoPitch_);
   }
 
   void FootstepPlan::save(mc_rtc::Configuration & config) const
@@ -51,6 +52,10 @@ namespace lipm_walking
     config.add("swing_height", swingHeight_);
     config.add("takeoff_pitch", takeoffPitch_);
     config.add("takeoff_ratio", takeoffRatio_);
+    if (hasTorsoPitch())
+    {
+      config.add("torso_pitch", torsoPitch_);
+    }
   }
 
   void FootstepPlan::complete(const Sole & sole)

@@ -141,6 +141,14 @@ namespace lipm_walking
       return finalDSPDuration_;
     }
 
+    /** Does the plan provide a reference torso pitch?
+     *
+     */
+    inline bool hasTorsoPitch() const
+    {
+      return (torsoPitch_ > -10.);
+    }
+
     /** Set final double support phase duration.
      *
      * \param duration New duration.
@@ -346,6 +354,14 @@ namespace lipm_walking
       takeoffRatio_ = clamp(ratio, 0., 0.5);
     }
 
+    /** Reference torso pitch angle.
+     *
+     */
+    inline double torsoPitch() const
+    {
+      return torsoPitch_;
+    }
+
   public:
     std::string name = "";
 
@@ -365,6 +381,7 @@ namespace lipm_walking
     double swingHeight_ = 0.04; // [m]
     double takeoffPitch_ = 0.;
     double takeoffRatio_ = 0.05;
+    double torsoPitch_ = -100.;
     std::vector<Contact> contacts_;
     unsigned nextFootstep_ = 0;
   };

@@ -61,6 +61,8 @@ namespace lipm_walking
     stabilizer().setContact(stabilizer().leftFootTask, leftFootContact_);
     stabilizer().setContact(stabilizer().rightFootTask, rightFootContact_);
     stabilizer().addTasks(ctl.solver());
+    ctl.solver().addTask(ctl.pelvisTask);
+    ctl.solver().addTask(ctl.torsoTask);
 
     updateTarget(leftFootRatio_);
 
