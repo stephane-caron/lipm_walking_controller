@@ -80,7 +80,7 @@ namespace lipm_walking
     // Read settings from configuration file
     plans_ = config("plans");
     mpcConfig_ = config("mpc");
-    sole = config("sole");
+    sole_ = config("sole");
     std::string initialPlan = plans_.keys()[0];
     config("initial_plan", initialPlan);
     if (config.has("stabilizer"))
@@ -91,7 +91,7 @@ namespace lipm_walking
     loadFootstepPlan(initialPlan);
     updateRobotMass(robot().mass());
     stabilizer_.reset(robots());
-    stabilizer_.wrenchFaceMatrix(sole);
+    stabilizer_.wrenchFaceMatrix(sole_);
 
     logger().addLogEntry("controlRobot_LeftFoot", [this]() { return controlRobot().surfacePose("LeftFoot"); });
     logger().addLogEntry("controlRobot_LeftFootCenter", [this]() { return controlRobot().surfacePose("LeftFootCenter"); });
@@ -371,14 +371,14 @@ namespace lipm_walking
   void Controller::loadFootstepPlan(std::string name)
   {
     plan = plans_(name);
-    plan.complete(sole);
     plan.name = name;
     plan.reset();
     mpc_.configure(mpcConfig_);
-    if (plans_(name).has("mpc"))
+    if (!plan.mpcConfig.empty())
     {
-      mpc_.configure(plans_(name)("mpc"));
+      mpc_.configure(plan.mpcConfig);
     }
+    plan.complete(sole_);
     torsoPitch_ = (plan.hasTorsoPitch()) ? plan.torsoPitch() : defaultTorsoPitch_;
     LOG_INFO("Loaded footstep plan \"" << name << "\"");
   }

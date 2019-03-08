@@ -4,7 +4,7 @@ Source code of the walking controller used in the experiments of [Stair Climbing
 
 ## Installation
 
-Compilation has been tested on Ubuntu 14.04 (gcc/clang) with ROS Indigo.
+Compilation has been tested on Ubuntu 14.04 (gcc/clang) with ROS Indigo and Ubuntu 16.04 (gcc) with ROS Kinetic.
 
 ### Dependencies
 

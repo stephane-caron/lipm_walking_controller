@@ -37,6 +37,10 @@ namespace lipm_walking
     config("takeoff_pitch", takeoffPitch_);
     config("takeoff_ratio", takeoffRatio_);
     config("torso_pitch", torsoPitch_);
+    if (config.has("mpc"))
+    {
+      mpcConfig = config("mpc");
+    }
   }
 
   void FootstepPlan::save(mc_rtc::Configuration & config) const
@@ -55,6 +59,10 @@ namespace lipm_walking
     if (hasTorsoPitch())
     {
       config.add("torso_pitch", torsoPitch_);
+    }
+    if (!mpcConfig.empty())
+    {
+      config("mpc") = mpcConfig;
     }
   }
 

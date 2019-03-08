@@ -149,11 +149,11 @@ namespace lipm_walking
     visualization_msgs::Marker m;
     m.type = visualization_msgs::Marker::LINE_STRIP;
     m.action = visualization_msgs::Marker::ADD;
-    m.points.push_back(rosPoint(Eigen::Vector3d(+sole.halfLength, +sole.halfWidth, 0.)));
-    m.points.push_back(rosPoint(Eigen::Vector3d(+sole.halfLength, -sole.halfWidth, 0.)));
-    m.points.push_back(rosPoint(Eigen::Vector3d(-sole.halfLength, -sole.halfWidth, 0.)));
-    m.points.push_back(rosPoint(Eigen::Vector3d(-sole.halfLength, +sole.halfWidth, 0.)));
-    m.points.push_back(rosPoint(Eigen::Vector3d(+sole.halfLength, +sole.halfWidth, 0.)));
+    m.points.push_back(rosPoint(Eigen::Vector3d(+sole_.halfLength, +sole_.halfWidth, 0.)));
+    m.points.push_back(rosPoint(Eigen::Vector3d(+sole_.halfLength, -sole_.halfWidth, 0.)));
+    m.points.push_back(rosPoint(Eigen::Vector3d(-sole_.halfLength, -sole_.halfWidth, 0.)));
+    m.points.push_back(rosPoint(Eigen::Vector3d(-sole_.halfLength, +sole_.halfWidth, 0.)));
+    m.points.push_back(rosPoint(Eigen::Vector3d(+sole_.halfLength, +sole_.halfWidth, 0.)));
     m.scale.x = 0.005;
     m.color.a = 1.0;
     m.color.r = COLORS.at(color)[0];

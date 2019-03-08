@@ -292,7 +292,6 @@ namespace lipm_walking
 
   public: /* visible to FSM states */
     FootstepPlan plan;
-    Sole sole;
     bool emergencyStop = false;
     bool pauseWalking = false;
     std::shared_ptr<Preview> preview;
@@ -311,6 +310,7 @@ namespace lipm_walking
     ModelPredictiveControl mpc_;
     NetWrenchObserver netWrenchObs_;
     Pendulum pendulum_;
+    Sole sole_;
     Stabilizer stabilizer_;
     bool isInTheAir_ = false;
     bool leftFootRatioJumped_ = false;

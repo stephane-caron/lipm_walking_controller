@@ -363,6 +363,7 @@ namespace lipm_walking
     }
 
   public:
+    mc_rtc::Configuration mpcConfig;
     std::string name = "";
 
   private:
