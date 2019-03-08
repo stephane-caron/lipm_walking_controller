@@ -314,7 +314,6 @@ namespace lipm_walking
     Pendulum pendulum_;
     Sole sole_;
     Stabilizer stabilizer_;
-    bool isInTheAir_ = false;
     bool leftFootRatioJumped_ = false;
     double ctlTime_ = 0.;
     double defaultTorsoPitch_ = 0.;
