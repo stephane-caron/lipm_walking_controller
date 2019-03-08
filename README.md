@@ -1,8 +1,6 @@
 # LIPM Walking Controller
 
-Source code of the walking controller used in the experiments of [Stair
-Climbing Stabilization of the HRP-4 Humanoid Robot using Whole-body Admittance
-Control](https://hal.archives-ouvertes.fr/hal-01875387/document).
+Source code of the walking controller used in the experiments of [Stair Climbing Stabilization of the HRP-4 Humanoid Robot using Whole-body Admittance Control](https://hal.archives-ouvertes.fr/hal-01875387/document).
 
 ## Installation
 
@@ -21,32 +19,28 @@ Compilation requires:
 * [mc\_rbdyn\_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf): robot model loader
 * [copra](https://github.com/vsamy/copra): linear model predictive control
 
-The following dependencies are not publicly released yet but available upon
-request to [Pierre Gergondet](mailto:pierre.gergondet@gmail.com):
+The following dependencies are not publicly released yet but available upon request to [Pierre Gergondet](mailto:pierre.gergondet@gmail.com):
 
-* [mc\_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc): robot controller library (includes mc_control, mc_rbdyn, mc_solver and mc_tasks)
-* [mc\_rtc\_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros): ROS tools for mc_rtc
-* [mc\_rtc\_ros\_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data): ROS environment and object descriptions for mc_rtc
+* [mc\_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc): robot controller library (includes mc\_control, mc\_rbdyn, mc\_solver and mc\_tasks)
+* [mc\_rtc\_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros): ROS tools for mc\_rtc
+* [mc\_rtc\_ros\_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data): ROS environment and object descriptions for mc\_rtc
 
-There is currently an additional dependency to the *eigen-lssol* library. It
-will be replaced by [eigen-qld](https://github.com/jrl-umi3218/eigen-qld) in a
-future update.
+There is currently an additional dependency to the *eigen-lssol* library. It will be replaced by [eigen-qld](https://github.com/jrl-umi3218/eigen-qld) in a future update.
 
 ### Building from source on Linux
 
-Link `lipm_walking_controller` from the source folder of your catkin workspace,
-then follow the standard catkin workflow:
+Link `lipm_walking_controller` from the source folder of your catkin workspace, then follow the standard catkin workflow:
 ```sh
 catkin_make -DCMAKE_BUILD_TYPE=RelWithDebInfo && catkin_make install
 ```
 
 ## Usage
 
-First, launch RViz by:
+First, launch RViz for the HRP-4 model by:
 ```sh
-roslaunch lipm_walking_controller display.launch
+roslaunch lipm_walking_controller display_hrp4.launch
 ```
-Then, run your mc\_rtc interface on the main confuguration file:
+Then, run your mc\_rtc interface on the main configuration file:
 ```sh
 <mc_rtc_interface> lipm_walking_controller/etc/mc_rtc.conf
 ```
