@@ -103,13 +103,6 @@ namespace lipm_walking
      */
     Stabilizer(const mc_rbdyn::Robot & robot, const Pendulum & ref, double dt);
 
-    /** Log stabilizer entries.
-     *
-     * \param logger Logger.
-     *
-     */
-    void addLogEntries(mc_rtc::Logger & logger);
-
     /** Add GUI panel.
      *
      * \param gui GUI handle.
@@ -117,10 +110,57 @@ namespace lipm_walking
      */
     void addGUIElements(std::shared_ptr<mc_rtc::gui::StateBuilder> gui);
 
+    /** Log stabilizer entries.
+     *
+     * \param logger Logger.
+     *
+     */
+    void addLogEntries(mc_rtc::Logger & logger);
+
+    /** Add tasks to QP solver.
+     *
+     * \param solver QP solver to add tasks to.
+     *
+     */
+    void addTasks(mc_solver::QPSolver & solver);
+
+    /** Compute ZMP of a wrench in the output frame.
+     *
+     * \param wrench Wrench at the origin of the world frame.
+     *
+     */
+    Eigen::Vector3d computeOutputFrameZMP(const sva::ForceVecd & wrench) const;
+
+    /** Read configuration from dictionary.
+     *
+     */
+    void configure(const mc_rtc::Configuration &);
+
+    /** Detect foot touchdown based on both force and distance.
+     *
+     * \param footTask Swing foot task.
+     *
+     * \param contact Target contact.
+     *
+     */
+    bool detectTouchdown(const std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact);
+
     /** Disable all feedback components.
      *
      */
     void disable();
+
+    /** Apply stored configuration.
+     *
+     */
+    void reconfigure();
+
+    /** Remove tasks from QP solver.
+     *
+     * \param solver QP solver to remove tasks from.
+     *
+     */
+    void removeTasks(mc_solver::QPSolver & solver);
 
     /** Reset CoM and foot CoP tasks.
      *
@@ -129,15 +169,84 @@ namespace lipm_walking
      */
     void reset(const mc_rbdyn::Robots & robots);
 
-    /** Read configuration from dictionary.
+    /** Update QP task targets.
+     *
+     * This function is called once the reference has been updated.
      *
      */
-    void configure(const mc_rtc::Configuration &);
+    void run();
 
-    /** Apply stored configuration.
+    /** Configure foot task for contact seeking.
+     *
+     * \param footTask One of leftFootTask or rightFootTask.
+     *
+     * This function has no effect when the measured pressure is already higher
+     * than the target. Otherwise, it will set a positive admittance along the
+     * z-axis of the contact frame.
      *
      */
-    void reconfigure();
+    void seekTouchdown(std::shared_ptr<mc_tasks::CoPTask> footTask);
+
+    /** Configure foot task for contact at a given location.
+     *
+     * \param footTask One of leftFootTask or rightFootTask.
+     * 
+     * \param contact Target contact location.
+     *
+     */
+    void setContact(std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact);
+
+    /** Configure foot task for swinging.
+     *
+     * \param footTask One of leftFootTask or rightFootTask.
+     *
+     * Foot target is reset to the current frame pose.
+     *
+     */
+    void setSwingFoot(std::shared_ptr<mc_tasks::CoPTask> footTask);
+
+    /** Get contact state.
+     *
+     */
+    ContactState contactState()
+    {
+      return contactState_;
+    }
+
+    /** Set desired contact state.
+     *
+     */
+    void contactState(ContactState contactState)
+    {
+      contactState_ = contactState;
+    }
+
+    /** Update robot mass.
+     *
+     */
+    void mass(double mass)
+    {
+      mass_ = mass;
+    }
+
+    /** Update real-robot state.
+     *
+     * \param com Position of the center of mass.
+     *
+     * \param comd Velocity of the center of mass.
+     *
+     * \param wrench Net contact wrench in the inertial frame.
+     *
+     * \param leftFootRatio Desired pressure distribution ratio for left foot.
+     *
+     */
+    void updateState(const Eigen::Vector3d & com, const Eigen::Vector3d & comd, const sva::ForceVecd & wrench, double leftFootRatio = 0.5)
+    {
+      leftFootRatio_ = leftFootRatio;
+      measuredCoM_ = com;
+      measuredCoMd_ = comd;
+      measuredWrench_ = wrench;
+    }
 
     /** Update H-representation of contact wrench cones.
      *
@@ -173,45 +282,19 @@ namespace lipm_walking
           -mu, -mu,  +1,  -Y,  -X, -(X + Y) * mu;
     }
 
-    /** Update real-robot state.
-     *
-     * \param com Position of the center of mass.
-     *
-     * \param comd Velocity of the center of mass.
-     *
-     * \param wrench Net contact wrench in the inertial frame.
-     *
-     * \param leftFootRatio Desired pressure distribution ratio for left foot.
+    /** ZMP target after force distribution.
      *
      */
-    void updateState(const Eigen::Vector3d & com, const Eigen::Vector3d & comd, const sva::ForceVecd & wrench, double leftFootRatio = 0.5)
+    Eigen::Vector3d zmp() const
     {
-      leftFootRatio_ = leftFootRatio;
-      measuredCoM_ = com;
-      measuredCoMd_ = comd;
-      measuredWrench_ = wrench;
+      return computeOutputFrameZMP(distribWrench_);
     }
 
-    /** Add tasks to QP solver.
-     *
-     * \param solver QP solver to add tasks to.
-     *
-     */
-    void addTasks(mc_solver::QPSolver & solver);
-
-    /** Remove tasks from QP solver.
-     *
-     * \param solver QP solver to remove tasks from.
+  private:
+    /** Check that all gains are within boundaries.
      *
      */
-    void removeTasks(mc_solver::QPSolver & solver);
-
-    /** Update QP task targets.
-     *
-     * This function is called once the reference has been updated.
-     *
-     */
-    void run();
+    void checkGains();
 
     /** Distribute a desired wrench in double support.
      *
@@ -228,89 +311,6 @@ namespace lipm_walking
      *
      */
     void saturateWrench(const sva::ForceVecd & desiredWrench, std::shared_ptr<mc_tasks::CoPTask> & footTask);
-
-    /** Detect foot touchdown based on both force and distance.
-     *
-     * \param footTask Swing foot task.
-     *
-     * \param contact Target contact.
-     *
-     */
-    bool detectTouchdown(const std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact);
-
-    /** Configure foot task for contact seeking.
-     *
-     * \param footTask One of leftFootTask or rightFootTask.
-     *
-     * This function has no effect when the measured pressure is already higher
-     * than the target. Otherwise, it will set a positive admittance along the
-     * z-axis of the contact frame.
-     *
-     */
-    void seekTouchdown(std::shared_ptr<mc_tasks::CoPTask> footTask);
-
-    /** Configure foot task for contact at a given location.
-     *
-     * \param footTask One of leftFootTask or rightFootTask.
-     * 
-     * \param contact Target contact location.
-     *
-     */
-    void setContact(std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact);
-
-    /** Configure foot task for swinging.
-     *
-     * \param footTask One of leftFootTask or rightFootTask.
-     *
-     * Foot target is reset to the current frame pose.
-     *
-     */
-    void setSwingFoot(std::shared_ptr<mc_tasks::CoPTask> footTask);
-
-    /** Compute ZMP of a wrench in the output frame.
-     *
-     * \param wrench Wrench at the origin of the world frame.
-     *
-     */
-    Eigen::Vector3d computeOutputFrameZMP(const sva::ForceVecd & wrench) const;
-
-    /** Get contact state.
-     *
-     */
-    ContactState contactState()
-    {
-      return contactState_;
-    }
-
-    /** Set desired contact state.
-     *
-     */
-    void contactState(ContactState contactState)
-    {
-      contactState_ = contactState;
-    }
-
-    /** Update robot mass.
-     *
-     */
-    void mass(double mass)
-    {
-      mass_ = mass;
-    }
-
-    /** ZMP target after force distribution.
-     *
-     */
-    Eigen::Vector3d zmp() const
-    {
-      return computeOutputFrameZMP(distribWrench_);
-    }
-
-  private:
-    /** Check that all gains are within boundaries.
-     *
-     */
-    void checkGains();
 
     /** Reset admittance, damping and stiffness for every foot in contact.
      *
@@ -437,7 +437,7 @@ namespace lipm_walking
     double vdcStiffness_ = 1000.; /**< Vertical Drift Compensation stiffness */
     mc_rtc::Configuration config_;
     sva::ForceVecd contactAdmittance_;
-    sva::ForceVecd distribWrench_;
+    sva::ForceVecd distribWrench_ = sva::ForceVecd::Zero();
     sva::ForceVecd measuredWrench_;
     sva::MotionVecd contactDamping_;
     sva::MotionVecd contactStiffness_;

@@ -38,6 +38,13 @@ namespace lipm_walking
      */
     FloatingBaseObserver(const mc_rbdyn::Robot & controlRobot);
 
+    /** Get anchor frame of a robot for a given contact state.
+     *
+     * \param robot Robot state to read frames from.
+     *
+     */
+    sva::PTransformd getAnchorFrame(const mc_rbdyn::Robot & robot);
+
     /** Reset floating base estimate.
      *
      * \param X_0_fb New floating-base transform.
@@ -59,30 +66,6 @@ namespace lipm_walking
      */
     void updateRobot(mc_rbdyn::Robot & robot);
 
-    /** Update floating-base orientation based on new observed gravity vector.
-     *
-     * \param realRobot Measured robot state.
-     *
-     */
-    void estimateOrientation(const mc_rbdyn::Robot & realRobot);
-
-    /* Update floating-base position.
-     *
-     * \param realRobot Measurements robot model.
-     *
-     * The new position is chosen so that the origin of the real anchor frame
-     * coincides with the control anchor frame.
-     *
-     */
-    void estimatePosition(const mc_rbdyn::Robot & realRobot);
-
-    /** Get anchor frame of a robot for a given contact state.
-     *
-     * \param robot Robot state to read frames from.
-     *
-     */
-    sva::PTransformd getAnchorFrame(const mc_rbdyn::Robot & robot);
-
     /** Set fraction of total weight sustained by the left foot.
      *
      * \note This field is used in anchor frame computations.
@@ -100,6 +83,24 @@ namespace lipm_walking
     {
       return {orientation_, position_};
     }
+
+  private:
+    /** Update floating-base orientation based on new observed gravity vector.
+     *
+     * \param realRobot Measured robot state.
+     *
+     */
+    void estimateOrientation(const mc_rbdyn::Robot & realRobot);
+
+    /* Update floating-base position.
+     *
+     * \param realRobot Measurements robot model.
+     *
+     * The new position is chosen so that the origin of the real anchor frame
+     * coincides with the control anchor frame.
+     *
+     */
+    void estimatePosition(const mc_rbdyn::Robot & realRobot);
 
   private:
     Eigen::Matrix3d orientation_; /**< rotation from world to floating-base frame */

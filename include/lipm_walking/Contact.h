@@ -115,7 +115,7 @@ namespace lipm_walking
     /** Shorthand for lateral vector.
      *
      */
-    inline Eigen::Vector3d b() const
+    Eigen::Vector3d b() const
     {
       return lateral();
     }
@@ -123,7 +123,7 @@ namespace lipm_walking
     /** Shorthand for normal vector.
      *
      */
-    inline Eigen::Vector3d n() const
+    Eigen::Vector3d n() const
     {
       return normal();
     }
@@ -131,7 +131,7 @@ namespace lipm_walking
     /** Shorthand for sagittal vector.
      *
      */
-    inline Eigen::Vector3d t() const
+    Eigen::Vector3d t() const
     {
       return sagittal();
     }
@@ -139,7 +139,7 @@ namespace lipm_walking
     /** Shorthand for position.
      *
      */
-    inline const Eigen::Vector3d & p() const
+    const Eigen::Vector3d & p() const
     {
       return position();
     }
@@ -147,7 +147,7 @@ namespace lipm_walking
     /** Position of ankle from foot center frame.
      *
      */
-    inline Eigen::Vector3d anklePos() const
+    Eigen::Vector3d anklePos() const
     {
       if (surfaceName == "LeftFootCenter")
       {
@@ -167,7 +167,7 @@ namespace lipm_walking
     /** Get frame rooted at the ankle.
      *
      */
-    inline sva::PTransformd anklePose() const
+    sva::PTransformd anklePose() const
     {
       return {pose.rotation(), anklePos()};
     }
@@ -175,7 +175,7 @@ namespace lipm_walking
     /** Shorthand for world x-coordinate.
      *
      */
-    inline double x() const
+    double x() const
     {
       return position()(0);
     }
@@ -183,7 +183,7 @@ namespace lipm_walking
     /** Shorthand for world y-coordinate.
      *
      */
-    inline double y() const
+    double y() const
     {
       return position()(1);
     }
@@ -191,7 +191,7 @@ namespace lipm_walking
     /** Shorthand for world z-coordinate.
      *
      */
-    inline double z() const
+    double z() const
     {
       return position()(2);
     }
@@ -199,7 +199,7 @@ namespace lipm_walking
     /** Corner vertex of the contact area.
      *
      */
-    inline Eigen::Vector3d vertex0() const
+    Eigen::Vector3d vertex0() const
     {
       return position() + halfLength * t() + halfWidth * b();
     }
@@ -207,7 +207,7 @@ namespace lipm_walking
     /** Corner vertex of the contact area.
      *
      */
-    inline Eigen::Vector3d vertex1() const
+    Eigen::Vector3d vertex1() const
     {
       return position() + halfLength * t() - halfWidth * b();
     }
@@ -215,7 +215,7 @@ namespace lipm_walking
     /** Corner vertex of the contact area.
      *
      */
-    inline Eigen::Vector3d vertex2() const
+    Eigen::Vector3d vertex2() const
     {
       return position() - halfLength * t() - halfWidth * b();
     }
@@ -223,7 +223,7 @@ namespace lipm_walking
     /** Corner vertex of the contact area.
      *
      */
-    inline Eigen::Vector3d vertex3() const
+    Eigen::Vector3d vertex3() const
     {
       return position() - halfLength * t() + halfWidth * b();
     }
@@ -232,7 +232,7 @@ namespace lipm_walking
      *
      */
     template <int i>
-    inline double minCoord() const
+    double minCoord() const
     {
       return std::min(std::min(vertex0()(i), vertex1()(i)), std::min(vertex2()(i), vertex3()(i)));
     }
@@ -241,7 +241,7 @@ namespace lipm_walking
      *
      */
     template <int i>
-    inline double maxCoord() const
+    double maxCoord() const
     {
       return std::max(std::max(vertex0()(i), vertex1()(i)), std::max(vertex2()(i), vertex3()(i)));
     }
@@ -249,7 +249,7 @@ namespace lipm_walking
     /** Minimum world x-coordinate of the contact area.
      *
      */
-    inline double xmin() const
+    double xmin() const
     {
       return minCoord<0>();
     }
@@ -257,7 +257,7 @@ namespace lipm_walking
     /** Maximum world x-coordinate of the contact area.
      *
      */
-    inline double xmax() const
+    double xmax() const
     {
       return maxCoord<0>();
     }
@@ -265,7 +265,7 @@ namespace lipm_walking
     /** Minimum world y-coordinate of the contact area.
      *
      */
-    inline double ymin() const
+    double ymin() const
     {
       return minCoord<1>();
     }
@@ -273,7 +273,7 @@ namespace lipm_walking
     /** Maximum world y-coordinate of the contact area.
      *
      */
-    inline double ymax() const
+    double ymax() const
     {
       return maxCoord<1>();
     }
@@ -281,7 +281,7 @@ namespace lipm_walking
     /** Minimum world z-coordinate of the contact area.
      *
      */
-    inline double zmin() const
+    double zmin() const
     {
       return minCoord<2>();
     }
@@ -289,7 +289,7 @@ namespace lipm_walking
     /** Maximum world z-coordinate of the contact area.
      *
      */
-    inline double zmax() const
+    double zmax() const
     {
       return maxCoord<2>();
     }
@@ -297,7 +297,7 @@ namespace lipm_walking
     /** Halfspace representation of contact area in world frame.
      *
      */
-    inline Eigen::HrepXd hrep() const
+    Eigen::HrepXd hrep() const
     {
       Eigen::Matrix<double, 4, 2> localHrepMat, worldHrepMat;
       Eigen::Matrix<double, 4, 1> localHrepVec, worldHrepVec;
@@ -326,7 +326,7 @@ namespace lipm_walking
      * \param magnitude Absolute displacement after noising.
      *
      */
-    inline Contact addNoise(double magnitude) const
+    Contact addNoise(double magnitude) const
     {
       Contact noisedContact = *this;
       Eigen::Vector3d unitRandom = Eigen::Vector3d::Random().normalized();

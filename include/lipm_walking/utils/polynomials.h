@@ -86,7 +86,7 @@ struct CubicPolynomial : CubicPolynomialBase<T>
   /** Return T's zero.
    *
    */
-  inline T zero()
+  T zero()
   {
     return T::Zero();
   }
@@ -106,7 +106,7 @@ struct CubicPolynomial<double> : CubicPolynomialBase<double>
   /** Zero function used for double specialization.
    *
    */
-  inline double zero()
+  double zero()
   {
     return 0.;
   }
@@ -278,7 +278,7 @@ struct QuinticPolynomial : QuinticPolynomialBase<T>
   /** Return T's zero.
    *
    */
-  inline T zero()
+  T zero()
   {
     return T::Zero();
   }
@@ -301,7 +301,7 @@ struct QuinticPolynomial<double> : QuinticPolynomialBase<double>
   /** Zero function used for double specialization.
    *
    */
-  inline double zero()
+  double zero()
   {
     return 0.;
   }

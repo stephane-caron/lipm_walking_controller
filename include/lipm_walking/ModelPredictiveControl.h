@@ -55,13 +55,6 @@ namespace lipm_walking
      */
     ModelPredictiveControlSolution(const Eigen::VectorXd & stateTraj, const Eigen::VectorXd & jerkTraj);
 
-    /** Fill solution with zeros, except for initial state.
-     *
-     * \param initState Initial state.
-     *
-     */
-    void zeroFrom(const Eigen::VectorXd & initState);
-
     /** Integrate playback on reference.
      *
      * \param state CoM state to integrate upon.
@@ -89,10 +82,17 @@ namespace lipm_walking
      */
     void integratePostPlayback(Pendulum & state, double dt);
 
+    /** Fill solution with zeros, except for initial state.
+     *
+     * \param initState Initial state.
+     *
+     */
+    void zeroFrom(const Eigen::VectorXd & initState);
+
     /** Get the CoM jerk (input) trajectory.
      *
      */
-    inline const Eigen::VectorXd & jerkTraj() const
+    const Eigen::VectorXd & jerkTraj() const
     {
       return jerkTraj_;
     }
@@ -100,7 +100,7 @@ namespace lipm_walking
     /** Get the CoM state trajectory.
      *
      */
-    inline const Eigen::VectorXd & stateTraj() const
+    const Eigen::VectorXd & stateTraj() const
     {
       return stateTraj_;
     }
@@ -174,7 +174,7 @@ namespace lipm_walking
     /** Set the target CoM height.
      *
      */
-    inline void comHeight(double height)
+    void comHeight(double height)
     {
       comHeight_ = height;
       zeta_ = height / world::GRAVITY;
@@ -194,7 +194,7 @@ namespace lipm_walking
      * \param targetContact Contact used during double-support phases.
      *
      */
-    inline void contacts(Contact initContact, Contact targetContact, Contact nextContact)
+    void contacts(Contact initContact, Contact targetContact, Contact nextContact)
     {
       initContact_ = initContact;
       nextContact_ = nextContact;
@@ -206,7 +206,7 @@ namespace lipm_walking
      * \param pendulum CoM state.
      *
      */
-    inline void initState(const Pendulum & pendulum)
+    void initState(const Pendulum & pendulum)
     {
       initState_ = Eigen::VectorXd(6);
       initState_ << 
@@ -218,27 +218,27 @@ namespace lipm_walking
     /** Get solution vector.
      *
      */
-    inline std::shared_ptr<Preview> solution()
+    std::shared_ptr<Preview> solution()
     {
       return solution_;
     }
 
-    inline unsigned indexToHrep(unsigned i) const
+    unsigned indexToHrep(unsigned i) const
     {
       return indexToHrep_[i];
     }
 
-    inline unsigned nbInitSupportSteps() const
+    unsigned nbInitSupportSteps() const
     {
       return nbInitSupportSteps_;
     }
 
-    inline unsigned nbDoubleSupportSteps() const
+    unsigned nbDoubleSupportSteps() const
     {
       return nbDoubleSupportSteps_;
     }
 
-    inline std::string phaseLabel() const
+    std::string phaseLabel() const
     {
       std::stringstream label;
       label
@@ -249,22 +249,22 @@ namespace lipm_walking
       return label.str();
     }
 
-    inline const Contact & initContact() const
+    const Contact & initContact() const
     {
       return initContact_;
     }
 
-    inline const Contact & targetContact() const
+    const Contact & targetContact() const
     {
       return targetContact_;
     }
 
-    inline const Contact & nextContact() const
+    const Contact & nextContact() const
     {
       return nextContact_;
     }
 
-    inline double solveTime()
+    double solveTime()
     {
       double time = solveTime_;
       solveTime_ = 0.;
@@ -273,17 +273,17 @@ namespace lipm_walking
 
     using RefVec = Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1>;
 
-    inline const RefVec & velRef() const
+    const RefVec & velRef() const
     {
       return velRef_;
     }
 
-    inline double zeta() const
+    double zeta() const
     {
       return zeta_;
     }
 
-    inline const RefVec & zmpRef() const
+    const RefVec & zmpRef() const
     {
       return zmpRef_;
     }

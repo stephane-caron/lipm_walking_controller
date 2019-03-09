@@ -31,7 +31,7 @@ struct AvgStdEstimator
    * \param x New value.
    *
    */
-  inline void add(double x)
+  void add(double x)
   {
     n_++;
     total_ += x;
@@ -49,7 +49,7 @@ struct AvgStdEstimator
   /** Average of the time series.
    *
    */
-  inline double avg()
+  double avg()
   {
     if (n_ < 1)
     {
@@ -61,7 +61,7 @@ struct AvgStdEstimator
   /** Number of samples.
    *
    */
-  inline unsigned n()
+  unsigned n()
   {
     return n_;
   }
@@ -69,7 +69,7 @@ struct AvgStdEstimator
   /** Reset estimator to a empty series.
    *
    */
-  inline void reset()
+  void reset()
   {
     max_ = 0.;
     min_ = 0.;
@@ -81,7 +81,7 @@ struct AvgStdEstimator
   /** Standard deviation of the time series.
    *
    */
-  inline double std()
+  double std()
   {
     if (n_ <= 1)
     {
@@ -98,7 +98,7 @@ struct AvgStdEstimator
    * \param verbose Report extra information such as min and max values.
    *
    */
-  inline std::string str(unsigned round = 0, bool verbose = true)
+  std::string str(unsigned round = 0, bool verbose = true)
   {
     std::ostringstream ss;
     double avgVal = avg();
@@ -156,7 +156,7 @@ struct ExponentialMovingAverage
    * \param initValue Initial value of the output average.
    *
    */
-  inline ExponentialMovingAverage(double dt, double timeConstant, const Eigen::Vector3d & initValue = Eigen::Vector3d::Zero())
+  ExponentialMovingAverage(double dt, double timeConstant, const Eigen::Vector3d & initValue = Eigen::Vector3d::Zero())
     : dt_(dt)
   {
     average_ = initValue;
@@ -168,7 +168,7 @@ struct ExponentialMovingAverage
    * \param value New value.
    *
    */
-  inline void append(const Eigen::Vector3d & value)
+  void append(const Eigen::Vector3d & value)
   {
     average_ += alpha_ * (value - average_);
     if (saturation_ > 0.)
@@ -180,7 +180,7 @@ struct ExponentialMovingAverage
   /** Evaluate the smoothed statistic.
    *
    */
-  inline const Eigen::Vector3d & eval() const
+  const Eigen::Vector3d & eval() const
   {
     return average_;
   }
@@ -190,7 +190,7 @@ struct ExponentialMovingAverage
    * \param limit Output will saturate between -limit and +limit.
    *
    */
-  inline void saturation(double limit)
+  void saturation(double limit)
   {
     saturation_ = limit;
   }
@@ -198,7 +198,7 @@ struct ExponentialMovingAverage
   /** Reset average to zero.
    *
    */
-  inline void setZero()
+  void setZero()
   {
     average_.setZero();
   }
@@ -206,7 +206,7 @@ struct ExponentialMovingAverage
   /** Get time constant of the filter.
    *
    */
-  inline double timeConstant() const
+  double timeConstant() const
   {
     return timeConstant_;
   }
@@ -216,7 +216,7 @@ struct ExponentialMovingAverage
    * \param T New time constant of the filter.
    *
    */
-  inline void timeConstant(double T)
+  void timeConstant(double T)
   {
     alpha_ = 1. - std::exp(-dt_ / T);
     //alpha_ = dt_ / T; // valid if dt_ << T
@@ -227,7 +227,7 @@ private:
   /** Saturate averaged values.
    *
    */
-  inline void saturate_()
+  void saturate_()
   {
     for (unsigned i = 0; i < 3; i++)
     {

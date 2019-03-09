@@ -37,36 +37,6 @@ namespace lipm_walking
     {
     }
 
-    /** Start function.
-     *
-     */
-    void start(mc_control::fsm::Controller & controller) override
-    {
-      controller_ = &static_cast<Controller&>(controller);
-      start();
-    }
-
-    /** Main function.
-     *
-     */
-    bool run(mc_control::fsm::Controller &) override
-    {
-      if (checkTransitions())
-      {
-        return true;
-      }
-      runState();
-      return false;
-    }
-
-    /** Teardown function.
-     *
-     */
-    void teardown(mc_control::fsm::Controller &) override
-    {
-      teardown();
-    }
-
     /** Get controller.
      *
      */
@@ -107,12 +77,42 @@ namespace lipm_walking
       return controller_->plan;
     }
 
+    /** Main function.
+     *
+     */
+    bool run(mc_control::fsm::Controller &) override
+    {
+      if (checkTransitions())
+      {
+        return true;
+      }
+      runState();
+      return false;
+    }
+
     /** Get stabilizer.
      *
      */
     Stabilizer & stabilizer()
     {
       return controller_->stabilizer();
+    }
+
+    /** Start function.
+     *
+     */
+    void start(mc_control::fsm::Controller & controller) override
+    {
+      controller_ = &static_cast<Controller&>(controller);
+      start();
+    }
+
+    /** Teardown function.
+     *
+     */
+    void teardown(mc_control::fsm::Controller &) override
+    {
+      teardown();
     }
 
     virtual bool checkTransitions() = 0;

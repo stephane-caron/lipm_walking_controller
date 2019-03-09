@@ -34,20 +34,6 @@ namespace lipm_walking
    */
   struct FootstepPlan
   {
-    /** Load plan from configuration dictionary.
-     *
-     * \param config Configuration dictionary.
-     *
-     */
-    void load(const mc_rtc::Configuration & config);
-
-    /** Save plan to configuration  dictionary.
-     *
-     * \param config Configuration dictionary.
-     *
-     */
-    void save(mc_rtc::Configuration & config) const;
-
     /** Complete contacts from sole parameters.
      *
      * \param sole Sole parameters.
@@ -55,24 +41,17 @@ namespace lipm_walking
      */
     void complete(const Sole & sole);
 
-    /** Rewind plan to a given contact.
+    /** Compute initial floating-base transform over first contact.
      *
-     * \param startIndex Index of first support contact.
+     * \param robot Robot model.
      *
      */
-    void reset(unsigned startIndex = 0);
+    sva::PTransformd computeInitialTransform(const mc_rbdyn::Robot & robot) const;
 
     /** Advance to next footstep in plan.
      *
      */
     void goToNextFootstep();
-
-    /** Rewind one footstep back in plan.
-     *
-     * \note This function cannot rewind more than one step. It is only used
-     * when activating a DoubleSupport to Standing transition.
-     */
-    void restorePreviousFootstep();
 
     /** Advance to next footstep in plan, taking into account drift in reaching
      * target contact.
@@ -82,12 +61,33 @@ namespace lipm_walking
      */
     void goToNextFootstep(const sva::PTransformd & actualTargetPose);
 
-    /** Compute initial floating-base transform over first contact.
+    /** Load plan from configuration dictionary.
      *
-     * \param robot Robot model.
+     * \param config Configuration dictionary.
      *
      */
-    sva::PTransformd computeInitialTransform(const mc_rbdyn::Robot & robot) const;
+    void load(const mc_rtc::Configuration & config);
+
+    /** Rewind plan to a given contact.
+     *
+     * \param startIndex Index of first support contact.
+     *
+     */
+    void reset(unsigned startIndex = 0);
+
+    /** Rewind one footstep back in plan.
+     *
+     * \note This function cannot rewind more than one step. It is only used
+     * when activating a DoubleSupport to Standing transition.
+     */
+    void restorePreviousFootstep();
+
+    /** Save plan to configuration  dictionary.
+     *
+     * \param config Configuration dictionary.
+     *
+     */
+    void save(mc_rtc::Configuration & config) const;
 
     /** Default CoM height.
      *

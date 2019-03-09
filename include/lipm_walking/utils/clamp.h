@@ -48,7 +48,6 @@ inline double clamp(double v, double vMin, double vMax)
   }
 }
 
-
 /** Clamp a value in a given interval.
  *
  * \param v Reference to value.

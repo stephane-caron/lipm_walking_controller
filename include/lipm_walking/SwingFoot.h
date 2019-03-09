@@ -35,6 +35,27 @@ namespace lipm_walking
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+    /** Add swing foot entries to log.
+     *
+     * \param logger Logger.
+     *
+     */
+    void addLogEntries(mc_rtc::Logger & logger);
+
+    /** Progress by dt along the swing foot trajectory.
+     *
+     * \param dt Integration step.
+     *
+     */
+    void integrate(double dt);
+
+    /** Remove swing foot entries from log.
+     *
+     * \param logger Logger.
+     *
+     */
+    void removeLogEntries(mc_rtc::Logger & logger);
+
     /** Recompute swing foot trajectory for a new pair of contacts.
      *
      * \param initPose Pose that the swing foot starts from.
@@ -47,35 +68,6 @@ namespace lipm_walking
      *
      */
     void reset(const sva::PTransformd & initPose, const sva::PTransformd & targetPose, double duration, double height);
-
-    /** Add swing foot entries to log.
-     *
-     * \param logger Logger.
-     *
-     */
-    void addLogEntries(mc_rtc::Logger & logger);
-
-    /** Remove swing foot entries from log.
-     *
-     * \param logger Logger.
-     *
-     */
-    void removeLogEntries(mc_rtc::Logger & logger);
-
-    /** Progress by dt along the swing foot trajectory.
-     *
-     * \param dt Integration step.
-     *
-     */
-    void integrate(double dt);
-
-    /** Timing remaining until heel strike.
-     *
-     */
-    double remTime() const
-    {
-      return (duration_ - playback_);
-    }
 
     /** Get current acceleration as motion vector.
      *
@@ -119,6 +111,14 @@ namespace lipm_walking
     sva::PTransformd pose() const
     {
       return sva::PTransformd(ori_, pos_);
+    }
+
+    /** Timing remaining until heel strike.
+     *
+     */
+    double remTime() const
+    {
+      return (duration_ - playback_);
     }
 
     /** Set duration of takeoff phase.
@@ -192,25 +192,25 @@ namespace lipm_walking
     Eigen::Quaterniond ori_;
     Eigen::Vector3d accel_;
     Eigen::Vector3d pos_;
+    Eigen::Vector3d takeoffOffset_ = Eigen::Vector3d::Zero(); // [m]
     Eigen::Vector3d vel_;
-    RetimedPolynomial<QuinticHermitePolynomial, Eigen::Vector2d> xyTakeoffChunk_;
     RetimedPolynomial<QuinticHermitePolynomial, Eigen::Vector2d> xyAerialChunk_;
-    RetimedPolynomial<QuinticHermitePolynomial, double> pitchTakeoffChunk_;
+    RetimedPolynomial<QuinticHermitePolynomial, Eigen::Vector2d> xyTakeoffChunk_;
     RetimedPolynomial<QuinticHermitePolynomial, double> pitchAerialChunk1_;
     RetimedPolynomial<QuinticHermitePolynomial, double> pitchAerialChunk2_;
     RetimedPolynomial<QuinticHermitePolynomial, double> pitchLandingChunk_;
+    RetimedPolynomial<QuinticHermitePolynomial, double> pitchTakeoffChunk_;
     RetimedPolynomial<QuinticHermitePolynomial, double> zFirstChunk_;
     RetimedPolynomial<QuinticHermitePolynomial, double> zSecondChunk_;
-    Eigen::Vector3d takeoffOffset_ = Eigen::Vector3d::Zero(); // [m]
     double aerialStart_;
     double duration_;
     double height_;
-    double landingPitch_ = 0.; // [rad]
     double landingDuration_ = 0.; // [s]
+    double landingPitch_ = 0.; // [rad]
     double pitch_;
     double playback_;
-    double takeoffPitch_ = 0.; // [rad]
     double takeoffDuration_ = 0.; // [s]
+    double takeoffPitch_ = 0.; // [rad]
     sva::PTransformd initPose_;
     sva::PTransformd targetPose_;
     sva::PTransformd touchdownPose_;

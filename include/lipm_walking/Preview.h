@@ -43,7 +43,7 @@ namespace lipm_walking
     /** Get current playback step.
      *
      */
-    inline unsigned playbackStep()
+    unsigned playbackStep() const
     {
       return playbackStep_;
     }
@@ -51,7 +51,7 @@ namespace lipm_walking
     /** Get current playback time.
      *
      */
-    inline double playbackTime()
+    double playbackTime() const
     {
       return playbackTime_;
     }

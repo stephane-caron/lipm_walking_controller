@@ -36,14 +36,6 @@
  */
 struct Integrator
 {
-  /** Reset integral to zero.
-   *
-   */
-  void reset()
-  {
-    integral_.setZero();
-  }
-
   /** Add constant input for a fixed duration.
    *
    * \param value Constant input.
@@ -84,6 +76,14 @@ struct Integrator
   const Eigen::Vector3d & eval() const
   {
     return integral_;
+  }
+
+  /** Reset integral to zero.
+   *
+   */
+  void reset()
+  {
+    integral_.setZero();
   }
 
   /** Set output saturation. Disable by providing a negative value.

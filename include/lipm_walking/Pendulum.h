@@ -44,27 +44,12 @@ namespace lipm_walking
      */
     Pendulum(const Eigen::Vector3d & com = Eigen::Vector3d::Zero(), const Eigen::Vector3d & comd = Eigen::Vector3d::Zero(), const Eigen::Vector3d & comdd = Eigen::Vector3d::Zero());
 
-    /** Reset to a new state.
+    /** Complete IPM inputs (ZMP and omega) from CoM and contact plane.
      *
-     * \param com New CoM position.
-     *
-     * \param com New CoM velocity.
-     *
-     * \param comdd Initial CoM acceleration.
+     * \param plane Contact plane.
      *
      */
-    void reset(const Eigen::Vector3d & com, const Eigen::Vector3d & comd = Eigen::Vector3d::Zero(), const Eigen::Vector3d & comdd = Eigen::Vector3d::Zero());
-
-    /** Integrate in floating-base inverted pendulum mode with constant inputs.
-     *
-     * \param zmp Zero-tilting Moment Point, i.e. net force application point.
-     *
-     * \param lambda Normalized stiffness of the pendulum.
-     *
-     * \param dt Duration of integration step.
-     *
-     */
-    void integrateIPM(Eigen::Vector3d zmp, double lambda, double dt);
+    void completeIPM(const Contact & plane);
 
     /** Integrate constant CoM jerk for a given duration.
      *
@@ -77,6 +62,28 @@ namespace lipm_walking
      */
     void integrateCoMJerk(const Eigen::Vector3d & comddd, double dt);
 
+    /** Integrate in floating-base inverted pendulum mode with constant inputs.
+     *
+     * \param zmp Zero-tilting Moment Point, i.e. net force application point.
+     *
+     * \param lambda Normalized stiffness of the pendulum.
+     *
+     * \param dt Duration of integration step.
+     *
+     */
+    void integrateIPM(Eigen::Vector3d zmp, double lambda, double dt);
+
+    /** Reset to a new state.
+     *
+     * \param com New CoM position.
+     *
+     * \param com New CoM velocity.
+     *
+     * \param comdd Initial CoM acceleration.
+     *
+     */
+    void reset(const Eigen::Vector3d & com, const Eigen::Vector3d & comd = Eigen::Vector3d::Zero(), const Eigen::Vector3d & comdd = Eigen::Vector3d::Zero());
+
     /** Reset CoM height above a given contact plane.
      *
      * \param height CoM height above contact plane.
@@ -85,21 +92,6 @@ namespace lipm_walking
      *
      */
     void resetCoMHeight(double height, const Contact & contact);
-
-    /** Complete IPM inputs (ZMP and omega) from CoM and contact plane.
-     *
-     * \param plane Contact plane.
-     *
-     */
-    void completeIPM(const Contact & plane);
-
-    /** Centroidal Moment Pivot of last IPM integration.
-     *
-     */
-    const Eigen::Vector3d & zmp() const
-    {
-      return zmp_;
-    }
 
     /** Get CoM position of the inverted pendulum model.
      *
@@ -139,6 +131,14 @@ namespace lipm_walking
     double omega() const
     {
       return omega_;
+    }
+
+    /** Centroidal Moment Pivot of last IPM integration.
+     *
+     */
+    const Eigen::Vector3d & zmp() const
+    {
+      return zmp_;
     }
 
   protected:

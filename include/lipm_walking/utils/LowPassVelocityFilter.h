@@ -52,17 +52,6 @@ struct LowPassVelocityFilter
     cutoffPeriod(period);
   }
 
-  /** Reset position to an initial rest value.
-   *
-   * \param pos New position.
-   *
-   */
-  void reset(T pos)
-  {
-    pos_ = pos;
-    vel_ = T::Zero();
-  }
-
   /** Get cutoff period.
    *
    */
@@ -79,6 +68,17 @@ struct LowPassVelocityFilter
   void cutoffPeriod(double period)
   {
     cutoffPeriod_ = period;
+  }
+
+  /** Reset position to an initial rest value.
+   *
+   * \param pos New position.
+   *
+   */
+  void reset(T pos)
+  {
+    pos_ = pos;
+    vel_ = T::Zero();
   }
 
   /** Update velocity estimate from new position value.

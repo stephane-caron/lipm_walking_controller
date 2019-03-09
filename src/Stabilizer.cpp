@@ -30,8 +30,7 @@ namespace lipm_walking
     : pendulum_(pendulum),
       controlRobot_(controlRobot),
       dt_(dt),
-      mass_(controlRobot.mass()),
-      distribWrench_(Eigen::Vector6d::Zero())
+      mass_(controlRobot.mass())
   {
   }
 

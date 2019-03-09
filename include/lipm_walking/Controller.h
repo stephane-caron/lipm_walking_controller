@@ -78,13 +78,6 @@ namespace lipm_walking
      */
     //void reset(const mc_control::ControllerResetData & reset_data) override;
 
-    /** Log controller entries.
-     *
-     * \param logger Logger.
-     *
-     */
-    void addLogEntries(mc_rtc::Logger & logger);
-
     /** Add GUI panel.
      *
      * \param gui GUI handle.
@@ -99,12 +92,12 @@ namespace lipm_walking
      */
     void addGUIMarkers(std::shared_ptr<mc_rtc::gui::StateBuilder> gui);
 
-    /** Update robot mass estimate in all components.
+    /** Log controller entries.
      *
-     * \param mass New mass estimate.
+     * \param logger Logger.
      *
      */
-    void updateRobotMass(double mass);
+    void addLogEntries(mc_rtc::Logger & logger);
 
     /** Reset robot to its initial (half-sitting) configuration.
      *
@@ -114,11 +107,6 @@ namespace lipm_walking
      *
      */
     void internalReset();
-
-    /** Main function of the controller, called at every control cycle.
-     *
-     */
-    virtual bool run() override;
 
     /** Set fraction of total weight that should be sustained by the left foot.
      *
@@ -133,6 +121,11 @@ namespace lipm_walking
      *
      */
     void loadFootstepPlan(std::string name);
+
+    /** Main function of the controller, called at every control cycle.
+     *
+     */
+    virtual bool run() override;
 
     /** Start new log segment.
      *
@@ -155,6 +148,13 @@ namespace lipm_walking
      *
      */
     void updateRealFromKinematics();
+
+    /** Update robot mass estimate in all components.
+     *
+     * \param mass New mass estimate.
+     *
+     */
+    void updateRobotMass(double mass);
 
     /** Log a warning message when robot is in the air.
      *
