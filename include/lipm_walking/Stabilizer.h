@@ -435,6 +435,8 @@ namespace lipm_walking
     double swingFootWeight_ = 100.;
     double vdcFrequency_ = 0.; /**< Vertical Drift Compensation frequency */
     double vdcStiffness_ = 1000.; /**< Vertical Drift Compensation stiffness */
+    double vdcZPos_ = 0.;
+    double vfcZCtrl_ = 0.;
     mc_rtc::Configuration config_;
     sva::ForceVecd contactAdmittance_;
     sva::ForceVecd distribWrench_ = sva::ForceVecd::Zero();

@@ -53,4 +53,4 @@ Finally, run your mc\_rtc interface, for instance ``mc_vrep`` or ``MCUDPControl`
 
 ## Thanks
 
-- To Pierre Gergondet for developing and helping with the mc\_rtc framework
+To @gergondet for developing and helping with the mc\_rtc framework.

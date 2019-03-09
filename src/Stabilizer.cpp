@@ -26,6 +26,16 @@
 
 namespace lipm_walking
 {
+  namespace
+  {
+    inline Eigen::Vector2d vecFromError(const Eigen::Vector3d & error)
+    {
+      double x = -std::round(error.x() * 1000.);
+      double y = -std::round(error.y() * 1000.);
+      return Eigen::Vector2d{x, y};
+    }
+  }
+
   Stabilizer::Stabilizer(const mc_rbdyn::Robot & controlRobot, const Pendulum & pendulum, double dt)
     : pendulum_(pendulum),
       controlRobot_(controlRobot),
@@ -71,12 +81,14 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_qp_weights_compliance", [this]() { return std::pow(qpWeights_.complianceSqrt, 2); });
     logger.addLogEntry("stabilizer_qp_weights_net_wrench", [this]() { return std::pow(qpWeights_.netWrenchSqrt, 2); });
     logger.addLogEntry("stabilizer_qp_weights_pressure", [this]() { return std::pow(qpWeights_.pressureSqrt, 2); });
-    logger.addLogEntry("stabilizer_vfc_LeftFootVel", [this]() { return logVFCLeftFootVel_; });
-    logger.addLogEntry("stabilizer_vfc_RightFootVel", [this]() { return logVFCRightFootVel_; });
+    logger.addLogEntry("stabilizer_vdc_frequency", [this]() { return vdcFrequency_; });
+    logger.addLogEntry("stabilizer_vdc_stiffness", [this]() { return vdcStiffness_; });
+    logger.addLogEntry("stabilizer_vdc_z_pos", [this]() { return vdcZPos_; });
     logger.addLogEntry("stabilizer_vfc_dfz_measured", [this]() { return logMeasuredDFz_; });
     logger.addLogEntry("stabilizer_vfc_dfz_target", [this]() { return logTargetDFz_; });
     logger.addLogEntry("stabilizer_vfc_stz_measured", [this]() { return logMeasuredSTz_; });
     logger.addLogEntry("stabilizer_vfc_stz_target", [this]() { return logTargetSTz_; });
+    logger.addLogEntry("stabilizer_vfc_z_ctrl", [this]() { return vfcZCtrl_; });
     logger.addLogEntry("stabilizer_zmp", [this]() { return zmp(); });
     logger.addLogEntry("stabilizer_zmpcc_comdd_offset", [this]() { return zmpccAccelOffset_; });
   }
@@ -85,32 +97,17 @@ namespace lipm_walking
   {
     using namespace mc_rtc::gui;
     gui->addElement(
-      {"Stabilizer"},
-      Label(
-        "Contact state",
-        [this]()
-        {
-          switch (contactState_)
-          {
-            case ContactState::DoubleSupport:
-              return "DoubleSupport";
-            case ContactState::LeftFoot:
-              return "LeftFoot";
-            case ContactState::RightFoot:
-              return "RightFoot";
-            case ContactState::Flying:
-            default:
-              return "Flying";
-          }
-        }),
+      {"Stabilizer", "Gains"},
+      Button(
+        "Disable",
+        [this]() { disable(); }),
+      Button(
+        "Reconfigure",
+        [this]() { reconfigure(); }),
       ArrayInput(
         "CoM admittance", {"Cx", "Cy", "Cz"},
         [this]() { return comAdmittance_; },
         [this](const Eigen::Vector3d & c) { comAdmittance_ = c; }),
-      ArrayInput(
-        "CoM stiffness", {"Kx", "Ky", "Kz"},
-        [this]() { return comStiffness_; },
-        [this](const Eigen::Vector3d & k) { comStiffness_ = k; }),
       ArrayInput(
         "CoP admittance", {"Ax", "Ay"},
         [this]() -> Eigen::Vector2d
@@ -150,22 +147,34 @@ namespace lipm_walking
         [this]() { return dcmIntegralGain_; },
         [this](double k_i) { dcmIntegralGain_ = clamp(k_i, 0., MAX_DCM_I_GAIN); }),
       Button(
-        "Reconfigure",
-        [this]()
-        {
-          reconfigure();
-          //setSupportFootGains(); // now continuously updated
-        }),
-      Button(
         "Reset DCM integrator",
+        [this]() { dcmIntegrator.reset(); })
+    );
+    gui->addElement(
+      {"Stabilizer", "Status"},
+      Label(
+        "Contact state",
         [this]()
         {
-          dcmIntegrator.reset();
+          switch (contactState_)
+          {
+            case ContactState::DoubleSupport:
+              return "DoubleSupport";
+            case ContactState::LeftFoot:
+              return "LeftFoot";
+            case ContactState::RightFoot:
+            default:
+              return "RightFoot";
+          }
         }),
-      Button(
-        "Disable",
-        [this]() { disable(); })
-    );
+      ArrayLabel("DCM error [mm]",
+        {"x", "y"},
+        [this]() { return vecFromError(dcmError_); }),
+      ArrayLabel("DCM integral error [mm]",
+        {"x", "y"},
+        [this]() { return vecFromError(dcmIntegralError_); }),
+      Label("Foot height diff [mm]",
+        [this]() { return std::round(1000. * vfcZCtrl_); }));
   }
 
   void Stabilizer::disable()
@@ -670,9 +679,11 @@ namespace lipm_walking
 
       double LTz = leftFootTask->surfacePose().translation().z();
       double RTz = rightFootTask->surfacePose().translation().z();
+      vfcZCtrl_ = RTz - LTz;
       double LTz_d = leftFootTask->targetPose().translation().z();
       double RTz_d = rightFootTask->targetPose().translation().z();
       double dz_pos = vdcFrequency_ * ((LTz_d + RTz_d) - (LTz + RTz));
+      vdcZPos_ = RTz + LTz;
       sva::MotionVecd velT = {{0., 0., 0.}, {0., 0., dz_pos}};
 
       leftFootTask->refVelB(0.5 * (velT - velF));
@@ -696,6 +707,8 @@ namespace lipm_walking
       logMeasuredSTz_ = 0.;
       logVFCLeftFootVel_ = 0.;
       logVFCRightFootVel_ = 0.;
+      vdcZPos_ = 0.;
+      vfcZCtrl_ = 0.;
     }
   }
 }
