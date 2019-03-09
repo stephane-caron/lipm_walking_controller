@@ -37,7 +37,8 @@ namespace lipm_walking
   }
 
   Stabilizer::Stabilizer(const mc_rbdyn::Robot & controlRobot, const Pendulum & pendulum, double dt)
-    : pendulum_(pendulum),
+    : dcmIntegrator_(dt, /* timeConstant = */ 5.),
+      pendulum_(pendulum),
       controlRobot_(controlRobot),
       dt_(dt),
       mass_(controlRobot.mass())
@@ -64,7 +65,7 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_errors_com", [this]() { return comError_; });
     logger.addLogEntry("stabilizer_errors_comd", [this]() { return comdError_; });
     logger.addLogEntry("stabilizer_errors_dcm", [this]() { return dcmError_; });
-    logger.addLogEntry("stabilizer_errors_dcmi", [this]() { return dcmIntegralError_; });
+    logger.addLogEntry("stabilizer_errors_dcm_average", [this]() { return dcmAverageError_; });
     logger.addLogEntry("stabilizer_gains_com_admittance", [this]() { return comAdmittance_; });
     logger.addLogEntry("stabilizer_gains_com_stiffness", [this]() { return comStiffness_; });
     logger.addLogEntry("stabilizer_gains_contact_admittance", [this]() { return contactAdmittance_; });
@@ -73,7 +74,7 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_gains_dfz_admittance", [this]() { return dfzAdmittance_; });
     logger.addLogEntry("stabilizer_gains_vdc_frequency", [this]() { return vdcFrequency_; });
     logger.addLogEntry("stabilizer_gains_vdc_stiffness", [this]() { return vdcStiffness_; });
-    logger.addLogEntry("stabilizer_integrator_decay", [this]() { return dcmIntegrator.decay(); });
+    logger.addLogEntry("stabilizer_integrator_timeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
     logger.addLogEntry("stabilizer_qp_costs_left_ankle", [this]() { return qpLeftAnkleCost_; });
     logger.addLogEntry("stabilizer_qp_costs_net_wrench", [this]() { return qpNetWrenchCost_; });
     logger.addLogEntry("stabilizer_qp_costs_pressure_ratio", [this]() { return qpPressureCost_; });
@@ -139,16 +140,16 @@ namespace lipm_walking
         [this]() { return dcmGain_; },
         [this](double k_p) { dcmGain_ = clamp(k_p, 0., MAX_DCM_P_GAIN); }),
       NumberInput(
-        "DCM Integral Decay",
-        [this]() { return dcmIntegrator.decay(); },
-        [this](double decay) { return dcmIntegrator.decay(decay); }),
+        "DCM integrator T",
+        [this]() { return dcmIntegrator_.timeConstant(); },
+        [this](double T) { return dcmIntegrator_.timeConstant(T); }),
       NumberInput(
         "DCM Integral Gain",
         [this]() { return dcmIntegralGain_; },
         [this](double k_i) { dcmIntegralGain_ = clamp(k_i, 0., MAX_DCM_I_GAIN); }),
       Button(
         "Reset DCM integrator",
-        [this]() { dcmIntegrator.reset(); })
+        [this]() { dcmIntegrator_.setZero(); })
     );
     gui->addElement(
       {"Stabilizer", "Status"},
@@ -170,9 +171,9 @@ namespace lipm_walking
       ArrayLabel("DCM error [mm]",
         {"x", "y"},
         [this]() { return vecFromError(dcmError_); }),
-      ArrayLabel("DCM integral error [mm]",
+      ArrayLabel("DCM avg. error [mm]",
         {"x", "y"},
-        [this]() { return vecFromError(dcmIntegralError_); }),
+        [this]() { return vecFromError(dcmAverageError_); }),
       Label("Foot height diff [mm]",
         [this]() { return std::round(1000. * vfcZCtrl_); }));
   }
@@ -205,10 +206,7 @@ namespace lipm_walking
       auto dcmConfig = config_("dcm_tracking");
       dcmConfig("gain", dcmGain_);
       dcmConfig("integral_gain", dcmIntegralGain_);
-      if (dcmConfig.has("integrator_decay"))
-      {
-        dcmIntegrator.decay(dcmConfig("integrator_decay"));
-      }
+      dcmIntegrator_.timeConstant(dcmConfig("integrator_time_constant"));
     }
     if (config_.has("tasks"))
     {
@@ -253,8 +251,8 @@ namespace lipm_walking
     setContact(leftFootTask, leftFootTask->surfacePose());
     setContact(rightFootTask, rightFootTask->surfacePose());
 
-    dcmIntegrator.reset();
-    dcmIntegrator.saturation(0.5);
+    dcmIntegrator_.setZero();
+    dcmIntegrator_.saturation(MAX_AVERAGE_DCM_ERROR);
   }
 
   void Stabilizer::checkGains()
@@ -363,9 +361,17 @@ namespace lipm_walking
     }
   }
 
+  void Stabilizer::checkInTheAir()
+  {
+    double LFz = leftFootTask->measuredWrench().force().z();
+    double RFz = rightFootTask->measuredWrench().force().z();
+    inTheAir_ = (LFz < MIN_DS_PRESSURE && RFz < MIN_DS_PRESSURE);
+  }
+
   void Stabilizer::run()
   {
     checkGains();
+    checkInTheAir();
     setSupportFootGains();
 
     auto desiredWrench = computeDesiredWrench();
@@ -407,12 +413,15 @@ namespace lipm_walking
     double omega = pendulum_.omega();
     dcmError_ = comdError_ + omega * comError_;
 
-    dcmIntegrator.add(dcmError_, dt_);
-    dcmIntegralError_ = dcmIntegrator.eval();
+    if (!inTheAir_) // don't accumulate error if robot is in the air
+    {
+      dcmIntegrator_.append(dcmError_);
+      dcmAverageError_ = dcmIntegrator_.eval();
+    }
 
     desiredCoMAccel_ = pendulum_.comdd();
     desiredCoMAccel_ += dcmGain_ * dcmError_;
-    desiredCoMAccel_ += dcmIntegralGain_ * dcmIntegralError_;
+    desiredCoMAccel_ += dcmIntegralGain_ * dcmAverageError_;
     auto desiredForce = mass_ * (desiredCoMAccel_ - world::gravity);
     return {pendulum_.com().cross(desiredForce), desiredForce};
   }

@@ -29,8 +29,8 @@
 #include <lipm_walking/Contact.h>
 #include <lipm_walking/Sole.h>
 #include <lipm_walking/defs.h>
-#include <lipm_walking/utils/Integrator.h>
 #include <lipm_walking/utils/rotations.h>
+#include <lipm_walking/utils/stats.h>
 
 namespace lipm_walking
 {
@@ -64,6 +64,9 @@ namespace lipm_walking
 
     /* Avoid low-pressure targets too close to contact switches */
     static constexpr double MIN_DS_PRESSURE = 15.; // [N]
+
+    /* Saturate integrator in case of windup */
+    static constexpr double MAX_AVERAGE_DCM_ERROR = 0.05; // [m]
 
     /** Weights for contact wrench distribution QP.
      *
@@ -296,6 +299,11 @@ namespace lipm_walking
      */
     void checkGains();
 
+    /** Check whether the robot is in the air.
+     *
+     */
+    void checkInTheAir();
+
     /** Distribute a desired wrench in double support.
      *
      * \param desiredWrench Desired resultant reaction wrench.
@@ -391,7 +399,6 @@ namespace lipm_walking
   public:
     Contact leftFootContact;
     Contact rightFootContact;
-    Integrator dcmIntegrator;
     std::shared_ptr<mc_tasks::CoMTask> comTask;
     std::shared_ptr<mc_tasks::CoPTask> leftFootTask;
     std::shared_ptr<mc_tasks::CoPTask> rightFootTask;
@@ -404,13 +411,15 @@ namespace lipm_walking
     Eigen::Vector3d comError_;
     Eigen::Vector3d comStiffness_ = {100., 100., 100.};
     Eigen::Vector3d comdError_;
+    Eigen::Vector3d dcmAverageError_;
     Eigen::Vector3d dcmError_;
-    Eigen::Vector3d dcmIntegralError_;
     Eigen::Vector3d desiredCoMAccel_;
     Eigen::Vector3d measuredCoM_;
     Eigen::Vector3d measuredCoMd_;
     Eigen::Vector3d zmpccAccelOffset_ = {0., 0., 0.};
+    ExponentialMovingAverage dcmIntegrator_;
     QPWeights qpWeights_;
+    bool inTheAir_ = false;
     const Pendulum & pendulum_;
     const mc_rbdyn::Robot & controlRobot_;
     double comWeight_ = 1000.;

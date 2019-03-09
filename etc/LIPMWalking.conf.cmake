@@ -25,7 +25,7 @@
     {
       "gain": 5.0,
       "integral_gain": 1.0,
-      "integrator_decay": 0.2
+      "integrator_time_constant": 5.0
     },
     "tasks":
     {
