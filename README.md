@@ -2,7 +2,7 @@
 
 [![Stair climbing by the HRP-4 humanoid robot](https://scaron.info/images/stair-climbing.jpg)](https://www.youtube.com/watch?v=vFCFKAunsYM)
 
-Source code of the walking controller used in the experiments of [Stair Climbing Stabilization of the HRP-4 Humanoid Robot using Whole-body Admittance Control](https://hal.archives-ouvertes.fr/hal-01875387/document).
+Source code of the walking and stair climbing controller used in the experiments of [Stair Climbing Stabilization of the HRP-4 Humanoid Robot using Whole-body Admittance Control](https://hal.archives-ouvertes.fr/hal-01875387/document).
 
 ## Installation
 
@@ -53,4 +53,4 @@ Finally, run your mc\_rtc interface, for instance ``mc_vrep`` or ``MCUDPControl`
 
 ## Thanks
 
-To @gergondet for developing and helping with the mc\_rtc framework.
+To [@gergondet](https://github.com/gergondet) for developing and helping with the mc\_rtc framework.
