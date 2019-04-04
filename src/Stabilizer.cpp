@@ -678,8 +678,7 @@ namespace lipm_walking
   {
     double LFz = leftFootTask->measuredWrench().force().z();
     double RFz = rightFootTask->measuredWrench().force().z();
-    bool inTheAir = (LFz < MIN_DS_PRESSURE && RFz < MIN_DS_PRESSURE);
-    if (contactState_ == ContactState::DoubleSupport && !inTheAir)
+    if (contactState_ == ContactState::DoubleSupport && !inTheAir_)
     {
       double LFz_d = leftFootTask->targetWrench().force().z();
       double RFz_d = rightFootTask->targetWrench().force().z();
