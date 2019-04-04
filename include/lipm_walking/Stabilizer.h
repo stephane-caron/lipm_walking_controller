@@ -132,7 +132,7 @@ namespace lipm_walking
      * \param wrench Wrench at the origin of the world frame.
      *
      */
-    Eigen::Vector3d computeOutputFrameZMP(const sva::ForceVecd & wrench) const;
+    Eigen::Vector3d computeZMP(const sva::ForceVecd & wrench) const;
 
     /** Read configuration from dictionary.
      *
@@ -290,7 +290,7 @@ namespace lipm_walking
      */
     Eigen::Vector3d zmp() const
     {
-      return computeOutputFrameZMP(distribWrench_);
+      return computeZMP(distribWrench_);
     }
 
   private:
@@ -303,6 +303,11 @@ namespace lipm_walking
      *
      */
     void checkInTheAir();
+
+    /** Compute desired wrench based on DCM error.
+     *
+     */
+    sva::ForceVecd computeDesiredWrench();
 
     /** Distribute a desired wrench in double support.
      *
@@ -334,15 +339,10 @@ namespace lipm_walking
      */
     void updateFootForceDifferenceControl();
 
-    /** Compute desired wrench based on DCM error.
+    /** Update ZMP frame from contact state.
      *
      */
-    sva::ForceVecd computeDesiredWrench();
-
-    /** Distribute desired wrench over foot contacts.
-     *
-     */
-    void distributeDesiredWrench(const sva::ForceVecd & desiredWrench);
+    void updateZMPFrame();
 
     /** Simplest CoM control law: no feedback.
      *
@@ -416,6 +416,7 @@ namespace lipm_walking
     Eigen::Vector3d desiredCoMAccel_;
     Eigen::Vector3d measuredCoM_;
     Eigen::Vector3d measuredCoMd_;
+    Eigen::Vector3d measuredZMP_;
     Eigen::Vector3d zmpccAccelOffset_ = {0., 0., 0.};
     ExponentialMovingAverage dcmIntegrator_;
     QPWeights qpWeights_;
@@ -451,6 +452,6 @@ namespace lipm_walking
     sva::ForceVecd measuredWrench_;
     sva::MotionVecd contactDamping_;
     sva::MotionVecd contactStiffness_;
-    sva::PTransformd outputFrame_;
+    sva::PTransformd zmpFrame_;
   };
 }

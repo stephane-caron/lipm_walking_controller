@@ -338,7 +338,6 @@ namespace lipm_walking
   {
     sva::MotionVecd vdcContactStiffness = {
       contactStiffness_.angular(),
-      //{contactStiffness_.linear().x(), contactStiffness_.linear().y(), vdcStiffness_}};
       {vdcStiffness_, vdcStiffness_, vdcStiffness_}};
     switch (contactState_)
     {
@@ -356,8 +355,6 @@ namespace lipm_walking
         rightFootTask->admittance(contactAdmittance_);
         rightFootTask->setGains(vdcContactStiffness, contactDamping_);
         break;
-      case ContactState::Flying:
-        break;
     }
   }
 
@@ -368,11 +365,47 @@ namespace lipm_walking
     inTheAir_ = (LFz < MIN_DS_PRESSURE && RFz < MIN_DS_PRESSURE);
   }
 
+  void Stabilizer::updateZMPFrame()
+  {
+    const sva::PTransformd & X_0_lc = leftFootContact.pose;
+    const sva::PTransformd & X_0_rc = rightFootContact.pose;
+    switch (contactState_)
+    {
+      case ContactState::DoubleSupport:
+        zmpFrame_ = sva::interpolate(X_0_lc, X_0_rc, 0.5);
+        break;
+      case ContactState::LeftFoot:
+        zmpFrame_ = X_0_lc;
+        break;
+      case ContactState::RightFoot:
+        zmpFrame_ = X_0_rc;
+        break;
+    }
+    measuredZMP_ = computeZMP(measuredWrench_);
+  }
+
+  Eigen::Vector3d Stabilizer::computeZMP(const sva::ForceVecd & wrench) const
+  {
+    Eigen::Vector3d n = zmpFrame_.rotation().row(2);
+    Eigen::Vector3d p = zmpFrame_.translation();
+    const Eigen::Vector3d & force = wrench.force();
+    double pressure = n.dot(force);
+    if (pressure < 1.)
+    {
+      double lambda = std::pow(pendulum_.omega(), 2);
+      return measuredCoM_ + world::gravity / lambda; // default for logging
+    }
+    const Eigen::Vector3d & moment_0 = wrench.couple();
+    Eigen::Vector3d moment_p = moment_0 - p.cross(force);
+    return p + n.cross(moment_p) / pressure;
+  }
+
   void Stabilizer::run()
   {
     checkGains();
     checkInTheAir();
     setSupportFootGains();
+    updateZMPFrame();
 
     auto desiredWrench = computeDesiredWrench();
 
@@ -388,8 +421,6 @@ namespace lipm_walking
       case ContactState::RightFoot:
         saturateWrench(desiredWrench, rightFootTask);
         leftFootTask->setZeroTargetWrench();
-        break;
-      case ContactState::Flying:
         break;
     }
 
@@ -533,7 +564,6 @@ namespace lipm_walking
 
     sva::ForceVecd w_l_0(x.segment<3>(0), x.segment<3>(3));
     sva::ForceVecd w_r_0(x.segment<3>(6), x.segment<3>(9));
-    outputFrame_ = sva::interpolate(X_0_lc, X_0_rc, 0.5);
     distribWrench_ = w_l_0 + w_r_0;
 
     sva::ForceVecd w_l_lc = X_0_lc.dualMul(w_l_0);
@@ -596,24 +626,7 @@ namespace lipm_walking
     Eigen::Vector2d cop = (e_z.cross(w_c.couple()) / w_c.force()(2)).head<2>();
     footTask->targetCoP(cop);
     footTask->targetForce(w_c.force());
-    outputFrame_ = X_0_c;
     distribWrench_ = w_0;
-  }
-
-  Eigen::Vector3d Stabilizer::computeOutputFrameZMP(const sva::ForceVecd & wrench) const
-  {
-    Eigen::Vector3d n = outputFrame_.rotation().row(2);
-    Eigen::Vector3d p = outputFrame_.translation();
-    const Eigen::Vector3d & force = wrench.force();
-    double pressure = n.dot(force);
-    if (pressure < 1.)
-    {
-      double lambda = std::pow(pendulum_.omega(), 2);
-      return measuredCoM_ + world::gravity / lambda; // default for logging
-    }
-    const Eigen::Vector3d & moment_0 = wrench.couple();
-    Eigen::Vector3d moment_p = moment_0 - p.cross(force);
-    return p + n.cross(moment_p) / pressure;
   }
 
   // void Stabilizer::updateCoMOpenLoop()
@@ -651,11 +664,10 @@ namespace lipm_walking
   //{
   //  auto refForce = mass_ * (pendulum_.comdd() - world::gravity);
   //  sva::ForceVecd refWrench = {pendulum_.com().cross(refForce), refForce};
-  //  auto refZMP = computeOutputFrameZMP(refWrench);
-  //  auto measuredZMP = computeOutputFrameZMP(measuredWrench_);
-  //  auto zmpError = refZMP - measuredZMP;
+  //  auto refZMP = computeZMP(refWrench);
+  //  auto zmpccError = refZMP - measuredZMP_;
   //  constexpr double T = 0.1;
-  //  auto offsetVel = -comAdmittance_.cwiseProduct(zmpError) - zmpccPosOffset / T;
+  //  auto offsetVel = -comAdmittance_.cwiseProduct(zmpccError) - zmpccPosOffset / T;
   //  zmpccPosOffset += offsetVel * dt_;
   //  comTask->com(pendulum_.com() + zmpccPosOffset);
   //  comTask->refVel(pendulum_.comd());
@@ -664,11 +676,10 @@ namespace lipm_walking
 
   void Stabilizer::updateCoMAccelZMPCC()
   {
-    auto measuredZMP = computeOutputFrameZMP(measuredWrench_);
-    //auto zmpError = pendulum_.zmp() - measuredZMP; // nope
-    auto distribZMP = computeOutputFrameZMP(distribWrench_);
-    auto zmpError = distribZMP - measuredZMP; // yes!
-    zmpccAccelOffset_ = -comAdmittance_.cwiseProduct(zmpError);
+    //auto zmpccError = pendulum_.zmp() - measuredZMP_; // nope
+    auto distribZMP = computeZMP(distribWrench_);
+    auto zmpccError = distribZMP - measuredZMP_; // yes!
+    zmpccAccelOffset_ = -comAdmittance_.cwiseProduct(zmpccError);
     comTask->com(pendulum_.com());
     comTask->refVel(pendulum_.comd());
     comTask->refAccel(pendulum_.comdd() + zmpccAccelOffset_);

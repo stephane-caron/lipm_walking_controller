@@ -41,8 +41,7 @@ namespace lipm_walking
   {
     DoubleSupport,
     LeftFoot,
-    RightFoot,
-    Flying
+    RightFoot
   };
 
   /** Contacts wrap foot frames with extra info from the footstep plan.
