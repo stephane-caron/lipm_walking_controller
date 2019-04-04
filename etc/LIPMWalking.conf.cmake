@@ -27,6 +27,12 @@
       "integral_gain": 20.0,
       "integrator_time_constant": 20.0
     },
+    "fdqp_weights":
+    {
+      "net_wrench": 10000.0,
+      "ankle_torque": 100.0,
+      "pressure": 1.0
+    },
     "tasks":
     {
       "com":

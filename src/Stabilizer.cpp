@@ -68,13 +68,9 @@ namespace lipm_walking
     logger.addLogEntry("error_sfz", [this]() { return logTargetSTz_ - logMeasuredSTz_; });
     logger.addLogEntry("stabilizer_admittance_com", [this]() { return comAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_dfz", [this]() { return dfzAdmittance_; });
-    logger.addLogEntry("stabilizer_fdqp_costs_leftAnkle", [this]() { return fdqpLeftAnkleCost_; });
-    logger.addLogEntry("stabilizer_fdqp_costs_netWrench", [this]() { return fdqpNetWrenchCost_; });
-    logger.addLogEntry("stabilizer_fdqp_costs_pressureRatio", [this]() { return fdqpPressureCost_; });
-    logger.addLogEntry("stabilizer_fdqp_costs_rightAnkle", [this]() { return fdqpRightAnkleCost_; });
-    logger.addLogEntry("stabilizer_fdqp_weights_compliance", [this]() { return std::pow(qpWeights_.complianceSqrt, 2); });
-    logger.addLogEntry("stabilizer_fdqp_weights_net_wrench", [this]() { return std::pow(qpWeights_.netWrenchSqrt, 2); });
-    logger.addLogEntry("stabilizer_fdqp_weights_pressure", [this]() { return std::pow(qpWeights_.pressureSqrt, 2); });
+    logger.addLogEntry("stabilizer_fdqp_weights_ankleTorque", [this]() { return std::pow(fdqpWeights_.ankleTorqueSqrt, 2); });
+    logger.addLogEntry("stabilizer_fdqp_weights_netWrench", [this]() { return std::pow(fdqpWeights_.netWrenchSqrt, 2); });
+    logger.addLogEntry("stabilizer_fdqp_weights_pressure", [this]() { return std::pow(fdqpWeights_.pressureSqrt, 2); });
     logger.addLogEntry("stabilizer_gains_contact_admittance", [this]() { return contactAdmittance_; });
     logger.addLogEntry("stabilizer_integrator_timeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
     logger.addLogEntry("stabilizer_lipm_tracking_dcm", [this]() { return dcmGain_; });
@@ -189,6 +185,7 @@ namespace lipm_walking
 
   void Stabilizer::configure(const mc_rtc::Configuration & config)
   {
+    fdqpWeights_.configure(config("fdqp_weights"));
     config_ = config;
     reconfigure();
   }
@@ -515,13 +512,13 @@ namespace lipm_walking
     A_pressure.block<1, 6>(0, 6) = -lfr * X_0_rc.dualMatrix().bottomRows<1>();
 
     // Apply weights
-    A_net *= qpWeights_.netWrenchSqrt;
-    b_net *= qpWeights_.netWrenchSqrt;
-    A_lankle *= qpWeights_.complianceSqrt;
-    A_rankle *= qpWeights_.complianceSqrt;
+    A_net *= fdqpWeights_.netWrenchSqrt;
+    b_net *= fdqpWeights_.netWrenchSqrt;
+    A_lankle *= fdqpWeights_.ankleTorqueSqrt;
+    A_rankle *= fdqpWeights_.ankleTorqueSqrt;
     // b_lankle = 0
     // b_rankle = 0
-    A_pressure *= qpWeights_.pressureSqrt;
+    A_pressure *= fdqpWeights_.pressureSqrt;
     // b_pressure = 0
 
     constexpr unsigned CONS_DIM = 16 + 16 + 2;
@@ -545,8 +542,8 @@ namespace lipm_walking
     blCons.segment<2>(32).setConstant(MIN_DS_PRESSURE);
     buCons.segment<2>(32).setConstant(+1e5);
 
-    Eigen::MatrixXd A0 = A; // A is modified by solve()
-    Eigen::VectorXd b0 = b; // b is modified by solve()
+    //Eigen::MatrixXd A0 = A; // A is modified by solve()
+    //Eigen::VectorXd b0 = b; // b is modified by solve()
     bool solverSuccess = wrenchSolver_.solve(A, b, C, bl, bu);
     Eigen::VectorXd x = wrenchSolver_.result();
     if (!solverSuccess)
@@ -555,12 +552,6 @@ namespace lipm_walking
       wrenchSolver_.print_inform();
       return;
     }
-
-    auto error = A0 * x - b0;
-    fdqpNetWrenchCost_ = error.segment<6>(0).norm() / qpWeights_.netWrenchSqrt;
-    fdqpLeftAnkleCost_ = error.segment<6>(6).norm() / qpWeights_.complianceSqrt;
-    fdqpRightAnkleCost_ = error.segment<6>(12).norm() / qpWeights_.complianceSqrt;
-    fdqpPressureCost_ = error.segment<1>(18).norm() / qpWeights_.pressureSqrt;
 
     sva::ForceVecd w_l_0(x.segment<3>(0), x.segment<3>(3));
     sva::ForceVecd w_r_0(x.segment<3>(6), x.segment<3>(9));
@@ -605,8 +596,8 @@ namespace lipm_walking
     bu.setConstant(NB_VAR + NB_CONS, +1e5);
     bu.tail<NB_CONS>().setZero();
 
-    Eigen::MatrixXd A0 = A; // A is modified by solve()
-    Eigen::VectorXd b0 = b; // b is modified by solve()
+    //Eigen::MatrixXd A0 = A; // A is modified by solve()
+    //Eigen::VectorXd b0 = b; // b is modified by solve()
     wrenchSolver_.solve(A, b, C, bl, bu);
     Eigen::VectorXd x = wrenchSolver_.result();
     if (wrenchSolver_.inform() != Eigen::lssol::eStatus::STRONG_MINIMUM)
@@ -615,11 +606,6 @@ namespace lipm_walking
       wrenchSolver_.print_inform();
       return;
     }
-
-    fdqpNetWrenchCost_ = (A0 * x - b0).norm();
-    fdqpLeftAnkleCost_ = 0.;
-    fdqpRightAnkleCost_ = 0.;
-    fdqpPressureCost_ = 0.;
 
     sva::ForceVecd w_0(x.head<3>(), x.tail<3>());
     sva::ForceVecd w_c = X_0_c.dualMul(w_0);

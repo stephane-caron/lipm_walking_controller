@@ -68,33 +68,6 @@ namespace lipm_walking
     /* Saturate integrator in case of windup */
     static constexpr double MAX_AVERAGE_DCM_ERROR = 0.05; // [m]
 
-    /** Weights for contact wrench distribution QP.
-     *
-     */
-    struct QPWeights
-    {
-      /** Set force distribution QP weights.
-       *
-       * \param netWrenchWeight Weight on net wrench cost.
-       *
-       * \param complianceWeight Weight on foot compliance cost.
-       *
-       * \param pressureWeight Weight on pressure distribution cost.
-       *
-       */
-      void set(double netWrenchWeight, double complianceWeight, double pressureWeight)
-      {
-        netWrenchSqrt = std::sqrt(netWrenchWeight);
-        complianceSqrt = std::sqrt(complianceWeight);
-        pressureSqrt = std::sqrt(pressureWeight);
-      }
-
-    public:
-      double complianceSqrt = 10.; // weight=100.
-      double netWrenchSqrt = 100.; // weight=10000.
-      double pressureSqrt = 1.; // weight=1.
-    };
-
     /** Initialize stabilizer.
      *
      * \param robot Robot model.
@@ -294,6 +267,32 @@ namespace lipm_walking
     }
 
   private:
+    /** Weights for force distribution quadratic program (FDQP).
+     *
+     */
+    struct FDQPWeights
+    {
+      /** Read force distribution QP weights from configuration.
+       *
+       * \param config Configuration dictionary.
+       *
+       */
+      inline void configure(const mc_rtc::Configuration & config)
+      {
+        double ankleTorqueWeight = config("ankle_torque");
+        double netWrenchWeight = config("net_wrench");
+        double pressureWeight = config("pressure");
+        ankleTorqueSqrt = std::sqrt(ankleTorqueWeight);
+        netWrenchSqrt = std::sqrt(netWrenchWeight);
+        pressureSqrt = std::sqrt(pressureWeight);
+      }
+
+    public:
+      double ankleTorqueSqrt;
+      double netWrenchSqrt;
+      double pressureSqrt;
+    };
+
     /** Check that all gains are within boundaries.
      *
      */
@@ -417,7 +416,7 @@ namespace lipm_walking
     Eigen::Vector3d measuredZMP_;
     Eigen::Vector3d zmpccAccelOffset_ = {0., 0., 0.};
     ExponentialMovingAverage dcmIntegrator_;
-    QPWeights qpWeights_;
+    FDQPWeights fdqpWeights_;
     bool inTheAir_ = false;
     const Pendulum & pendulum_;
     const mc_rbdyn::Robot & controlRobot_;
@@ -427,10 +426,6 @@ namespace lipm_walking
     double dcmIntegralGain_ = 5.; /**< Integral gain on DCM error */
     double dfzAdmittance_ = 1e-4;
     double dt_ = 0.005; // [s]
-    double fdqpLeftAnkleCost_ = 0.;
-    double fdqpNetWrenchCost_ = 0.;
-    double fdqpPressureCost_ = 0.;
-    double fdqpRightAnkleCost_ = 0.;
     double leftFootRatio_ = 0.5;
     double logMeasuredDFz_ = 0.;
     double logMeasuredSTz_ = 0.;
