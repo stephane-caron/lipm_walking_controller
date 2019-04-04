@@ -440,6 +440,7 @@ namespace lipm_walking
     double qpRightAnkleCost_ = 0.;
     double swingFootStiffness_ = 2000.;
     double swingFootWeight_ = 100.;
+    double vdcDamping_ = 0.; /**< Vertical Drift Compensation damping */
     double vdcFrequency_ = 0.; /**< Vertical Drift Compensation frequency */
     double vdcStiffness_ = 1000.; /**< Vertical Drift Compensation stiffness */
     double vdcZPos_ = 0.;

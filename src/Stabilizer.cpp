@@ -684,17 +684,19 @@ namespace lipm_walking
       double LFz_d = leftFootTask->targetWrench().force().z();
       double RFz_d = rightFootTask->targetWrench().force().z();
       double dz_ctrl = dfzAdmittance_ * ((LFz_d - RFz_d) - (LFz - RFz));
-      sva::MotionVecd velF = {{0., 0., 0.}, {0., 0., dz_ctrl}};
 
       double LTz = leftFootTask->surfacePose().translation().z();
       double RTz = rightFootTask->surfacePose().translation().z();
       vfcZCtrl_ = RTz - LTz;
+      dz_ctrl -= vdcDamping_ * vfcZCtrl_;
+
       double LTz_d = leftFootTask->targetPose().translation().z();
       double RTz_d = rightFootTask->targetPose().translation().z();
       double dz_pos = vdcFrequency_ * ((LTz_d + RTz_d) - (LTz + RTz));
       vdcZPos_ = RTz + LTz;
-      sva::MotionVecd velT = {{0., 0., 0.}, {0., 0., dz_pos}};
 
+      sva::MotionVecd velF = {{0., 0., 0.}, {0., 0., dz_ctrl}};
+      sva::MotionVecd velT = {{0., 0., 0.}, {0., 0., dz_pos}};
       leftFootTask->refVelB(0.5 * (velT - velF));
       rightFootTask->refVelB(0.5 * (velT + velF));
 
