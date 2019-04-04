@@ -463,10 +463,7 @@ namespace lipm_walking
         }),
       Point3D("StabilizerZMP",
         PointConfig(COLORS.at('m'), 0.02),
-        [this]()
-        {
-          return stabilizer_.zmp();
-        }),
+        [this]() { return stabilizer_.zmp(); }),
       Point3D("StabilizerCoP_LeftFootCenter",
         PointConfig(COLORS.at('m'), 0.01),
         [this]() { return stabilizer_.leftFootTask->targetCoPW(); }),

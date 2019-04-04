@@ -698,24 +698,20 @@ namespace lipm_walking
       leftFootTask->refVelB(0.5 * (velT - velF));
       rightFootTask->refVelB(0.5 * (velT + velF));
 
-      logTargetDFz_ = LFz_d - RFz_d;
       logMeasuredDFz_ = LFz - RFz;
-      logTargetSTz_ = LTz_d + RTz_d;
       logMeasuredSTz_ = LTz + RTz;
-      logVFCLeftFootVel_ = 0.5 * (dz_pos - dz_ctrl);
-      logVFCRightFootVel_ = 0.5 * (dz_pos + dz_ctrl);
+      logTargetDFz_ = LFz_d - RFz_d;
+      logTargetSTz_ = LTz_d + RTz_d;
     }
     else
     {
       leftFootTask->refVelB({{0., 0., 0.}, {0., 0., 0.}});
       rightFootTask->refVelB({{0., 0., 0.}, {0., 0., 0.}});
 
-      logTargetDFz_ = 0.;
       logMeasuredDFz_ = 0.;
-      logTargetSTz_ = 0.;
       logMeasuredSTz_ = 0.;
-      logVFCLeftFootVel_ = 0.;
-      logVFCRightFootVel_ = 0.;
+      logTargetDFz_ = 0.;
+      logTargetSTz_ = 0.;
       vdcZPos_ = 0.;
       vfcZCtrl_ = 0.;
     }

@@ -424,8 +424,8 @@ namespace lipm_walking
     const mc_rbdyn::Robot & controlRobot_;
     double comWeight_ = 1000.;
     double contactWeight_ = 100000.;
-    double dcmGain_ = 1.;
-    double dcmIntegralGain_ = 0.;
+    double dcmGain_ = 1.; /**< Proportional gain on DCM error */
+    double dcmIntegralGain_ = 5.; /**< Integral gain on DCM error */
     double dfzAdmittance_ = 1e-4;
     double dt_ = 0.005; // [s]
     double leftFootRatio_ = 0.5;
@@ -433,8 +433,6 @@ namespace lipm_walking
     double logMeasuredSTz_ = 0.;
     double logTargetDFz_ = 0.;
     double logTargetSTz_ = 0.;
-    double logVFCLeftFootVel_ = 0.;
-    double logVFCRightFootVel_ = 0.;
     double mass_ = 38.; // [kg]
     double qpLeftAnkleCost_ = 0.;
     double qpNetWrenchCost_ = 0.;
