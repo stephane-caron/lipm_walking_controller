@@ -62,19 +62,17 @@ namespace lipm_walking
             return -3;
         }
       });
-    logger.addLogEntry("stabilizer_errors_com", [this]() { return comError_; });
-    logger.addLogEntry("stabilizer_errors_comd", [this]() { return comdError_; });
-    logger.addLogEntry("stabilizer_errors_dcm", [this]() { return dcmError_; });
-    logger.addLogEntry("stabilizer_errors_dcm_average", [this]() { return dcmAverageError_; });
+    logger.addLogEntry("error_dcm", [this]() { return dcmError_; });
+    logger.addLogEntry("error_dcmAverage", [this]() { return dcmAverageError_; });
+    logger.addLogEntry("error_dfz", [this]() { return logTargetDFz_ - logMeasuredDFz_; });
+    logger.addLogEntry("error_sfz", [this]() { return logTargetSTz_ - logMeasuredSTz_; });
     logger.addLogEntry("stabilizer_gains_com_admittance", [this]() { return comAdmittance_; });
     logger.addLogEntry("stabilizer_gains_com_stiffness", [this]() { return comStiffness_; });
     logger.addLogEntry("stabilizer_gains_contact_admittance", [this]() { return contactAdmittance_; });
-    logger.addLogEntry("stabilizer_gains_dcm", [this]() { return dcmGain_; });
-    logger.addLogEntry("stabilizer_gains_dcmi", [this]() { return dcmIntegralGain_; });
     logger.addLogEntry("stabilizer_gains_dfz_admittance", [this]() { return dfzAdmittance_; });
-    logger.addLogEntry("stabilizer_gains_vdc_frequency", [this]() { return vdcFrequency_; });
-    logger.addLogEntry("stabilizer_gains_vdc_stiffness", [this]() { return vdcStiffness_; });
     logger.addLogEntry("stabilizer_integrator_timeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
+    logger.addLogEntry("stabilizer_lipm_tracking_dcm", [this]() { return dcmGain_; });
+    logger.addLogEntry("stabilizer_lipm_tracking_dcmIntegral", [this]() { return dcmIntegralGain_; });
     logger.addLogEntry("stabilizer_qp_costs_left_ankle", [this]() { return qpLeftAnkleCost_; });
     logger.addLogEntry("stabilizer_qp_costs_net_wrench", [this]() { return qpNetWrenchCost_; });
     logger.addLogEntry("stabilizer_qp_costs_pressure_ratio", [this]() { return qpPressureCost_; });
@@ -82,6 +80,7 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_qp_weights_compliance", [this]() { return std::pow(qpWeights_.complianceSqrt, 2); });
     logger.addLogEntry("stabilizer_qp_weights_net_wrench", [this]() { return std::pow(qpWeights_.netWrenchSqrt, 2); });
     logger.addLogEntry("stabilizer_qp_weights_pressure", [this]() { return std::pow(qpWeights_.pressureSqrt, 2); });
+    logger.addLogEntry("stabilizer_vdc_damping", [this]() { return vdcDamping_; });
     logger.addLogEntry("stabilizer_vdc_frequency", [this]() { return vdcFrequency_; });
     logger.addLogEntry("stabilizer_vdc_stiffness", [this]() { return vdcStiffness_; });
     logger.addLogEntry("stabilizer_vdc_z_pos", [this]() { return vdcZPos_; });
@@ -438,11 +437,11 @@ namespace lipm_walking
 
   sva::ForceVecd Stabilizer::computeDesiredWrench()
   {
-    comError_ = pendulum_.com() - measuredCoM_;
-    comdError_ = pendulum_.comd() - measuredCoMd_;
-
     double omega = pendulum_.omega();
-    dcmError_ = comdError_ + omega * comError_;
+    Eigen::Vector3d comError = pendulum_.com() - measuredCoM_;
+    Eigen::Vector3d comdError = pendulum_.comd() - measuredCoMd_;
+    dcmError_ = comdError + omega * comError;
+    dcmError_.z() = 0.;
 
     if (!inTheAir_) // don't accumulate error if robot is in the air
     {
@@ -450,8 +449,12 @@ namespace lipm_walking
       dcmAverageError_ = dcmIntegrator_.eval();
     }
 
+    // desired wrench is expressed as CoM acceleration rather than DCM
+    // velocity, therefore the proportional gain is offset by omega
+    double dcmGainAtCoM = dcmGain_ + omega;
+
     desiredCoMAccel_ = pendulum_.comdd();
-    desiredCoMAccel_ += dcmGain_ * dcmError_;
+    desiredCoMAccel_ += dcmGainAtCoM * dcmError_;
     desiredCoMAccel_ += dcmIntegralGain_ * dcmAverageError_;
     auto desiredForce = mass_ * (desiredCoMAccel_ - world::gravity);
     return {pendulum_.com().cross(desiredForce), desiredForce};

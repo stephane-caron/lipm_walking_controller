@@ -113,10 +113,6 @@ namespace lipm_walking
     logger.addLogEntry("controlRobot_comd_norm", [this]() { return controlComd_.norm(); });
     logger.addLogEntry("controlRobot_dcm", [this]() -> Eigen::Vector3d { return controlCom_ + controlComd_ / pendulum_.omega(); });
     logger.addLogEntry("controlRobot_posW", [this]() { return controlRobot().posW(); });
-    logger.addLogEntry("error_com", [this]() -> Eigen::Vector3d { return controlCom_ - realCom_; });
-    logger.addLogEntry("error_comd", [this]() -> Eigen::Vector3d { return controlComd_ - realComd_; });
-    logger.addLogEntry("error_dcm", [this]() -> Eigen::Vector3d { return (controlCom_ - realCom_) + (controlComd_ - realComd_) / pendulum_.omega(); });
-    logger.addLogEntry("error_zmp", [this]() -> Eigen::Vector3d { return stabilizer_.zmp() - netWrenchObs_.zmp(); });
     logger.addLogEntry("mpc_failures", [this]() { return nbMPCFailures_; });
     logger.addLogEntry("mpc_weights_jerk", [this]() { return mpc_.jerkWeight; });
     logger.addLogEntry("mpc_weights_vel", [this]() { return mpc_.velWeights; });

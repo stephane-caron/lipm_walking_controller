@@ -408,11 +408,9 @@ namespace lipm_walking
     Eigen::LSSOL_LS wrenchSolver_;
     Eigen::Matrix<double, 16, 6> wrenchFaceMatrix_;
     Eigen::Vector3d comAdmittance_ = {0., 0., 0.};
-    Eigen::Vector3d comError_;
     Eigen::Vector3d comStiffness_ = {100., 100., 100.};
-    Eigen::Vector3d comdError_;
-    Eigen::Vector3d dcmAverageError_;
-    Eigen::Vector3d dcmError_;
+    Eigen::Vector3d dcmAverageError_ = Eigen::Vector3d::Zero();
+    Eigen::Vector3d dcmError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d desiredCoMAccel_;
     Eigen::Vector3d measuredCoM_;
     Eigen::Vector3d measuredCoMd_;

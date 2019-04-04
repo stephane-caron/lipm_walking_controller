@@ -23,9 +23,9 @@
     "vdc_stiffness": 1000.0,
     "dcm_tracking":
     {
-      "gain": 5.0,
-      "integral_gain": 1.0,
-      "integrator_time_constant": 5.0
+      "gain": 1.0,
+      "integral_gain": 20.0,
+      "integrator_time_constant": 20.0
     },
     "tasks":
     {
