@@ -66,20 +66,19 @@ namespace lipm_walking
     logger.addLogEntry("error_dcmAverage", [this]() { return dcmAverageError_; });
     logger.addLogEntry("error_dfz", [this]() { return logTargetDFz_ - logMeasuredDFz_; });
     logger.addLogEntry("error_sfz", [this]() { return logTargetSTz_ - logMeasuredSTz_; });
-    logger.addLogEntry("stabilizer_gains_com_admittance", [this]() { return comAdmittance_; });
-    logger.addLogEntry("stabilizer_gains_com_stiffness", [this]() { return comStiffness_; });
+    logger.addLogEntry("stabilizer_admittance_com", [this]() { return comAdmittance_; });
+    logger.addLogEntry("stabilizer_admittance_dfz", [this]() { return dfzAdmittance_; });
+    logger.addLogEntry("stabilizer_fdqp_costs_leftAnkle", [this]() { return fdqpLeftAnkleCost_; });
+    logger.addLogEntry("stabilizer_fdqp_costs_netWrench", [this]() { return fdqpNetWrenchCost_; });
+    logger.addLogEntry("stabilizer_fdqp_costs_pressureRatio", [this]() { return fdqpPressureCost_; });
+    logger.addLogEntry("stabilizer_fdqp_costs_rightAnkle", [this]() { return fdqpRightAnkleCost_; });
+    logger.addLogEntry("stabilizer_fdqp_weights_compliance", [this]() { return std::pow(qpWeights_.complianceSqrt, 2); });
+    logger.addLogEntry("stabilizer_fdqp_weights_net_wrench", [this]() { return std::pow(qpWeights_.netWrenchSqrt, 2); });
+    logger.addLogEntry("stabilizer_fdqp_weights_pressure", [this]() { return std::pow(qpWeights_.pressureSqrt, 2); });
     logger.addLogEntry("stabilizer_gains_contact_admittance", [this]() { return contactAdmittance_; });
-    logger.addLogEntry("stabilizer_gains_dfz_admittance", [this]() { return dfzAdmittance_; });
     logger.addLogEntry("stabilizer_integrator_timeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
     logger.addLogEntry("stabilizer_lipm_tracking_dcm", [this]() { return dcmGain_; });
     logger.addLogEntry("stabilizer_lipm_tracking_dcmIntegral", [this]() { return dcmIntegralGain_; });
-    logger.addLogEntry("stabilizer_qp_costs_left_ankle", [this]() { return qpLeftAnkleCost_; });
-    logger.addLogEntry("stabilizer_qp_costs_net_wrench", [this]() { return qpNetWrenchCost_; });
-    logger.addLogEntry("stabilizer_qp_costs_pressure_ratio", [this]() { return qpPressureCost_; });
-    logger.addLogEntry("stabilizer_qp_costs_right_ankle", [this]() { return qpRightAnkleCost_; });
-    logger.addLogEntry("stabilizer_qp_weights_compliance", [this]() { return std::pow(qpWeights_.complianceSqrt, 2); });
-    logger.addLogEntry("stabilizer_qp_weights_net_wrench", [this]() { return std::pow(qpWeights_.netWrenchSqrt, 2); });
-    logger.addLogEntry("stabilizer_qp_weights_pressure", [this]() { return std::pow(qpWeights_.pressureSqrt, 2); });
     logger.addLogEntry("stabilizer_vdc_damping", [this]() { return vdcDamping_; });
     logger.addLogEntry("stabilizer_vdc_frequency", [this]() { return vdcFrequency_; });
     logger.addLogEntry("stabilizer_vdc_stiffness", [this]() { return vdcStiffness_; });
@@ -423,8 +422,6 @@ namespace lipm_walking
         break;
     }
 
-    auto comDamping = 2 * comStiffness_.cwiseSqrt();
-    comTask->setGains(comStiffness_, comDamping);
     //updateCoMOpenLoop();
     //updateCoMDistribForce();
     //updateCoMComplianceControl();
@@ -560,10 +557,10 @@ namespace lipm_walking
     }
 
     auto error = A0 * x - b0;
-    qpNetWrenchCost_ = error.segment<6>(0).norm() / qpWeights_.netWrenchSqrt;
-    qpLeftAnkleCost_ = error.segment<6>(6).norm() / qpWeights_.complianceSqrt;
-    qpRightAnkleCost_ = error.segment<6>(12).norm() / qpWeights_.complianceSqrt;
-    qpPressureCost_ = error.segment<1>(18).norm() / qpWeights_.pressureSqrt;
+    fdqpNetWrenchCost_ = error.segment<6>(0).norm() / qpWeights_.netWrenchSqrt;
+    fdqpLeftAnkleCost_ = error.segment<6>(6).norm() / qpWeights_.complianceSqrt;
+    fdqpRightAnkleCost_ = error.segment<6>(12).norm() / qpWeights_.complianceSqrt;
+    fdqpPressureCost_ = error.segment<1>(18).norm() / qpWeights_.pressureSqrt;
 
     sva::ForceVecd w_l_0(x.segment<3>(0), x.segment<3>(3));
     sva::ForceVecd w_r_0(x.segment<3>(6), x.segment<3>(9));
@@ -619,10 +616,10 @@ namespace lipm_walking
       return;
     }
 
-    qpNetWrenchCost_ = (A0 * x - b0).norm();
-    qpLeftAnkleCost_ = 0.;
-    qpRightAnkleCost_ = 0.;
-    qpPressureCost_ = 0.;
+    fdqpNetWrenchCost_ = (A0 * x - b0).norm();
+    fdqpLeftAnkleCost_ = 0.;
+    fdqpRightAnkleCost_ = 0.;
+    fdqpPressureCost_ = 0.;
 
     sva::ForceVecd w_0(x.head<3>(), x.tail<3>());
     sva::ForceVecd w_c = X_0_c.dualMul(w_0);
