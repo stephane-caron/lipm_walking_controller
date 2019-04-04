@@ -66,6 +66,7 @@ namespace lipm_walking
     logger.addLogEntry("error_dcmAverage", [this]() { return dcmAverageError_; });
     logger.addLogEntry("error_dfz", [this]() { return logTargetDFz_ - logMeasuredDFz_; });
     logger.addLogEntry("error_sfz", [this]() { return logTargetSTz_ - logMeasuredSTz_; });
+    logger.addLogEntry("error_zmp", [this]() { return zmpError_; });
     logger.addLogEntry("stabilizer_admittance_com", [this]() { return comAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_dfz", [this]() { return dfzAdmittance_; });
     logger.addLogEntry("stabilizer_fdqp_weights_ankleTorque", [this]() { return std::pow(fdqpWeights_.ankleTorqueSqrt, 2); });
@@ -75,6 +76,7 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_integrator_timeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
     logger.addLogEntry("stabilizer_lipm_tracking_dcm", [this]() { return dcmGain_; });
     logger.addLogEntry("stabilizer_lipm_tracking_dcmIntegral", [this]() { return dcmIntegralGain_; });
+    logger.addLogEntry("stabilizer_lipm_tracking_zmp", [this]() { return zmpGain_; });
     logger.addLogEntry("stabilizer_vdc_damping", [this]() { return vdcDamping_; });
     logger.addLogEntry("stabilizer_vdc_frequency", [this]() { return vdcFrequency_; });
     logger.addLogEntry("stabilizer_vdc_stiffness", [this]() { return vdcStiffness_; });
@@ -100,10 +102,6 @@ namespace lipm_walking
         "Reconfigure",
         [this]() { reconfigure(); }),
       ArrayInput(
-        "CoM admittance", {"Cx", "Cy", "Cz"},
-        [this]() { return comAdmittance_; },
-        [this](const Eigen::Vector3d & c) { comAdmittance_ = c; }),
-      ArrayInput(
         "CoP admittance", {"Ax", "Ay"},
         [this]() -> Eigen::Vector2d
         {
@@ -113,14 +111,24 @@ namespace lipm_walking
         },
         [this](const Eigen::Vector2d & a)
         {
-          double a_cop_x = clamp(a(0), 0., MAX_COP_ADMITTANCE_X);
-          double a_cop_y = clamp(a(1), 0., MAX_COP_ADMITTANCE_Y);
+          double a_cop_x = clamp(a(0), 0., MAX_COP_ADMITTANCE);
+          double a_cop_y = clamp(a(1), 0., MAX_COP_ADMITTANCE);
           contactAdmittance_ = {{a_cop_y, a_cop_x, 0.}, {0., 0., 0.}};
         }),
       NumberInput(
         "DFz Admittance",
         [this]() { return dfzAdmittance_; },
         [this](double a) { dfzAdmittance_ = clamp(a, 0., MAX_DFZ_ADMITTANCE); }),
+      ArrayInput(
+        "LIPM tracking",
+        {"DCMp", "DCMi", "ZMP"},
+        [this]() -> Eigen::Vector3d { return {dcmGain_, dcmIntegralGain_, zmpGain_}; },
+        [this](const Eigen::Vector3d & gains)
+        {
+          dcmGain_ = clamp(gains(0), 0., MAX_DCM_P_GAIN);
+          dcmIntegralGain_ = clamp(gains(1), 0., MAX_DCM_I_GAIN);
+          zmpGain_ = clamp(gains(2), 0., MAX_ZMP_GAIN);
+        }),
       ArrayInput(
         "Vertical Drift Control", {"frequency", "stiffness"},
         [this]() -> Eigen::Vector2d { return {vdcFrequency_, vdcStiffness_}; },
@@ -129,18 +137,19 @@ namespace lipm_walking
           vdcFrequency_ = v(0);
           vdcStiffness_ = v(1);
         }),
-      NumberInput(
-        "DCM Gain",
-        [this]() { return dcmGain_; },
-        [this](double k_p) { dcmGain_ = clamp(k_p, 0., MAX_DCM_P_GAIN); }),
+      ArrayInput(
+        "CoM admittance",
+        {"Ax", "Ay"},
+        [this]() { return comAdmittance_; },
+        [this](const Eigen::Vector2d & a)
+        {
+          comAdmittance_.x() = clamp(a.x(), 0., MAX_COM_ADMITTANCE);
+          comAdmittance_.y() = clamp(a.y(), 0., MAX_COM_ADMITTANCE);
+        }),
       NumberInput(
         "DCM integrator T",
         [this]() { return dcmIntegrator_.timeConstant(); },
         [this](double T) { return dcmIntegrator_.timeConstant(T); }),
-      NumberInput(
-        "DCM Integral Gain",
-        [this]() { return dcmIntegralGain_; },
-        [this](double k_i) { dcmIntegralGain_ = clamp(k_i, 0., MAX_DCM_I_GAIN); }),
       Button(
         "Reset DCM integrator",
         [this]() { dcmIntegrator_.setZero(); })
@@ -174,13 +183,14 @@ namespace lipm_walking
 
   void Stabilizer::disable()
   {
-    comAdmittance_ = {0., 0., 0.};
+    comAdmittance_.setZero();
     contactAdmittance_ = {{0., 0., 0.}, {0., 0., 0.}};
     dcmGain_ = 0.;
     dcmIntegralGain_ = 0.;
     dfzAdmittance_ = 0.;
     vdcFrequency_ = 0.;
     vdcStiffness_ = 0.;
+    zmpGain_ = 0.;
   }
 
   void Stabilizer::configure(const mc_rtc::Configuration & config)
@@ -252,13 +262,14 @@ namespace lipm_walking
 
   void Stabilizer::checkGains()
   {
-    clampInPlace(comAdmittance_.x(), 0., MAX_COM_ADMITTANCE_X, "CoM a_x");
-    clampInPlace(comAdmittance_.y(), 0., MAX_COM_ADMITTANCE_Y, "CoM a_y");
-    clampInPlace(contactAdmittance_.couple().x(), 0., MAX_COP_ADMITTANCE_Y, "CoP a_y");
-    clampInPlace(contactAdmittance_.couple().y(), 0., MAX_COP_ADMITTANCE_X, "CoP a_x");
+    clampInPlace(comAdmittance_.x(), 0., MAX_COM_ADMITTANCE, "CoM x-admittance");
+    clampInPlace(comAdmittance_.y(), 0., MAX_COM_ADMITTANCE, "CoM y-admittance");
+    clampInPlace(contactAdmittance_.couple().x(), 0., MAX_COP_ADMITTANCE, "CoP y-admittance");
+    clampInPlace(contactAdmittance_.couple().y(), 0., MAX_COP_ADMITTANCE, "CoP x-admittance");
     clampInPlace(dcmGain_, 0., MAX_DCM_P_GAIN, "DCM k_p");
     clampInPlace(dcmIntegralGain_, 0., MAX_DCM_I_GAIN, "DCM k_i");
     clampInPlace(dfzAdmittance_, 0., MAX_DFZ_ADMITTANCE, "DFz a");
+    clampInPlace(zmpGain_, 0., MAX_ZMP_GAIN, "ZMP x-gain");
   }
 
   void Stabilizer::addTasks(mc_solver::QPSolver & solver)
@@ -435,7 +446,9 @@ namespace lipm_walking
     Eigen::Vector3d comError = pendulum_.com() - measuredCoM_;
     Eigen::Vector3d comdError = pendulum_.comd() - measuredCoMd_;
     dcmError_ = comdError + omega * comError;
+    zmpError_ = pendulum_.zmp() - measuredZMP_; // XXX: both in same plane?
     dcmError_.z() = 0.;
+    zmpError_.z() = 0.;
 
     if (!inTheAir_) // don't accumulate error if robot is in the air
     {
@@ -450,6 +463,7 @@ namespace lipm_walking
     desiredCoMAccel_ = pendulum_.comdd();
     desiredCoMAccel_ += dcmGainAtCoM * dcmError_;
     desiredCoMAccel_ += dcmIntegralGain_ * dcmAverageError_;
+    desiredCoMAccel_ -= zmpGain_ * zmpError_;
     auto desiredForce = mass_ * (desiredCoMAccel_ - world::gravity);
     return {pendulum_.com().cross(desiredForce), desiredForce};
   }
@@ -579,7 +593,7 @@ namespace lipm_walking
     //
     // Objective
     // ---------
-    // weighted minimization of |w_c - X_0_c* desiredWrench|^2 
+    // weighted minimization of |w_c - X_0_c* desiredWrench|^2
     //
     // Constraints
     // -----------
@@ -631,41 +645,45 @@ namespace lipm_walking
   // void Stabilizer::updateCoMComplianceControl()
   // {
   //   auto F_error = (distribWrench_ - measuredWrench_).force();
-  //   Eigen::Vector3d Delta_com = comAdmittance_.cwiseProduct(F_error);
+  //   Eigen::Vector3d comAdmittance = {comAdmittance_.x(), comAdmittance_.y(), 0.};
+  //   Eigen::Vector3d Delta_com = comAdmittance.cwiseProduct(F_error);
   //   comTask->com(pendulum_.com() + Delta_com);
   //   comTask->refVel(pendulum_.comd());
   //   comTask->refAccel(pendulum_.comdd());
   // }
 
-  //void Stabilizer::updateCoMForceTracking()
-  //{
-  //  auto forceError = (distribWrench_ - measuredWrench_).force();
-  //  Eigen::Vector3d comddFT = comAdmittance_.cwiseProduct(forceError);
-  //  comTask->com(pendulum_.com());
-  //  comTask->refVel(pendulum_.comd());
-  //  comTask->refAccel(pendulum_.comdd() + comddFT);
-  //}
+  // void Stabilizer::updateCoMForceTracking()
+  // {
+  //   auto forceError = (distribWrench_ - measuredWrench_).force();
+  //   Eigen::Vector3d comAdmittance = {comAdmittance_.x(), comAdmittance_.y(), 0.};
+  //   Eigen::Vector3d comddFT = comAdmittance.cwiseProduct(forceError);
+  //   comTask->com(pendulum_.com());
+  //   comTask->refVel(pendulum_.comd());
+  //   comTask->refAccel(pendulum_.comdd() + comddFT);
+  // }
 
-  //void Stabilizer::updateCoMPosZMPCC()
-  //{
-  //  auto refForce = mass_ * (pendulum_.comdd() - world::gravity);
-  //  sva::ForceVecd refWrench = {pendulum_.com().cross(refForce), refForce};
-  //  auto refZMP = computeZMP(refWrench);
-  //  auto zmpccError = refZMP - measuredZMP_;
-  //  constexpr double T = 0.1;
-  //  auto offsetVel = -comAdmittance_.cwiseProduct(zmpccError) - zmpccPosOffset / T;
-  //  zmpccPosOffset += offsetVel * dt_;
-  //  comTask->com(pendulum_.com() + zmpccPosOffset);
-  //  comTask->refVel(pendulum_.comd());
-  //  comTask->refAccel(pendulum_.comdd());
-  //}
+  // void Stabilizer::updateCoMPosZMPCC()
+  // {
+  //   auto refForce = mass_ * (pendulum_.comdd() - world::gravity);
+  //   sva::ForceVecd refWrench = {pendulum_.com().cross(refForce), refForce};
+  //   auto refZMP = computeZMP(refWrench);
+  //   auto zmpccError = refZMP - measuredZMP_;
+  //   constexpr double T = 0.1;
+  //   Eigen::Vector3d comAdmittance = {comAdmittance_.x(), comAdmittance_.y(), 0.};
+  //   auto offsetVel = -comAdmittance.cwiseProduct(zmpccError) - zmpccPosOffset / T;
+  //   zmpccPosOffset += offsetVel * dt_;
+  //   comTask->com(pendulum_.com() + zmpccPosOffset);
+  //   comTask->refVel(pendulum_.comd());
+  //   comTask->refAccel(pendulum_.comdd());
+  // }
 
   void Stabilizer::updateCoMAccelZMPCC()
   {
     //auto zmpccError = pendulum_.zmp() - measuredZMP_; // nope
     auto distribZMP = computeZMP(distribWrench_);
     auto zmpccError = distribZMP - measuredZMP_; // yes!
-    zmpccAccelOffset_ = -comAdmittance_.cwiseProduct(zmpccError);
+    Eigen::Vector3d comAdmittance = {comAdmittance_.x(), comAdmittance_.y(), 0.};
+    zmpccAccelOffset_ = -comAdmittance.cwiseProduct(zmpccError);
     comTask->com(pendulum_.com());
     comTask->refVel(pendulum_.comd());
     comTask->refAccel(pendulum_.comdd() + zmpccAccelOffset_);

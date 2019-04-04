@@ -54,13 +54,12 @@ namespace lipm_walking
     static constexpr double MAX_FDC_RZ_VEL = 0.2; // [rad] / [s]
 
     /* Maximum gains for HRP4LIRMM in standing static equilibrium. */
-    static constexpr double MAX_COM_ADMITTANCE_X = 100;
-    static constexpr double MAX_COM_ADMITTANCE_Y = 20;
-    static constexpr double MAX_COP_ADMITTANCE_X = 0.05;
-    static constexpr double MAX_COP_ADMITTANCE_Y = 0.05;
+    static constexpr double MAX_COM_ADMITTANCE = 20;
+    static constexpr double MAX_COP_ADMITTANCE = 0.05;
     static constexpr double MAX_DCM_I_GAIN = 20.;
     static constexpr double MAX_DCM_P_GAIN = 10.;
     static constexpr double MAX_DFZ_ADMITTANCE = 1.75e-4;
+    static constexpr double MAX_ZMP_GAIN = 20.;
 
     /* Avoid low-pressure targets too close to contact switches */
     static constexpr double MIN_DS_PRESSURE = 15.; // [N]
@@ -266,6 +265,14 @@ namespace lipm_walking
       return computeZMP(distribWrench_);
     }
 
+    /** Difference between desired and measured ZMP.
+     *
+     */
+    const Eigen::Vector3d & zmpError()
+    {
+      return zmpError_;
+    }
+
   private:
     /** Weights for force distribution quadratic program (FDQP).
      *
@@ -277,7 +284,7 @@ namespace lipm_walking
        * \param config Configuration dictionary.
        *
        */
-      inline void configure(const mc_rtc::Configuration & config)
+      void configure(const mc_rtc::Configuration & config)
       {
         double ankleTorqueWeight = config("ankle_torque");
         double netWrenchWeight = config("net_wrench");
@@ -406,7 +413,7 @@ namespace lipm_walking
     ContactState contactState_ = ContactState::DoubleSupport;
     Eigen::LSSOL_LS wrenchSolver_;
     Eigen::Matrix<double, 16, 6> wrenchFaceMatrix_;
-    Eigen::Vector3d comAdmittance_ = {0., 0., 0.};
+    Eigen::Vector2d comAdmittance_ = Eigen::Vector2d::Zero();
     Eigen::Vector3d comStiffness_ = {100., 100., 100.};
     Eigen::Vector3d dcmAverageError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d dcmError_ = Eigen::Vector3d::Zero();
@@ -414,6 +421,7 @@ namespace lipm_walking
     Eigen::Vector3d measuredCoM_;
     Eigen::Vector3d measuredCoMd_;
     Eigen::Vector3d measuredZMP_;
+    Eigen::Vector3d zmpError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d zmpccAccelOffset_ = {0., 0., 0.};
     ExponentialMovingAverage dcmIntegrator_;
     FDQPWeights fdqpWeights_;
@@ -439,6 +447,7 @@ namespace lipm_walking
     double vdcStiffness_ = 1000.; /**< Vertical Drift Compensation stiffness */
     double vdcZPos_ = 0.;
     double vfcZCtrl_ = 0.;
+    double zmpGain_ = 1.; /**< Gain on ZMP error */
     mc_rtc::Configuration config_;
     sva::ForceVecd contactAdmittance_;
     sva::ForceVecd distribWrench_ = sva::ForceVecd::Zero();

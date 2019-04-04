@@ -17,7 +17,7 @@
   },
   "stabilizer":
   {
-    "com_admittance": [20.0, 10.0, 0.0],
+    "com_admittance": [20.0, 10.0],
     "dfz_admittance": 0.0001,
     "vdc_frequency": 1.0,
     "vdc_stiffness": 1000.0,
