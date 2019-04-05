@@ -54,6 +54,10 @@ namespace lipm_walking
    */
   constexpr double PREVIEW_UPDATE_PERIOD = ModelPredictiveControl::SAMPLING_PERIOD;
 
+  // The following constants depend on the robot model (here HRP-4)
+  constexpr double MAX_CHEST_P = +0.4; // [rad], DOF limit is +0.5 [rad]
+  constexpr double MIN_CHEST_P = -0.1; // [rad], DOF limit is -0.2 [rad]
+
   /** Walking controller.
    *
    */

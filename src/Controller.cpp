@@ -26,14 +26,6 @@
 
 namespace lipm_walking
 {
-  namespace
-  {
-    // The following constants depend on the robot model (here HRP-4)
-    constexpr double MAX_CHEST_P = +0.4; // [rad], DOF limit is +0.5 [rad]
-    constexpr double MIN_CHEST_P = -0.1; // [rad], DOF limit is -0.2 [rad]
-    constexpr char TORSO_BODY_NAME[] = "torso";
-  }
-
   Controller::Controller(std::shared_ptr<mc_rbdyn::RobotModule> robotModule, double dt, const mc_rtc::Configuration & config)
     : mc_control::fsm::Controller(robotModule, dt, config),
       halfSitPose(controlRobot().mbc().q),
@@ -42,7 +34,7 @@ namespace lipm_walking
       netWrenchObs_(dt),
       stabilizer_(controlRobot(), pendulum_, dt)
   {
-    // Set up upper-body tasks
+    // Add upper-body tasks
     double pelvisStiffness = config("tasks")("pelvis")("stiffness");
     double pelvisWeight = config("tasks")("pelvis")("weight");
     std::string pelvisBodyName = robot().mb().body(0).name();
@@ -61,7 +53,7 @@ namespace lipm_walking
     double torsoWeight = config("tasks")("torso")("weight");
     config("tasks")("torso")("pitch", defaultTorsoPitch_);
     torsoPitch_ = defaultTorsoPitch_;
-    torsoTask = std::make_shared<mc_tasks::OrientationTask>(TORSO_BODY_NAME, robots(), 0);
+    torsoTask = std::make_shared<mc_tasks::OrientationTask>("torso", robots(), 0);
     torsoTask->orientation(mc_rbdyn::rpyToMat({0, torsoPitch_, 0}) * pelvisOrientation_);
     torsoTask->stiffness(torsoStiffness);
     torsoTask->weight(torsoWeight);
@@ -97,6 +89,8 @@ namespace lipm_walking
     if (gui_)
     {
       addGUIElements(gui_);
+      mpc_.addGUIElements(gui_);
+      stabilizer_.addGUIElements(gui_);
     }
 
     LOG_SUCCESS("LIPMWalking controller init done " << this)
@@ -148,324 +142,6 @@ namespace lipm_walking
     logger.addLogEntry("realRobot_wrench", [this]() { return netWrenchObs_.wrench(); });
     logger.addLogEntry("realRobot_zmp", [this]() { return netWrenchObs_.zmp(); });
     stabilizer_.addLogEntries(logger);
-  }
-
-  void Controller::addGUIElements(std::shared_ptr<mc_rtc::gui::StateBuilder> gui)
-  {
-    using namespace mc_rtc::gui;
-    gui->addElement(
-      {"Walking", "Controller"},
-      Button("# EMERGENCY STOP",
-        [this]()
-        {
-          emergencyStop = true;
-          this->interrupt();
-        }),
-      Button("Reset",
-        [this]() { this->resume("Initial"); }));
-    gui->addElement(
-      {"Walking", "Advanced"},
-      Label(
-        "Mass [kg]",
-        [this]() { return std::round(robotMass_ * 100.) / 100.; }),
-      Label(
-        "Torso pitch [rad]",
-        [this]() { return torsoPitch_; }),
-      NumberInput(
-        "Velocity cutoff period [s]",
-        [this]() { return comVelFilter_.cutoffPeriod(); },
-        [this](double T) { comVelFilter_.cutoffPeriod(T); }),
-      NumberInput(
-        "Torso pitch override [rad]",
-        [this]() { return defaultTorsoPitch_; },
-        [this](double pitch)
-        {
-          pitch = clamp(pitch, MIN_CHEST_P, MAX_CHEST_P);
-          defaultTorsoPitch_ = pitch;
-          torsoPitch_ = pitch;
-        }));
-    gui->addElement(
-      {"Walking", "Plan"},
-      Label(
-        "Name",
-        [this]() { return plan.name; }),
-      NumberInput(
-        "CoM height",
-        [this]() { return plan.comHeight(); },
-        [this](double height) { plan.comHeight(height); }),
-      NumberInput(
-        "Initial DSP duration [s]",
-        [this]() { return plan.initDSPDuration(); },
-        [this](double duration) { plan.initDSPDuration(duration); }),
-      NumberInput(
-        "SSP duration [s]",
-        [this]() { return plan.singleSupportDuration(); },
-        [this](double duration)
-        {
-          constexpr double T = ModelPredictiveControl::SAMPLING_PERIOD;
-          duration = std::round(duration / T) * T;
-          plan.singleSupportDuration(duration);
-        }),
-      NumberInput(
-        "DSP duration [s]",
-        [this]() { return plan.doubleSupportDuration(); },
-        [this](double duration)
-        {
-          constexpr double T = ModelPredictiveControl::SAMPLING_PERIOD;
-          duration = std::round(duration / T) * T;
-          plan.doubleSupportDuration(duration);
-        }),
-      NumberInput(
-        "Final DSP duration [s]",
-        [this]() { return plan.finalDSPDuration(); },
-        [this](double duration) { plan.finalDSPDuration(duration); }),
-      NumberInput(
-        "Swing height [m]",
-        [this]() { return plan.swingHeight(); },
-        [this](double height) { plan.swingHeight(height); }),
-      NumberInput(
-        "Takeoff duration",
-        [this]() { return plan.takeoffDuration(); },
-        [this](double duration) { plan.takeoffDuration(duration); }),
-      NumberInput(
-        "Takeoff pitch [rad]",
-        [this]() { return plan.takeoffPitch(); },
-        [this](double pitch) { plan.takeoffPitch(pitch); }),
-      NumberInput(
-        "Landing duration",
-        [this]() { return plan.landingDuration(); },
-        [this](double duration) { plan.landingDuration(duration); }),
-      NumberInput(
-        "Landing pitch [rad]",
-        [this]() { return plan.landingPitch(); },
-        [this](double pitch) { plan.landingPitch(pitch); }));
-    addGUIMarkers(gui);
-    mpc_.addGUIElements(gui);
-    stabilizer_.addGUIElements(gui);
-  }
-
-  void Controller::addGUIMarkers(std::shared_ptr<mc_rtc::gui::StateBuilder> gui)
-  {
-    using namespace mc_rtc::gui;
-
-    constexpr double ARROW_HEAD_DIAM = 0.015;
-    constexpr double ARROW_HEAD_LEN = 0.05;
-    constexpr double ARROW_SHAFT_DIAM = 0.015;
-    constexpr double FORCE_SCALE = 0.0015;
-
-    const std::map<char, Color> COLORS =
-    {
-      {'r', Color{1.0, 0.0, 0.0}},
-      {'g', Color{0.0, 1.0, 0.0}},
-      {'b', Color{0.0, 0.0, 1.0}},
-      {'y', Color{1.0, 0.5, 0.0}},
-      {'c', Color{0.0, 0.5, 1.0}},
-      {'m', Color{1.0, 0.0, 0.5}}
-    };
-
-    ArrowConfig pendulumArrowConfig;
-    pendulumArrowConfig.color = COLORS.at('y');
-    pendulumArrowConfig.end_point_scale = 0.02;
-    pendulumArrowConfig.head_diam = .1 * ARROW_HEAD_DIAM;
-    pendulumArrowConfig.head_len = .1 * ARROW_HEAD_LEN;
-    pendulumArrowConfig.scale = 1.;
-    pendulumArrowConfig.shaft_diam = .1 * ARROW_SHAFT_DIAM;
-    pendulumArrowConfig.start_point_scale = 0.02;
-
-    ArrowConfig pendulumForceArrowConfig;
-    pendulumForceArrowConfig.shaft_diam = 1 * ARROW_SHAFT_DIAM;
-    pendulumForceArrowConfig.head_diam = 1 * ARROW_HEAD_DIAM;
-    pendulumForceArrowConfig.head_len = 1 * ARROW_HEAD_LEN;
-    pendulumForceArrowConfig.scale = 1.;
-    pendulumForceArrowConfig.start_point_scale = 0.02;
-    pendulumForceArrowConfig.end_point_scale = 0.;
-
-    ArrowConfig netWrenchForceArrowConfig = pendulumForceArrowConfig;
-    netWrenchForceArrowConfig.color = COLORS.at('r');
-
-    ArrowConfig refPendulumForceArrowConfig = pendulumForceArrowConfig;
-    refPendulumForceArrowConfig = COLORS.at('y');
-
-    ForceConfig copForceConfig(COLORS.at('g'));
-    copForceConfig.start_point_scale = 0.02;
-    copForceConfig.end_point_scale = 0.;
-
-    auto footStepPolygon = [](const Contact& contact)
-    {
-      std::vector<Eigen::Vector3d> polygon;
-      polygon.push_back(contact.vertex0());
-      polygon.push_back(contact.vertex1());
-      polygon.push_back(contact.vertex2());
-      polygon.push_back(contact.vertex3());
-      return polygon;
-    };
-
-    gui->addElement(
-      {"Walking", "Advanced", "Markers", "Contacts"},
-      Polygon(
-        "SupportContact",
-        COLORS.at('g'),
-        [this, footStepPolygon]()
-        {
-          return footStepPolygon(supportContact());
-        }),
-      Polygon(
-        "TargetContact",
-        COLORS.at('b'),
-        [this, footStepPolygon]()
-        {
-          return footStepPolygon(targetContact());
-        }),
-      Polygon(
-        "FootstepPlan",
-        COLORS.at('b'),
-        [this, footStepPolygon]()
-        {
-          std::vector<std::vector<Eigen::Vector3d>> polygons;
-          const auto & contacts = plan.contacts();
-          for (unsigned i = 0; i < contacts.size(); i++)
-          {
-            auto & contact = contacts[i];
-            double supportDist = (contact.p() - supportContact().p()).norm();
-            double targetDist = (contact.p() - targetContact().p()).norm();
-            constexpr double SAME_CONTACT_DIST = 0.005;
-            // only display contact if it is not the support or target contact
-            if (supportDist > SAME_CONTACT_DIST && targetDist > SAME_CONTACT_DIST)
-            {
-              polygons.push_back(footStepPolygon(contact));
-            }
-          }
-          return polygons;
-        }));
-    gui->addElement(
-      {"Walking", "Advanced", "Markers", "Pendulum"},
-      Arrow(
-        "ControlCoMDCMArrow",
-        COLORS.at('b'),
-        [this]() -> Eigen::Vector3d
-        {
-          return controlCom_;
-        },
-        [this]() -> Eigen::Vector3d
-        {
-          return controlCom_ + controlComd_ / pendulum().omega();
-        }),
-      Point3D(
-        "ControlCoM",
-        PointConfig(COLORS.at('b')),
-        [this]()
-        {
-          return controlCom_;
-        }),
-      Point3D(
-        "ControlDCM",
-        PointConfig(COLORS.at('b'), 0.01),
-        [this]() -> Eigen::Vector3d
-        {
-          return controlCom_ + controlComd_ / pendulum().omega();
-        }),
-      Arrow(
-        "RealCoMDCMArrow",
-        COLORS.at('b'),
-        [this]() -> Eigen::Vector3d
-        {
-          return realCom_;
-        },
-        [this]() -> Eigen::Vector3d
-        {
-          return realCom_ + realComd_ / pendulum().omega();
-        }),
-      Point3D(
-        "RealCoM",
-        PointConfig(COLORS.at('b')),
-        [this]()
-        {
-          return realCom_;
-        }),
-      Point3D(
-        "RealDCM",
-        PointConfig(COLORS.at('b'), 0.01),
-        [this]() -> Eigen::Vector3d
-        {
-          return realCom_ + realComd_ / pendulum().omega();
-        }));
-    gui->addElement(
-      {"Walking", "Advanced", "Markers", "Force"},
-      Force(
-        "LeftCoPForce",
-        copForceConfig,
-        [this]()
-        {
-          return this->robot().surfaceWrench("LeftFootCenter");
-        },
-        [this]()
-        {
-          Eigen::Vector3d cop = this->robot().copW("LeftFootCenter");
-          return sva::PTransformd(this->robot().surface("LeftFootCenter").X_0_s(this->robot()).rotation(), cop);
-        }),
-      Force(
-        "RightCoPForce",
-        copForceConfig,
-        [this]()
-        {
-          return this->robot().surfaceWrench("RightFootCenter");
-        },
-        [this]()
-        {
-          Eigen::Vector3d cop = this->robot().copW("RightFootCenter");
-          return sva::PTransformd(this->robot().surface("RightFootCenter").X_0_s(this->robot()).rotation(), cop);
-        }),
-      Point3D(
-        "NetWrenchZMP",
-        PointConfig(COLORS.at('r'), 0.01),
-        [this]() -> Eigen::Vector3d
-        {
-          return netWrenchObs_.zmp();
-        }),
-      Arrow(
-        "NetWrenchForce",
-        netWrenchForceArrowConfig,
-        [this]() -> Eigen::Vector3d
-        {
-          return this->netWrenchObs_.zmp();
-        },
-        [this, FORCE_SCALE]() -> Eigen::Vector3d
-        {
-          return netWrenchObs_.zmp() + FORCE_SCALE * netWrenchObs_.wrench().force();
-        }),
-      Arrow(
-        "RefPendulum",
-        pendulumArrowConfig,
-        [this]() -> Eigen::Vector3d
-        {
-          return this->pendulum_.zmp();
-        },
-        [this]() -> Eigen::Vector3d
-        {
-          return this->pendulum_.com();
-        }),
-      Arrow(
-        "RefPendulumForce",
-        refPendulumForceArrowConfig,
-        [this]() -> Eigen::Vector3d
-        {
-          return this->pendulum_.zmp();
-        },
-        [this, FORCE_SCALE]() -> Eigen::Vector3d
-        {
-          double lambda = std::pow(pendulum_.omega(), 2);
-          Eigen::Vector3d contactForce = robotMass_ * lambda * (pendulum_.com() - pendulum_.zmp());
-          return pendulum_.zmp() + FORCE_SCALE * contactForce;
-        }),
-      Point3D("StabilizerZMP",
-        PointConfig(COLORS.at('m'), 0.02),
-        [this]() { return stabilizer_.zmp(); }),
-      Point3D("StabilizerCoP_LeftFootCenter",
-        PointConfig(COLORS.at('m'), 0.01),
-        [this]() { return stabilizer_.leftFootTask->targetCoPW(); }),
-      Point3D("StabilizerCoP_RightFootCenter",
-        PointConfig(COLORS.at('m'), 0.01),
-        [this]() { return stabilizer_.rightFootTask->targetCoPW(); }));
   }
 
   void Controller::updateRobotMass(double mass)
@@ -548,7 +224,6 @@ namespace lipm_walking
     floatingBaseObs_.leftFootRatio(leftFootRatio_);
     floatingBaseObs_.run(realRobot());
     updateRealFromKinematics();
-
     sva::PTransformd X_0_a = floatingBaseObs_.getAnchorFrame(controlRobot());
     pelvisOrientation_ = X_0_a.rotation();
     pelvisTask->orientation(pelvisOrientation_);
@@ -650,22 +325,6 @@ namespace lipm_walking
     LOG_INFO("Loaded footstep plan \"" << name << "\"");
   }
 
-  bool Controller::updatePreview()
-  {
-    mpc_.initState(pendulum());
-    mpc_.comHeight(plan.comHeight());
-    if (mpc_.solve())
-    {
-      preview = mpc_.solution();
-      return true;
-    }
-    else
-    {
-      nbMPCFailures_++;
-      return false;
-    }
-  }
-
   void Controller::startLogSegment(const std::string & label)
   {
     if (segmentName_.length() > 0)
@@ -680,6 +339,22 @@ namespace lipm_walking
   {
     logger().removeLogEntry(segmentName_);
     segmentName_ = "";
+  }
+
+  bool Controller::updatePreview()
+  {
+    mpc_.initState(pendulum());
+    mpc_.comHeight(plan.comHeight());
+    if (mpc_.solve())
+    {
+      preview = mpc_.solution();
+      return true;
+    }
+    else
+    {
+      nbMPCFailures_++;
+      return false;
+    }
   }
 }
 
