@@ -68,11 +68,11 @@ namespace lipm_walking
     logger.addLogEntry("error_sfz", [this]() { return logTargetSTz_ - logMeasuredSTz_; });
     logger.addLogEntry("error_zmp", [this]() { return zmpError_; });
     logger.addLogEntry("stabilizer_admittance_com", [this]() { return comAdmittance_; });
+    logger.addLogEntry("stabilizer_admittance_cop", [this]() { return copAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_dfz", [this]() { return dfzAdmittance_; });
     logger.addLogEntry("stabilizer_fdqp_weights_ankleTorque", [this]() { return std::pow(fdqpWeights_.ankleTorqueSqrt, 2); });
     logger.addLogEntry("stabilizer_fdqp_weights_netWrench", [this]() { return std::pow(fdqpWeights_.netWrenchSqrt, 2); });
     logger.addLogEntry("stabilizer_fdqp_weights_pressure", [this]() { return std::pow(fdqpWeights_.pressureSqrt, 2); });
-    logger.addLogEntry("stabilizer_gains_contact_admittance", [this]() { return contactAdmittance_; });
     logger.addLogEntry("stabilizer_integrator_timeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
     logger.addLogEntry("stabilizer_lipm_tracking_dcm", [this]() { return dcmGain_; });
     logger.addLogEntry("stabilizer_lipm_tracking_dcmIntegral", [this]() { return dcmIntegralGain_; });
@@ -102,23 +102,18 @@ namespace lipm_walking
         "Reconfigure",
         [this]() { reconfigure(); }),
       ArrayInput(
-        "CoP admittance", {"Ax", "Ay"},
-        [this]() -> Eigen::Vector2d
+        "Foot admittance",
+        {"CoPx", "CoPy", "DFz"},
+        [this]() -> Eigen::Vector3d
         {
-          double a_cop_x = contactAdmittance_.couple().y();
-          double a_cop_y = contactAdmittance_.couple().x();
-          return {a_cop_x, a_cop_y};
+          return {copAdmittance_.x(), copAdmittance_.y(), dfzAdmittance_};
         },
-        [this](const Eigen::Vector2d & a)
+        [this](const Eigen::Vector3d & a)
         {
-          double a_cop_x = clamp(a(0), 0., MAX_COP_ADMITTANCE);
-          double a_cop_y = clamp(a(1), 0., MAX_COP_ADMITTANCE);
-          contactAdmittance_ = {{a_cop_y, a_cop_x, 0.}, {0., 0., 0.}};
+          copAdmittance_.x() = clamp(a(0), 0., MAX_COP_ADMITTANCE);
+          copAdmittance_.y() = clamp(a(1), 0., MAX_COP_ADMITTANCE);
+          dfzAdmittance_ = clamp(a(2), 0., MAX_DFZ_ADMITTANCE);
         }),
-      NumberInput(
-        "DFz Admittance",
-        [this]() { return dfzAdmittance_; },
-        [this](double a) { dfzAdmittance_ = clamp(a, 0., MAX_DFZ_ADMITTANCE); }),
       ArrayInput(
         "LIPM tracking",
         {"DCMp", "DCMi", "ZMP"},
@@ -130,12 +125,14 @@ namespace lipm_walking
           zmpGain_ = clamp(gains(2), 0., MAX_ZMP_GAIN);
         }),
       ArrayInput(
-        "Vertical Drift Control", {"frequency", "stiffness"},
-        [this]() -> Eigen::Vector2d { return {vdcFrequency_, vdcStiffness_}; },
-        [this](const Eigen::Vector2d & v)
+        "Vertical drift control",
+        {"frequency", "stiffness", "damping"},
+        [this]() -> Eigen::Vector3d { return {vdcFrequency_, vdcStiffness_, vdcDamping_}; },
+        [this](const Eigen::Vector3d & v)
         {
-          vdcFrequency_ = v(0);
-          vdcStiffness_ = v(1);
+          vdcFrequency_ = clamp(v(0), 0., 10.);
+          vdcStiffness_ = clamp(v(1), 0., 1e4);
+          vdcDamping_ = clamp(v(2), 0., 100.);
         }),
       ArrayInput(
         "CoM admittance",
@@ -145,15 +142,16 @@ namespace lipm_walking
         {
           comAdmittance_.x() = clamp(a.x(), 0., MAX_COM_ADMITTANCE);
           comAdmittance_.y() = clamp(a.y(), 0., MAX_COM_ADMITTANCE);
-        }),
+        }));
+    gui->addElement(
+      {"Stabilizer", "Integrator"},
+      Button(
+        "Reset DCM integrator",
+        [this]() { dcmIntegrator_.setZero(); }),
       NumberInput(
         "DCM integrator T",
         [this]() { return dcmIntegrator_.timeConstant(); },
-        [this](double T) { return dcmIntegrator_.timeConstant(T); }),
-      Button(
-        "Reset DCM integrator",
-        [this]() { dcmIntegrator_.setZero(); })
-    );
+        [this](double T) { dcmIntegrator_.timeConstant(T); }));
     gui->addElement(
       {"Stabilizer", "Status"},
       Label(
@@ -184,7 +182,7 @@ namespace lipm_walking
   void Stabilizer::disable()
   {
     comAdmittance_.setZero();
-    contactAdmittance_ = {{0., 0., 0.}, {0., 0., 0.}};
+    copAdmittance_.setZero();
     dcmGain_ = 0.;
     dcmIntegralGain_ = 0.;
     dfzAdmittance_ = 0.;
@@ -196,35 +194,36 @@ namespace lipm_walking
   void Stabilizer::configure(const mc_rtc::Configuration & config)
   {
     fdqpWeights_.configure(config("fdqp_weights"));
-    config_ = config;
-    reconfigure();
-  }
-
-  void Stabilizer::reconfigure()
-  {
-    comAdmittance_ = config_("com_admittance");
-    dfzAdmittance_ = config_("dfz_admittance");
-    vdcFrequency_ = config_("vdc_frequency");
-    vdcStiffness_ = config_("vdc_stiffness");
-    if (config_.has("dcm_tracking"))
+    if (config.has("admittance"))
     {
-      auto dcmConfig = config_("dcm_tracking");
-      dcmConfig("gain", dcmGain_);
-      dcmConfig("integral_gain", dcmIntegralGain_);
-      dcmIntegrator_.timeConstant(dcmConfig("integrator_time_constant"));
+      auto admittance = config("admittance");
+      comAdmittance_ = admittance("com");
+      copAdmittance_ = admittance("cop");
+      dfzAdmittance_ = admittance("dfz");
     }
-    if (config_.has("tasks"))
+    if (config.has("lipm_tracking"))
     {
-      auto tasks = config_("tasks");
+      auto lipm = config("lipm_tracking");
+      dcmGain_ = lipm("dcm_gain");
+      dcmIntegralGain_ = lipm("dcm_integral_gain");
+      dcmIntegrator_.timeConstant(lipm("dcm_integrator_time_constant"));
+      zmpGain_ = lipm("zmp_gain");
+    }
+    if (config.has("tasks"))
+    {
+      auto tasks = config("tasks");
       if (tasks.has("com"))
       {
+        tasks("com")("active_joints", comActiveJoints_);
         tasks("com")("stiffness", comStiffness_);
         tasks("com")("weight", comWeight_);
       }
       if (tasks.has("contact"))
       {
-        tasks("contact")("admittance", contactAdmittance_);
-        tasks("contact")("damping", contactDamping_);
+        double d = tasks("contact")("damping");
+        double k = tasks("contact")("stiffness");
+        contactDamping_ = sva::MotionVecd({d, d, d}, {d, d, d});
+        contactStiffness_ = sva::MotionVecd({k, k, k}, {k, k, k});
         tasks("contact")("stiffness", contactStiffness_);
         tasks("contact")("weight", contactWeight_);
       }
@@ -234,6 +233,13 @@ namespace lipm_walking
         tasks("swing_foot")("weight", swingFootWeight_);
       }
     }
+    if (config.has("vdc"))
+    {
+      auto vdc = config("vdc");
+      vdcDamping_ = vdc("damping");
+      vdcFrequency_ = vdc("frequency");
+      vdcStiffness_ = vdc("stiffness");
+    }
   }
 
   void Stabilizer::reset(const mc_rbdyn::Robots & robots)
@@ -241,11 +247,7 @@ namespace lipm_walking
     unsigned robotIndex = robots.robotIndex();
 
     comTask.reset(new mc_tasks::CoMTask(robots, robotIndex));
-    comTask->selectActiveJoints({
-        "Root",
-        "R_HIP_Y", "R_HIP_R", "R_HIP_P", "R_KNEE_P", "R_ANKLE_P", "R_ANKLE_R",
-        "L_HIP_Y", "L_HIP_R", "L_HIP_P", "L_KNEE_P", "L_ANKLE_P", "L_ANKLE_R"
-        });
+    comTask->selectActiveJoints(comActiveJoints_);
     comTask->setGains(comStiffness_, 2 * comStiffness_.cwiseSqrt());
     comTask->weight(comWeight_);
 
@@ -264,11 +266,11 @@ namespace lipm_walking
   {
     clampInPlace(comAdmittance_.x(), 0., MAX_COM_ADMITTANCE, "CoM x-admittance");
     clampInPlace(comAdmittance_.y(), 0., MAX_COM_ADMITTANCE, "CoM y-admittance");
-    clampInPlace(contactAdmittance_.couple().x(), 0., MAX_COP_ADMITTANCE, "CoP y-admittance");
-    clampInPlace(contactAdmittance_.couple().y(), 0., MAX_COP_ADMITTANCE, "CoP x-admittance");
-    clampInPlace(dcmGain_, 0., MAX_DCM_P_GAIN, "DCM k_p");
-    clampInPlace(dcmIntegralGain_, 0., MAX_DCM_I_GAIN, "DCM k_i");
-    clampInPlace(dfzAdmittance_, 0., MAX_DFZ_ADMITTANCE, "DFz a");
+    clampInPlace(copAdmittance_.x(), 0., MAX_COP_ADMITTANCE, "CoP x-admittance");
+    clampInPlace(copAdmittance_.y(), 0., MAX_COP_ADMITTANCE, "CoP y-admittance");
+    clampInPlace(dcmGain_, 0., MAX_DCM_P_GAIN, "DCM x-gain");
+    clampInPlace(dcmIntegralGain_, 0., MAX_DCM_I_GAIN, "DCM integral x-gain");
+    clampInPlace(dfzAdmittance_, 0., MAX_DFZ_ADMITTANCE, "DFz admittance");
     clampInPlace(zmpGain_, 0., MAX_ZMP_GAIN, "ZMP x-gain");
   }
 
@@ -289,7 +291,7 @@ namespace lipm_walking
   void Stabilizer::setContact(std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact)
   {
     footTask->reset();
-    footTask->admittance(contactAdmittance_);
+    footTask->admittance(contactAdmittance());
     footTask->setGains(contactStiffness_, contactDamping_);
     footTask->targetPose(contact.pose);
     footTask->weight(contactWeight_);
@@ -348,17 +350,17 @@ namespace lipm_walking
     switch (contactState_)
     {
       case ContactState::DoubleSupport:
-        leftFootTask->admittance(contactAdmittance_);
+        leftFootTask->admittance(contactAdmittance());
         leftFootTask->setGains(contactStiffness_, contactDamping_);
-        rightFootTask->admittance(contactAdmittance_);
+        rightFootTask->admittance(contactAdmittance());
         rightFootTask->setGains(contactStiffness_, contactDamping_);
         break;
       case ContactState::LeftFoot:
-        leftFootTask->admittance(contactAdmittance_);
+        leftFootTask->admittance(contactAdmittance());
         leftFootTask->setGains(vdcContactStiffness, contactDamping_);
         break;
       case ContactState::RightFoot:
-        rightFootTask->admittance(contactAdmittance_);
+        rightFootTask->admittance(contactAdmittance());
         rightFootTask->setGains(vdcContactStiffness, contactDamping_);
         break;
     }

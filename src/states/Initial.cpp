@@ -52,14 +52,6 @@ namespace lipm_walking
       gui()->removeElement({"Walking", "Controller"}, "Pause walking");
       gui()->addElement(
         {"Walking", "Controller"},
-        Button(
-          "Weigh robot",
-          [this]()
-          {
-            massEstimator_.reset();
-            isWeighing_ = true;
-            pleaseReWeigh_ = false;
-          }),
         ComboInput("Footstep plan",
           ctl.availablePlans(),
           [&ctl]() { return ctl.plan.name; },

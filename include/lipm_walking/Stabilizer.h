@@ -99,6 +99,11 @@ namespace lipm_walking
      */
     void addTasks(mc_solver::QPSolver & solver);
 
+    /** Disable all feedback components.
+     *
+     */
+    void disable();
+
     /** Compute ZMP of a wrench in the output frame.
      *
      * \param wrench Wrench at the origin of the world frame.
@@ -119,11 +124,6 @@ namespace lipm_walking
      *
      */
     bool detectTouchdown(const std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact);
-
-    /** Disable all feedback components.
-     *
-     */
-    void disable();
 
     /** Apply stored configuration.
      *
@@ -336,20 +336,6 @@ namespace lipm_walking
      */
     void setSupportFootGains();
 
-    /** Apply foot pressure difference control.
-     *
-     * This method is described in Section III.E of "Biped walking
-     * stabilization based on linear inverted pendulum tracking" (Kajita et
-     * al., IROS 2010).
-     *
-     */
-    void updateFootForceDifferenceControl();
-
-    /** Update ZMP frame from contact state.
-     *
-     */
-    void updateZMPFrame();
-
     /** Simplest CoM control law: no feedback.
      *
      */
@@ -402,6 +388,28 @@ namespace lipm_walking
      */
     void updateCoMAccelZMPCC();
 
+    /** Apply foot pressure difference control.
+     *
+     * This method is described in Section III.E of "Biped walking
+     * stabilization based on linear inverted pendulum tracking" (Kajita et
+     * al., IROS 2010).
+     *
+     */
+    void updateFootForceDifferenceControl();
+
+    /** Update ZMP frame from contact state.
+     *
+     */
+    void updateZMPFrame();
+
+    /** Get 6D contact admittance vector from 2D CoP admittance.
+     *
+     */
+    sva::ForceVecd contactAdmittance()
+    {
+      return {{copAdmittance_.y(), copAdmittance_.x(), 0.}, {0., 0., 0.}};
+    }
+
   public:
     Contact leftFootContact;
     Contact rightFootContact;
@@ -414,7 +422,8 @@ namespace lipm_walking
     Eigen::LSSOL_LS wrenchSolver_;
     Eigen::Matrix<double, 16, 6> wrenchFaceMatrix_;
     Eigen::Vector2d comAdmittance_ = Eigen::Vector2d::Zero();
-    Eigen::Vector3d comStiffness_ = {100., 100., 100.};
+    Eigen::Vector2d copAdmittance_ = Eigen::Vector2d::Zero();
+    Eigen::Vector3d comStiffness_ = {1000., 1000., 100.};
     Eigen::Vector3d dcmAverageError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d dcmError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d desiredCoMAccel_;
@@ -449,7 +458,7 @@ namespace lipm_walking
     double vfcZCtrl_ = 0.;
     double zmpGain_ = 1.; /**< Gain on ZMP error */
     mc_rtc::Configuration config_;
-    sva::ForceVecd contactAdmittance_;
+    std::vector<std::string> comActiveJoints_;
     sva::ForceVecd distribWrench_ = sva::ForceVecd::Zero();
     sva::ForceVecd measuredWrench_;
     sva::MotionVecd contactDamping_;

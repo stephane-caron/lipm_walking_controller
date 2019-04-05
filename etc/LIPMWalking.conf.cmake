@@ -17,15 +17,11 @@
   },
   "stabilizer":
   {
-    "com_admittance": [20.0, 10.0],
-    "dfz_admittance": 0.0001,
-    "vdc_frequency": 1.0,
-    "vdc_stiffness": 1000.0,
-    "dcm_tracking":
+    "admittance":
     {
-      "gain": 1.0,
-      "integral_gain": 20.0,
-      "integrator_time_constant": 20.0
+      "com": [0.0, 0.0],
+      "cop": [0.01, 0.01],
+      "dfz": 0.0001
     },
     "fdqp_weights":
     {
@@ -33,30 +29,30 @@
       "ankle_torque": 100.0,
       "pressure": 1.0
     },
+    "lipm_tracking":
+    {
+      "dcm_gain": 5.0,
+      "dcm_integral_gain": 20.0,
+      "dcm_integrator_time_constant": 20.0,
+      "zmp_gain": 2.0
+    },
     "tasks":
     {
       "com":
       {
+        "active_joints":
+        [
+          "Root",
+          "R_HIP_Y", "R_HIP_R", "R_HIP_P", "R_KNEE_P", "R_ANKLE_P", "R_ANKLE_R",
+          "L_HIP_Y", "L_HIP_R", "L_HIP_P", "L_KNEE_P", "L_ANKLE_P", "L_ANKLE_R"
+        ],
         "stiffness": [1000.0, 1000.0, 100.0],
         "weight": 1000.0
       },
       "contact":
       {
-        "admittance":
-        {
-          "couple": [0.01, 0.01, 0.0],
-          "force": [0.0, 0.0, 0.0]
-        },
-        "damping":
-        {
-          "angular": [300.0, 300.0, 300.0],
-          "linear": [300.0, 300.0, 300.0]
-        },
-        "stiffness":
-        {
-          "angular": [1.0, 1.0, 1.0],
-          "linear": [1.0, 1.0, 1.0]
-        },
+        "damping": 300.0,
+        "stiffness": 1.0,
         "weight": 10000.0
       },
       "swing_foot":
@@ -64,6 +60,12 @@
         "stiffness": 2000.0,
         "weight": 500.0
       }
+    },
+    "vdc":
+    {
+      "frequency": 1.0,
+      "damping": 0.0,
+      "stiffness": 1000.0
     }
   },
   "tasks":
