@@ -79,7 +79,7 @@ namespace lipm_walking
         "MPC QP solve [ms]",
         [this]() { return qpSolveTimes_.str(2, false); }));
     gui->addElement(
-      {"Walking", "Advanced", "MPC"},
+      {"Walking", "MPC"},
       ArrayInput("Cost weights",
         {"jerk", "vel_x", "vel_y", "zmp"},
         [this]()

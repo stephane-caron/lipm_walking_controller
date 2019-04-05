@@ -29,30 +29,22 @@ namespace lipm_walking
 
     gui->addElement(
       {"Walking", "Controller"},
-      Button("# EMERGENCY STOP",
+      Button(
+        "# EMERGENCY STOP",
         [this]()
         {
           emergencyStop = true;
           this->interrupt();
         }),
-      Button("Reset",
-        [this]() { this->resume("Initial"); }));
-
-    gui->addElement(
-      {"Walking", "Advanced"},
+      Button(
+        "Reset",
+        [this]() { this->resume("Initial"); }),
       Label(
         "Mass [kg]",
         [this]() { return std::round(robotMass_ * 100.) / 100.; }),
-      Label(
+      NumberInput(
         "Torso pitch [rad]",
-        [this]() { return torsoPitch_; }),
-      NumberInput(
-        "Velocity cutoff period [s]",
-        [this]() { return comVelFilter_.cutoffPeriod(); },
-        [this](double T) { comVelFilter_.cutoffPeriod(T); }),
-      NumberInput(
-        "Torso pitch override [rad]",
-        [this]() { return defaultTorsoPitch_; },
+        [this]() { return torsoPitch_; },
         [this](double pitch)
         {
           pitch = clamp(pitch, MIN_CHEST_P, MAX_CHEST_P);
@@ -169,7 +161,7 @@ namespace lipm_walking
     };
 
     gui->addElement(
-      {"Walking", "Advanced", "Markers", "Contacts"},
+      {"Walking", "Markers", "Contacts"},
       Polygon(
         "SupportContact",
         COLORS.at('g'),
@@ -207,7 +199,7 @@ namespace lipm_walking
         }));
 
     gui->addElement(
-      {"Walking", "Advanced", "Markers", "Pendulum"},
+      {"Walking", "Markers", "Pendulum"},
       Arrow(
         "ControlCoMDCMArrow",
         COLORS.at('b'),
@@ -258,8 +250,9 @@ namespace lipm_walking
         {
           return realCom_ + realComd_ / pendulum().omega();
         }));
+
     gui->addElement(
-      {"Walking", "Advanced", "Markers", "Force"},
+      {"Walking", "Markers", "Force"},
       Force(
         "LeftCoPForce",
         copForceConfig,
@@ -326,13 +319,16 @@ namespace lipm_walking
           Eigen::Vector3d contactForce = robotMass_ * lambda * (pendulum_.com() - pendulum_.zmp());
           return pendulum_.zmp() + FORCE_SCALE * contactForce;
         }),
-      Point3D("StabilizerZMP",
+      Point3D(
+        "StabilizerZMP",
         PointConfig(COLORS.at('m'), 0.02),
         [this]() { return stabilizer_.zmp(); }),
-      Point3D("StabilizerCoP_LeftFootCenter",
+      Point3D(
+        "StabilizerCoP_LeftFootCenter",
         PointConfig(COLORS.at('m'), 0.01),
         [this]() { return stabilizer_.leftFootTask->targetCoPW(); }),
-      Point3D("StabilizerCoP_RightFootCenter",
+      Point3D(
+        "StabilizerCoP_RightFootCenter",
         PointConfig(COLORS.at('m'), 0.01),
         [this]() { return stabilizer_.rightFootTask->targetCoPW(); }));
   }
