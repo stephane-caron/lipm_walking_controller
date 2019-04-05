@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include <mc_rbdyn/rpy_utils.h>
+#include <chrono>
 
 #include <lipm_walking/Stabilizer.h>
 #include <lipm_walking/utils/clamp.h>
@@ -67,6 +67,7 @@ namespace lipm_walking
     logger.addLogEntry("error_dfz", [this]() { return logTargetDFz_ - logMeasuredDFz_; });
     logger.addLogEntry("error_sfz", [this]() { return logTargetSTz_ - logMeasuredSTz_; });
     logger.addLogEntry("error_zmp", [this]() { return zmpError_; });
+    logger.addLogEntry("perf_Stabilizer", [this]() { return runTime_; });
     logger.addLogEntry("stabilizer_admittance_com", [this]() { return comAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_cop", [this]() { return copAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_dfz", [this]() { return dfzAdmittance_; });
@@ -175,8 +176,16 @@ namespace lipm_walking
       ArrayLabel("DCM avg. error [mm]",
         {"x", "y"},
         [this]() { return vecFromError(dcmAverageError_); }),
+      ArrayLabel("ZMP error [mm]",
+        {"x", "y"},
+        [this]() { return vecFromError(zmpError_); }),
       Label("Foot height diff [mm]",
         [this]() { return std::round(1000. * vfcZCtrl_); }));
+    gui->addElement(
+      {"Computation times"},
+      Label(
+        "Stabilizer [ms]",
+        [this]() { return runTimes_.str(2, false); }));
   }
 
   void Stabilizer::disable()
@@ -410,6 +419,9 @@ namespace lipm_walking
 
   void Stabilizer::run()
   {
+    using namespace std::chrono;
+    auto startTime = high_resolution_clock::now();
+
     checkGains();
     checkInTheAir();
     setSupportFootGains();
@@ -440,6 +452,18 @@ namespace lipm_walking
     updateCoMAccelZMPCC();
 
     updateFootForceDifferenceControl();
+
+    auto endTime = high_resolution_clock::now();
+    runTime_ = 1000. * duration_cast<duration<double>>(endTime - startTime).count();
+    runTimes_.add(runTime_);
+  }
+
+  void Stabilizer::updateState(const Eigen::Vector3d & com, const Eigen::Vector3d & comd, const sva::ForceVecd & wrench, double leftFootRatio)
+  {
+    leftFootRatio_ = leftFootRatio;
+    measuredCoM_ = com;
+    measuredCoMd_ = comd;
+    measuredWrench_ = wrench;
   }
 
   sva::ForceVecd Stabilizer::computeDesiredWrench()

@@ -71,7 +71,7 @@ namespace lipm_walking
   {
     using namespace mc_rtc::gui;
     gui->addElement(
-      {"Walking", "Advanced", "Computation times"},
+      {"Computation times"},
       Label(
         "MPC [ms]",
         [this]() { return solveTimes_.str(2, false); }),

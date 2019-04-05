@@ -498,12 +498,12 @@ namespace lipm_walking
     solver().removeTask(torsoTask);
     stabilizer_.reset(robots());
 
-    stabilizer_.updateState(initCom, Eigen::Vector3d::Zero(), sva::ForceVecd{Eigen::Vector6d::Zero()});
+    leftFootRatio_ = 0.5;
+    stabilizer_.updateState(initCom, Eigen::Vector3d::Zero(), sva::ForceVecd{Eigen::Vector6d::Zero()}, leftFootRatio_);
 
     controlCom_ = initCom;
     controlComd_ = Eigen::Vector3d::Zero();
     leftFootRatioJumped_ = false;
-    leftFootRatio_ = 0.5;
     nbMPCFailures_ = 0;
     pauseWalking = false;
     realCom_ = initCom; // realRobot() may not be initialized yet

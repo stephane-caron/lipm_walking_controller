@@ -215,13 +215,7 @@ namespace lipm_walking
      * \param leftFootRatio Desired pressure distribution ratio for left foot.
      *
      */
-    void updateState(const Eigen::Vector3d & com, const Eigen::Vector3d & comd, const sva::ForceVecd & wrench, double leftFootRatio = 0.5)
-    {
-      leftFootRatio_ = leftFootRatio;
-      measuredCoM_ = com;
-      measuredCoMd_ = comd;
-      measuredWrench_ = wrench;
-    }
+    void updateState(const Eigen::Vector3d & com, const Eigen::Vector3d & comd, const sva::ForceVecd & wrench, double leftFootRatio);
 
     /** Update H-representation of contact wrench cones.
      *
@@ -418,6 +412,7 @@ namespace lipm_walking
     std::shared_ptr<mc_tasks::CoPTask> rightFootTask;
 
   private:
+    AvgStdEstimator runTimes_;
     ContactState contactState_ = ContactState::DoubleSupport;
     Eigen::LSSOL_LS wrenchSolver_;
     Eigen::Matrix<double, 16, 6> wrenchFaceMatrix_;
@@ -449,6 +444,7 @@ namespace lipm_walking
     double logTargetDFz_ = 0.;
     double logTargetSTz_ = 0.;
     double mass_ = 38.; // [kg]
+    double runTime_ = 0.;
     double swingFootStiffness_ = 2000.;
     double swingFootWeight_ = 100.;
     double vdcDamping_ = 0.; /**< Vertical Drift Compensation damping */
