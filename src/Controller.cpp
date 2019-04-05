@@ -506,6 +506,7 @@ namespace lipm_walking
     leftFootRatioJumped_ = false;
     nbMPCFailures_ = 0;
     pauseWalking = false;
+    pauseWalkingRequested = false;
     realCom_ = initCom; // realRobot() may not be initialized yet
     realComd_ = Eigen::Vector3d::Zero();
 
@@ -528,6 +529,10 @@ namespace lipm_walking
     if (emergencyStop)
     {
       return false;
+    }
+    if (pauseWalkingRequested)
+    {
+      pauseWalkingCallback();
     }
     if (!mc_control::fsm::Controller::running())
     {
@@ -558,6 +563,36 @@ namespace lipm_walking
       postureTask->posture(halfSitPose); // reset posture in case the FSM updated it
     }
     return ret;
+  }
+
+  void Controller::pauseWalkingCallback(bool verbose)
+  {
+    constexpr double MAX_HEIGHT_DIFF = 0.02; // [m]
+    if (pauseWalking)
+    {
+      LOG_WARNING("Already pausing, how did you get there?");
+      return;
+    }
+    else if (std::abs(supportContact().z() - targetContact().z()) > MAX_HEIGHT_DIFF)
+    {
+      if (!pauseWalkingRequested || verbose)
+      {
+        LOG_WARNING("Cannot pause on uneven ground, will pause later");
+      }
+      gui()->removeElement({"Walking", "Controller"}, "Pause walking");
+      pauseWalkingRequested = true;
+    }
+    else if (pauseWalkingRequested)
+    {
+      LOG_WARNING("Pausing now that contacts are at same level");
+      pauseWalkingRequested = false;
+      pauseWalking = true;
+    }
+    else // (!pauseWalkingRequested)
+    {
+      gui()->removeElement({"Walking", "Controller"}, "Pause walking");
+      pauseWalking = true;
+    }
   }
 
   void Controller::warnIfRobotIsInTheAir()

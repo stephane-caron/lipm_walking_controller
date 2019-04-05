@@ -316,18 +316,10 @@ namespace lipm_walking
     }
     startWalking_ = true;
     gui()->addElement(
-        {"Walking", "Controller"},
-        mc_rtc::gui::Button(
-            "Pause walking",
-            [&ctl]()
-            {
-              if (ctl.pauseWalking)
-              {
-                return;
-              }
-              ctl.pauseWalking = true;
-              ctl.gui()->removeElement({"Walking", "Controller"}, "Pause walking");
-            }));
+      {"Walking", "Controller"},
+      mc_rtc::gui::Button(
+        "Pause walking",
+        [&ctl]() { ctl.pauseWalkingCallback(/* verbose = */ true); }));
   }
 }
 

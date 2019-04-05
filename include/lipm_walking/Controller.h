@@ -122,6 +122,13 @@ namespace lipm_walking
      */
     void loadFootstepPlan(std::string name);
 
+    /** Callback function called by "Pause walking" button.
+     *
+     * \param verbose Talk to user on the command line.
+     *
+     */
+    void pauseWalkingCallback(bool verbose = false);
+
     /** Main function of the controller, called at every control cycle.
      *
      */
@@ -317,6 +324,7 @@ namespace lipm_walking
     FootstepPlan plan;
     bool emergencyStop = false;
     bool pauseWalking = false;
+    bool pauseWalkingRequested = false;
     std::shared_ptr<Preview> preview;
     std::shared_ptr<mc_tasks::OrientationTask> pelvisTask;
     std::shared_ptr<mc_tasks::OrientationTask> torsoTask;
