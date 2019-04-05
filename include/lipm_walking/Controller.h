@@ -345,7 +345,7 @@ namespace lipm_walking
     Stabilizer stabilizer_;
     bool leftFootRatioJumped_ = false;
     double ctlTime_ = 0.;
-    double defaultTorsoPitch_ = 0.;
+    double defaultTorsoPitch_ = 0.1; // [rad]
     double doubleSupportDurationOverride_ = -1.; // [s]
     double leftFootRatio_ = 0.5;
     double robotMass_ = 0.; // [kg]

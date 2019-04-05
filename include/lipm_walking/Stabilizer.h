@@ -426,7 +426,8 @@ namespace lipm_walking
     Eigen::Vector3d measuredCoMd_;
     Eigen::Vector3d measuredZMP_;
     Eigen::Vector3d zmpError_ = Eigen::Vector3d::Zero();
-    Eigen::Vector3d zmpccAccelOffset_ = {0., 0., 0.};
+    Eigen::Vector3d zmpccCoMAccel_ = Eigen::Vector3d::Zero();
+    Eigen::Vector3d zmpccError_ = Eigen::Vector3d::Zero();
     ExponentialMovingAverage dcmIntegrator_;
     FDQPWeights fdqpWeights_;
     bool inTheAir_ = false;

@@ -47,7 +47,7 @@ namespace lipm_walking
 
   void Stabilizer::addLogEntries(mc_rtc::Logger & logger)
   {
-    logger.addLogEntry("stabilizer_contact_state",
+    logger.addLogEntry("stabilizer_contactState",
       [this]() -> double
       {
         switch (contactState_)
@@ -88,7 +88,8 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_vfc_stz_target", [this]() { return logTargetSTz_; });
     logger.addLogEntry("stabilizer_vfc_z_ctrl", [this]() { return vfcZCtrl_; });
     logger.addLogEntry("stabilizer_zmp", [this]() { return zmp(); });
-    logger.addLogEntry("stabilizer_zmpcc_comdd_offset", [this]() { return zmpccAccelOffset_; });
+    logger.addLogEntry("stabilizer_zmpcc_comAccel", [this]() { return zmpccCoMAccel_; });
+    logger.addLogEntry("stabilizer_zmpcc_error", [this]() { return zmpccError_; });
   }
 
   void Stabilizer::addGUIElements(std::shared_ptr<mc_rtc::gui::StateBuilder> gui)
@@ -269,6 +270,19 @@ namespace lipm_walking
 
     dcmIntegrator_.setZero();
     dcmIntegrator_.saturation(MAX_AVERAGE_DCM_ERROR);
+
+    Eigen::Vector3d staticForce = -mass_ * world::gravity;
+
+    dcmAverageError_ = Eigen::Vector3d::Zero();
+    dcmError_ = Eigen::Vector3d::Zero();
+    distribWrench_ = {pendulum_.com().cross(staticForce), staticForce};
+    logMeasuredDFz_ = 0.;
+    logMeasuredSTz_ = 0.;
+    logTargetDFz_ = 0.;
+    logTargetSTz_ = 0.;
+    zmpError_ = Eigen::Vector3d::Zero();
+    zmpccCoMAccel_ = Eigen::Vector3d::Zero();
+    zmpccError_ = Eigen::Vector3d::Zero();
   }
 
   void Stabilizer::checkGains()
@@ -707,12 +721,12 @@ namespace lipm_walking
   {
     //auto zmpccError = pendulum_.zmp() - measuredZMP_; // nope
     auto distribZMP = computeZMP(distribWrench_);
-    auto zmpccError = distribZMP - measuredZMP_; // yes!
+    zmpccError_ = distribZMP - measuredZMP_; // yes!
     Eigen::Vector3d comAdmittance = {comAdmittance_.x(), comAdmittance_.y(), 0.};
-    zmpccAccelOffset_ = -comAdmittance.cwiseProduct(zmpccError);
+    zmpccCoMAccel_ = -comAdmittance.cwiseProduct(zmpccError_);
     comTask->com(pendulum_.com());
     comTask->refVel(pendulum_.comd());
-    comTask->refAccel(pendulum_.comdd() + zmpccAccelOffset_);
+    comTask->refAccel(pendulum_.comdd() + zmpccCoMAccel_);
   }
 
   void Stabilizer::updateFootForceDifferenceControl()
