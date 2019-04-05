@@ -71,14 +71,6 @@ namespace lipm_walking
   {
     using namespace mc_rtc::gui;
     gui->addElement(
-      {"Computation times"},
-      Label(
-        "MPC [ms]",
-        [this]() { return solveTimes_.str(2, false); }),
-      Label(
-        "MPC QP solve [ms]",
-        [this]() { return qpSolveTimes_.str(2, false); }));
-    gui->addElement(
       {"Walking", "MPC"},
       ArrayInput("Cost weights",
         {"jerk", "vel_x", "vel_y", "zmp"},
@@ -128,9 +120,13 @@ namespace lipm_walking
           {
             solver_ = copra::SolverFlag::QuadProgDense;
           }
-          qpSolveTimes_.reset();
-          solveTimes_.reset();
         }));
+  }
+
+  void ModelPredictiveControl::addLogEntries(mc_rtc::Logger & logger)
+  {
+    logger.addLogEntry("perf_MPCBuildAndSolve", [this]() { return buildAndSolveTime_; });
+    logger.addLogEntry("perf_MPCSolve", [this]() { return solveTime_; });
   }
 
   void ModelPredictiveControl::phaseDurations(double initSupportDuration, double doubleSupportDuration, double targetSupportDuration)
@@ -370,9 +366,8 @@ namespace lipm_walking
     }
 
     auto endTime = high_resolution_clock::now();
-    solveTime_ = 1000. * duration_cast<duration<double>>(endTime - startTime).count();
-    qpSolveTimes_.add(1000. * lmpc.solveTime());
-    solveTimes_.add(solveTime_);
+    buildAndSolveTime_ = 1000. * duration_cast<duration<double>>(endTime - startTime).count();
+    solveTime_ = 1000. * lmpc.solveTime();
     return solutionFound;
   }
 

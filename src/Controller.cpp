@@ -86,6 +86,9 @@ namespace lipm_walking
     stabilizer_.wrenchFaceMatrix(sole_);
 
     addLogEntries(logger());
+    mpc_.addLogEntries(logger());
+    stabilizer_.addLogEntries(logger());
+
     if (gui_)
     {
       addGUIElements(gui_);
@@ -141,7 +144,6 @@ namespace lipm_walking
     logger.addLogEntry("realRobot_posW", [this]() { return realRobot().posW(); });
     logger.addLogEntry("realRobot_wrench", [this]() { return netWrenchObs_.wrench(); });
     logger.addLogEntry("realRobot_zmp", [this]() { return netWrenchObs_.zmp(); });
-    stabilizer_.addLogEntries(logger);
   }
 
   void Controller::updateRobotMass(double mass)

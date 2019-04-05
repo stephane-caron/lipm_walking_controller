@@ -182,11 +182,6 @@ namespace lipm_walking
         [this]() { return vecFromError(zmpError_); }),
       Label("Foot height diff [mm]",
         [this]() { return std::round(1000. * vfcZCtrl_); }));
-    gui->addElement(
-      {"Computation times"},
-      Label(
-        "Stabilizer [ms]",
-        [this]() { return runTimes_.str(2, false); }));
   }
 
   void Stabilizer::disable()
@@ -469,7 +464,6 @@ namespace lipm_walking
 
     auto endTime = high_resolution_clock::now();
     runTime_ = 1000. * duration_cast<duration<double>>(endTime - startTime).count();
-    runTimes_.add(runTime_);
   }
 
   void Stabilizer::updateState(const Eigen::Vector3d & com, const Eigen::Vector3d & comd, const sva::ForceVecd & wrench, double leftFootRatio)

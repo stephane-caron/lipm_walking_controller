@@ -412,7 +412,6 @@ namespace lipm_walking
     std::shared_ptr<mc_tasks::CoPTask> rightFootTask;
 
   private:
-    AvgStdEstimator runTimes_;
     ContactState contactState_ = ContactState::DoubleSupport;
     Eigen::LSSOL_LS wrenchSolver_;
     Eigen::Matrix<double, 16, 6> wrenchFaceMatrix_;

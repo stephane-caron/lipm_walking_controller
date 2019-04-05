@@ -30,7 +30,6 @@
 #include <lipm_walking/Pendulum.h>
 #include <lipm_walking/Preview.h>
 #include <lipm_walking/defs.h>
-#include <lipm_walking/utils/stats.h>
 
 namespace lipm_walking
 {
@@ -137,6 +136,13 @@ namespace lipm_walking
      *
      */
     void addGUIElements(std::shared_ptr<mc_rtc::gui::StateBuilder> gui);
+
+    /** Log stabilizer entries.
+     *
+     * \param logger Logger.
+     *
+     */
+    void addLogEntries(mc_rtc::Logger & logger);
 
     /** Read configuration from dictionary.
      *
@@ -264,13 +270,6 @@ namespace lipm_walking
       return nextContact_;
     }
 
-    double solveTime()
-    {
-      double time = solveTime_;
-      solveTime_ = 0.;
-      return time;
-    }
-
     using RefVec = Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1>;
 
     const RefVec & velRef() const
@@ -307,8 +306,6 @@ namespace lipm_walking
     double zmpWeight = 1000.;
 
   private:
-    AvgStdEstimator qpSolveTimes_;
-    AvgStdEstimator solveTimes_;
     Contact initContact_;
     Contact nextContact_;
     Contact targetContact_;
@@ -320,8 +317,9 @@ namespace lipm_walking
     Eigen::Matrix<double, 2, STATE_SIZE> zmpFromState_;
     Eigen::VectorXd initState_;
     copra::SolverFlag solver_ = copra::SolverFlag::QLD;
+    double buildAndSolveTime_ = 0.; // [s]
     double comHeight_;
-    double solveTime_ = 0.;
+    double solveTime_ = 0.; // [s]
     double zeta_;
     std::shared_ptr<ModelPredictiveControlSolution> solution_ = nullptr;
     std::shared_ptr<copra::ControlCost> jerkCost_;
