@@ -15,6 +15,7 @@ Compilation requires:
 * [ROS](http://www.ros.org/) with a working [catkin workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace)
 * [SpaceVecAlg](https://github.com/jrl-umi3218/SpaceVecAlg): spatial vector algebra
 * [RBDyn](https://github.com/jrl-umi3218/RBDyn/): rigid body dynamics
+* [eigen-lssol](https://gite.lirmm.fr/multi-contact/eigen-lssol): quadratic programming (if you have the LSSOL licence ask us this library)
 * [eigen-qld](https://github.com/jrl-umi3218/eigen-qld): quadratic programming
 * [sch-core](https://github.com/jrl-umi3218/sch-core): collision detection
 * [Tasks](https://github.com/jrl-umi3218/Tasks/): inverse kinematics
@@ -26,8 +27,6 @@ The following dependencies are not publicly released yet but available upon requ
 * [mc\_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc): robot controller library (includes mc\_control, mc\_rbdyn, mc\_solver and mc\_tasks)
 * [mc\_rtc\_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros): ROS tools for mc\_rtc
 * [mc\_rtc\_ros\_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data): ROS environment and object descriptions for mc\_rtc
-
-There is currently an additional dependency to the *eigen-lssol* library. It will be replaced by [eigen-qld](https://github.com/jrl-umi3218/eigen-qld) in a future update.
 
 ### Building from source on Linux
 
