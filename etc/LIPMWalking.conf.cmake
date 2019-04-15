@@ -93,7 +93,7 @@
   },
   "plans":
   {
-    "airbus_staircase":
+    "airbus_staircase": // first part of the September 10, 2019 experiment video
     {
       "com_height": 0.78,
       "init_dsp_duration": 0.6,
@@ -168,7 +168,7 @@
         }
       }
     },
-    "ashibumi":
+    "ashibumi": // stepping in place
     {
       "com_height": 0.78,
       "double_support_duration": 0.2,
@@ -427,7 +427,7 @@
         { "pose": { "translation": [1.6,  0.09, 0.0] }, "ref_vel": [0.0, 0.0, 0.0], "surface": "LeftFootCenter" }
       ]
     },
-    "walk_45cm":
+    "walk_45cm":  // second part of the September 10, 2019 experiment video
     {
       "com_height": 0.78,
       "double_support_duration": 0.1,
