@@ -89,7 +89,10 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_vfc_z_ctrl", [this]() { return vfcZCtrl_; });
     logger.addLogEntry("stabilizer_zmp", [this]() { return zmp(); });
     logger.addLogEntry("stabilizer_zmpcc_comAccel", [this]() { return zmpccCoMAccel_; });
+    logger.addLogEntry("stabilizer_zmpcc_comOffset", [this]() { return zmpccCoMOffset_; });
+    logger.addLogEntry("stabilizer_zmpcc_comVel", [this]() { return zmpccCoMVel_; });
     logger.addLogEntry("stabilizer_zmpcc_error", [this]() { return zmpccError_; });
+    logger.addLogEntry("stabilizer_zmpcc_leakRate", [this]() { return zmpccIntegrator_.rate(); });
   }
 
   void Stabilizer::addGUIElements(std::shared_ptr<mc_rtc::gui::StateBuilder> gui)
@@ -146,14 +149,25 @@ namespace lipm_walking
           comAdmittance_.y() = clamp(a.y(), 0., MAX_COM_ADMITTANCE);
         }));
     gui->addElement(
-      {"Stabilizer", "Integrator"},
+      {"Stabilizer", "Integrators"},
       Button(
         "Reset DCM integrator",
         [this]() { dcmIntegrator_.setZero(); }),
+      Button(
+        "Reset ZMPCC integrator",
+        [this]() { zmpccIntegrator_.setZero(); }),
       NumberInput(
         "DCM integrator T",
         [this]() { return dcmIntegrator_.timeConstant(); },
-        [this](double T) { dcmIntegrator_.timeConstant(T); }));
+        [this](double T) { dcmIntegrator_.timeConstant(T); }),
+      Checkbox(
+        "Use ZMPCC only in double support?",
+        [this]() { return zmpccOnlyDS_; },
+        [this]() { zmpccOnlyDS_ = !zmpccOnlyDS_; }),
+      NumberInput(
+        "ZMPCC leak rate [Hz]",
+        [this]() { return zmpccIntegrator_.rate(); },
+        [this](double T) { zmpccIntegrator_.rate(T); }));
     gui->addElement(
       {"Stabilizer", "Status"},
       Label(
@@ -180,6 +194,9 @@ namespace lipm_walking
       ArrayLabel("ZMP error [mm]",
         {"x", "y"},
         [this]() { return vecFromError(zmpError_); }),
+      ArrayLabel("CoM offset [mm]",
+        {"x", "y"},
+        [this]() { return vecFromError(zmpccCoMOffset_); }),
       Label("Foot height diff [mm]",
         [this]() { return std::round(1000. * vfcZCtrl_); }));
   }
@@ -245,6 +262,11 @@ namespace lipm_walking
       vdcFrequency_ = vdc("frequency");
       vdcStiffness_ = vdc("stiffness");
     }
+    if (config.has("zmpcc"))
+    {
+      auto zmpcc = config("zmpcc");
+      zmpccIntegrator_.rate(zmpcc("integrator_leak_rate"));
+    }
   }
 
   void Stabilizer::reset(const mc_rbdyn::Robots & robots)
@@ -265,6 +287,8 @@ namespace lipm_walking
 
     dcmIntegrator_.setZero();
     dcmIntegrator_.saturation(MAX_AVERAGE_DCM_ERROR);
+    zmpccIntegrator_.setZero();
+    zmpccIntegrator_.saturation(MAX_ZMPCC_COM_OFFSET);
 
     Eigen::Vector3d staticForce = -mass_ * world::gravity;
 
@@ -277,6 +301,8 @@ namespace lipm_walking
     logTargetSTz_ = 0.;
     zmpError_ = Eigen::Vector3d::Zero();
     zmpccCoMAccel_ = Eigen::Vector3d::Zero();
+    zmpccCoMOffset_ = Eigen::Vector3d::Zero();
+    zmpccCoMVel_ = Eigen::Vector3d::Zero();
     zmpccError_ = Eigen::Vector3d::Zero();
   }
 
@@ -458,7 +484,8 @@ namespace lipm_walking
     //updateCoMComplianceControl();
     //updateCoMForceTracking();
     //updateCoMZMPCC();
-    updateCoMAccelZMPCC();
+    //updateCoMAccelZMPCC();
+    updateCoMZMPCC();
 
     updateFootForceDifferenceControl();
 
@@ -711,15 +738,42 @@ namespace lipm_walking
   //   comTask->refAccel(pendulum_.comdd());
   // }
 
-  void Stabilizer::updateCoMAccelZMPCC()
+  // void Stabilizer::updateCoMAccelZMPCC()
+  // {
+  //   //auto zmpccError = pendulum_.zmp() - measuredZMP_; // nope
+  //   auto distribZMP = computeZMP(distribWrench_);
+  //   zmpccError_ = distribZMP - measuredZMP_; // yes!
+  //   Eigen::Vector3d comAdmittance = {comAdmittance_.x(), comAdmittance_.y(), 0.};
+  //   zmpccCoMAccel_ = -comAdmittance.cwiseProduct(zmpccError_);
+  //   comTask->com(pendulum_.com());
+  //   comTask->refVel(pendulum_.comd());
+  //   comTask->refAccel(pendulum_.comdd() + zmpccCoMAccel_);
+  // }
+
+  void Stabilizer::updateCoMZMPCC()
   {
-    //auto zmpccError = pendulum_.zmp() - measuredZMP_; // nope
-    auto distribZMP = computeZMP(distribWrench_);
-    zmpccError_ = distribZMP - measuredZMP_; // yes!
-    Eigen::Vector3d comAdmittance = {comAdmittance_.x(), comAdmittance_.y(), 0.};
-    zmpccCoMAccel_ = -comAdmittance.cwiseProduct(zmpccError_);
-    comTask->com(pendulum_.com());
-    comTask->refVel(pendulum_.comd());
+    if (zmpccOnlyDS_ && contactState_ != ContactState::DoubleSupport)
+    {
+      zmpccCoMAccel_.setZero();
+      zmpccCoMVel_.setZero();
+      zmpccIntegrator_.add(Eigen::Vector3d::Zero(), dt_); // leak to zero
+    }
+    else
+    {
+      auto distribZMP = computeZMP(distribWrench_);
+      zmpccError_ = distribZMP - measuredZMP_;
+      const Eigen::Matrix3d & R_0_c = zmpFrame_.rotation();
+      const Eigen::Transpose<const Eigen::Matrix3d> R_c_0 = R_0_c.transpose();
+      Eigen::Vector3d comAdmittance = {comAdmittance_.x(), comAdmittance_.y(), 0.};
+      Eigen::Vector3d newVel = -R_c_0 * comAdmittance.cwiseProduct(R_0_c * zmpccError_);
+      Eigen::Vector3d newAccel = (newVel - zmpccCoMVel_) / dt_;
+      zmpccIntegrator_.add(newVel, dt_);
+      zmpccCoMAccel_ = newAccel;
+      zmpccCoMVel_ = newVel;
+    }
+    zmpccCoMOffset_ = zmpccIntegrator_.eval();
+    comTask->com(pendulum_.com() + zmpccCoMOffset_);
+    comTask->refVel(pendulum_.comd() + zmpccCoMVel_);
     comTask->refAccel(pendulum_.comdd() + zmpccCoMAccel_);
   }
 

@@ -21,20 +21,18 @@
 
 #pragma once
 
-/** Integrator
+/** Leaky integrator.
  *
- * The output y(t) of this integrator w.r.t. its input x(t) follows
+ * The output satisfies the differential equation:
  *
- *    yd(t) = x(t) - decay * y(t)
+ *     yd(t) = x(t) - leakRate * y(t)
  *
- * so that:
- *
- *    y(t) = int_{u=0}^t x(u) e^{decay * (u - t)} d{u}
- *
- * where decay > 0 is a reset frequency used for anti-windup.
+ * A leaky integrator is implemented exactly as an exponential moving average,
+ * but it is homogeneous to the integral of the input signal (rather than the
+ * signal itself). See <https://en.wikipedia.org/wiki/Leaky_integrator>.
  *
  */
-struct Integrator
+struct LeakyIntegrator
 {
   /** Add constant input for a fixed duration.
    *
@@ -43,47 +41,39 @@ struct Integrator
    * \param dt Fixed duration.
    *
    */
-  void add(const Eigen::Vector3d & value, double dt)
+  inline void add(const Eigen::Vector3d & value, double dt)
   {
-    integral_ = (1. - decay_ * dt) * integral_ + dt * value;
+    integral_ = (1. - rate_ * dt) * integral_ + dt * value;
     if (saturation_ > 0.)
     {
       saturate();
     }
   }
 
-  /** Get decay frequency.
-   *
-   */
-  double decay() const
-  {
-    return decay_;
-  }
-
-  /** Set decay frequency.
-   *
-   * \param decay New frequency.
-   *
-   */
-  void decay(double decay)
-  {
-    decay_ = decay;
-  }
-
   /** Evaluate the output of the integrator.
    *
    */
-  const Eigen::Vector3d & eval() const
+  inline const Eigen::Vector3d & eval() const
   {
     return integral_;
   }
 
-  /** Reset integral to zero.
+  /** Get leak rate.
    *
    */
-  void reset()
+  inline double rate() const
   {
-    integral_.setZero();
+    return rate_;
+  }
+
+  /** Set the leak rate of the integrator.
+   *
+   * \param rate New leak rate.
+   *
+   */
+  inline void rate(double rate)
+  {
+    rate_ = rate;
   }
 
   /** Set output saturation. Disable by providing a negative value.
@@ -91,13 +81,21 @@ struct Integrator
    * \param s Output will saturate between -s and +s.
    *
    */
-  void saturation(double s)
+  inline void saturation(double s)
   {
     saturation_ = s;
   }
 
+  /** Reset integral to zero.
+   *
+   */
+  inline void setZero()
+  {
+    integral_.setZero();
+  }
+
 private:
-  void saturate()
+  inline void saturate()
   {
     for (unsigned i = 0; i < 3; i++)
     {
@@ -114,6 +112,6 @@ private:
 
 private:
   Eigen::Vector3d integral_ = Eigen::Vector3d::Zero();
-  double decay_ = 0.1;
+  double rate_ = 0.1;
   double saturation_ = -1.;
 };

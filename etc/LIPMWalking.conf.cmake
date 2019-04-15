@@ -19,7 +19,7 @@
   {
     "admittance":
     {
-      "com": [0.0, 0.0],
+      "com": [0.1, 0.5],
       "cop": [0.01, 0.01],
       "dfz": 0.0001
     },
@@ -66,6 +66,10 @@
       "frequency": 1.0,
       "damping": 0.0,
       "stiffness": 1000.0
+    },
+    "zmpcc":
+    {
+      "integrator_leak_rate": 0.1
     }
   },
   "tasks":
@@ -409,7 +413,7 @@
     {
       "com_height": 0.78,
       "double_support_duration": 0.2,
-      "single_support_duration": 0.7,
+      "single_support_duration": 0.8,
       "swing_height": 0.07,
       "contacts":
       [

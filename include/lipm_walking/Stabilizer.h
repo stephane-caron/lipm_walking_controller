@@ -29,6 +29,7 @@
 #include <lipm_walking/Contact.h>
 #include <lipm_walking/Sole.h>
 #include <lipm_walking/defs.h>
+#include <lipm_walking/utils/LeakyIntegrator.h>
 #include <lipm_walking/utils/rotations.h>
 #include <lipm_walking/utils/stats.h>
 
@@ -66,6 +67,7 @@ namespace lipm_walking
 
     /* Saturate integrator in case of windup */
     static constexpr double MAX_AVERAGE_DCM_ERROR = 0.05; // [m]
+    static constexpr double MAX_ZMPCC_COM_OFFSET = 0.05; // [m]
 
     /** Initialize stabilizer.
      *
@@ -380,7 +382,16 @@ namespace lipm_walking
      * the distributed ZMP.
      *
      */
-    void updateCoMAccelZMPCC();
+    //void updateCoMAccelZMPCC();
+
+    /** Update CoM task with ZMP Compensation Control.
+     *
+     * Same approach as Nagasaka's ZMPCC but (1) implemented as CoM damping
+     * control with an internal leaky integrator and (2) applied to the
+     * distributed ZMP.
+     *
+     */
+    void updateCoMZMPCC();
 
     /** Apply foot pressure difference control.
      *
@@ -426,10 +437,14 @@ namespace lipm_walking
     Eigen::Vector3d measuredZMP_;
     Eigen::Vector3d zmpError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d zmpccCoMAccel_ = Eigen::Vector3d::Zero();
+    Eigen::Vector3d zmpccCoMOffset_ = Eigen::Vector3d::Zero();
+    Eigen::Vector3d zmpccCoMVel_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d zmpccError_ = Eigen::Vector3d::Zero();
     ExponentialMovingAverage dcmIntegrator_;
     FDQPWeights fdqpWeights_;
+    LeakyIntegrator zmpccIntegrator_;
     bool inTheAir_ = false;
+    bool zmpccOnlyDS_ = true;
     const Pendulum & pendulum_;
     const mc_rbdyn::Robot & controlRobot_;
     double comWeight_ = 1000.;
@@ -446,9 +461,9 @@ namespace lipm_walking
     double mass_ = 38.; // [kg]
     double runTime_ = 0.;
     double swingFootStiffness_ = 2000.;
-    double swingFootWeight_ = 100.;
+    double swingFootWeight_ = 500.;
     double vdcDamping_ = 0.; /**< Vertical Drift Compensation damping */
-    double vdcFrequency_ = 0.; /**< Vertical Drift Compensation frequency */
+    double vdcFrequency_ = 1.; /**< Vertical Drift Compensation frequency */
     double vdcStiffness_ = 1000.; /**< Vertical Drift Compensation stiffness */
     double vdcZPos_ = 0.;
     double vfcZCtrl_ = 0.;
