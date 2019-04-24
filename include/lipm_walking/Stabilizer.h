@@ -424,11 +424,11 @@ namespace lipm_walking
 
   private:
     ContactState contactState_ = ContactState::DoubleSupport;
-    Eigen::LSSOL_LS wrenchSolver_;
+    Eigen::LSSOL_LS wrenchSolver_; /**< Least-squares solver for wrench distribution */
     Eigen::Matrix<double, 16, 6> wrenchFaceMatrix_;
     Eigen::Vector2d comAdmittance_ = Eigen::Vector2d::Zero();
     Eigen::Vector2d copAdmittance_ = Eigen::Vector2d::Zero();
-    Eigen::Vector3d comStiffness_ = {1000., 1000., 100.};
+    Eigen::Vector3d comStiffness_ = {1000., 1000., 100.}; /**< Stiffness of CoM IK task */
     Eigen::Vector3d dcmAverageError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d dcmError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d desiredCoMAccel_;
@@ -443,35 +443,35 @@ namespace lipm_walking
     ExponentialMovingAverage dcmIntegrator_;
     FDQPWeights fdqpWeights_;
     LeakyIntegrator zmpccIntegrator_;
-    bool inTheAir_ = false;
+    bool inTheAir_ = false; /**< Is the robot in the air? */
     bool zmpccOnlyDS_ = true;
-    const Pendulum & pendulum_;
-    const mc_rbdyn::Robot & controlRobot_;
-    double comWeight_ = 1000.;
-    double contactWeight_ = 100000.;
+    const Pendulum & pendulum_; /**< Reference to desired reduced-model state */
+    const mc_rbdyn::Robot & controlRobot_; /**< Control robot model (input to joint position controllers) */
+    double comWeight_ = 1000.; /**< Weight of CoM IK task */
+    double contactWeight_ = 100000.; /**< Weight of contact IK tasks */
     double dcmGain_ = 1.; /**< Proportional gain on DCM error */
     double dcmIntegralGain_ = 5.; /**< Integral gain on DCM error */
-    double dfzAdmittance_ = 1e-4;
-    double dt_ = 0.005; // [s]
+    double dfzAdmittance_ = 1e-4; /**< Admittance for vertical foot force control */
+    double dt_ = 0.005; /**< Controller cycle in [s] */
     double leftFootRatio_ = 0.5;
-    double logMeasuredDFz_ = 0.;
-    double logMeasuredSTz_ = 0.;
-    double logTargetDFz_ = 0.;
-    double logTargetSTz_ = 0.;
-    double mass_ = 38.; // [kg]
+    double logMeasuredDFz_ = 0.; /**< Measured vertical force difference between left and right foot */
+    double logMeasuredSTz_ = 0.; /**< Model vertical position average between left and right foot */
+    double logTargetDFz_ = 0.; /**< Desired vertical force difference between left and right foot */
+    double logTargetSTz_ = 0.; /**< Desired vertical position average between left and right foot */
+    double mass_ = 38.; /**< Robot mass in [kg] */
     double runTime_ = 0.;
-    double swingFootStiffness_ = 2000.;
-    double swingFootWeight_ = 500.;
+    double swingFootStiffness_ = 2000.; /**< Stiffness of swing foot IK task */
+    double swingFootWeight_ = 500.; /**< Weight of swing foot IK task */
     double vdcDamping_ = 0.; /**< Vertical Drift Compensation damping */
     double vdcFrequency_ = 1.; /**< Vertical Drift Compensation frequency */
     double vdcStiffness_ = 1000.; /**< Vertical Drift Compensation stiffness */
     double vdcZPos_ = 0.;
     double vfcZCtrl_ = 0.;
     double zmpGain_ = 1.; /**< Gain on ZMP error */
-    mc_rtc::Configuration config_;
-    std::vector<std::string> comActiveJoints_;
+    mc_rtc::Configuration config_; /**< Stabilizer configuration dictionary */
+    std::vector<std::string> comActiveJoints_; /**< Joints used by CoM IK task */
     sva::ForceVecd distribWrench_ = sva::ForceVecd::Zero();
-    sva::ForceVecd measuredWrench_;
+    sva::ForceVecd measuredWrench_; /**< Net contact wrench measured from sensors */
     sva::MotionVecd contactDamping_;
     sva::MotionVecd contactStiffness_;
     sva::PTransformd zmpFrame_;

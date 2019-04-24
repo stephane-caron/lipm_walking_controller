@@ -23,15 +23,13 @@
 
 namespace lipm_walking
 {
-  NetWrenchObserver::NetWrenchObserver(double dt)
-    : dt_(dt),
-      sensorNames_({"LeftFootForceSensor", "RightFootForceSensor"})
+  NetWrenchObserver::NetWrenchObserver()
+    : sensorNames_({"LeftFootForceSensor", "RightFootForceSensor"})
   {
   }
 
-  NetWrenchObserver::NetWrenchObserver(double dt, const std::vector<std::string> & sensorNames)
-    : dt_(dt),
-      sensorNames_(sensorNames)
+  NetWrenchObserver::NetWrenchObserver(const std::vector<std::string> & sensorNames)
+    : sensorNames_(sensorNames)
   {
   }
 

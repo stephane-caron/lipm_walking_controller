@@ -34,7 +34,7 @@ namespace Eigen
 
 namespace lipm_walking
 {
-  /** All four combinations of two foot contacts.
+  /** Contact state: set of feet in contact.
    *
    */
   enum class ContactState

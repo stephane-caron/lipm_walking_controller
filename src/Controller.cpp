@@ -31,7 +31,7 @@ namespace lipm_walking
       halfSitPose(controlRobot().mbc().q),
       floatingBaseObs_(controlRobot()),
       comVelFilter_(dt, /* cutoff period = */ 0.01),
-      netWrenchObs_(dt),
+      netWrenchObs_(),
       stabilizer_(controlRobot(), pendulum_, dt)
   {
     // Add upper-body tasks

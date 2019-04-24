@@ -71,16 +71,8 @@ namespace lipm_walking
      *
      * \param config Configuration dictionary.
      *
-     * Don't forget to fill reset() as well, as the controller might be
-     * loaded/reloaded by mc_rtc.
-     *
      */
     Controller(std::shared_ptr<mc_rbdyn::RobotModule> robot, double dt, const mc_rtc::Configuration & config);
-
-    /** Reset the controller.
-     *
-     */
-    //void reset(const mc_control::ControllerResetData & reset_data) override;
 
     /** Add GUI panel.
      *

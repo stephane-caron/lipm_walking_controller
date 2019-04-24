@@ -28,6 +28,9 @@ namespace lipm_walking
 {
   /** Kinematics-only floating-base observer.
    *
+   * See <https://scaron.info/teaching/floating-base-estimation.html> for
+   * technical details on the derivation of this simple estimator.
+   *
    */
   struct FloatingBaseObserver
   {
@@ -103,8 +106,8 @@ namespace lipm_walking
     void estimatePosition(const mc_rbdyn::Robot & realRobot);
 
   private:
-    Eigen::Matrix3d orientation_; /**< rotation from world to floating-base frame */
-    Eigen::Vector3d position_; /**< translation of floating-base in world frame */
+    Eigen::Matrix3d orientation_; /**< Rotation from world to floating-base frame */
+    Eigen::Vector3d position_; /**< Translation of floating-base in world frame */
     const mc_rbdyn::Robot & controlRobot_; /**< Control robot state */
     double leftFootRatio_; /**< Fraction of total weight sustained by the left foot */
   };

@@ -142,10 +142,10 @@ namespace lipm_walking
     }
 
   protected:
-    Eigen::Vector3d com_;
-    Eigen::Vector3d comd_;
-    Eigen::Vector3d comdd_;
-    Eigen::Vector3d zmp_;
-    double omega_;
+    Eigen::Vector3d com_; /**< Position of the center of mass */
+    Eigen::Vector3d comd_; /**< Velocity of the center of mass */
+    Eigen::Vector3d comdd_; /**< Acceleration of the center of mass */
+    Eigen::Vector3d zmp_; /**< Position of the zero-tilting moment point */
+    double omega_; /**< Natural frequency of the linear inverted pendulum */
   };
 }

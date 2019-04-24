@@ -105,8 +105,8 @@ namespace lipm_walking
     }
 
   private:
-    Eigen::VectorXd jerkTraj_;
-    Eigen::VectorXd stateTraj_;
+    Eigen::VectorXd jerkTraj_; /**< Stacked vector of CoM jerk trajectory */
+    Eigen::VectorXd stateTraj_; /**< Stacked vector of CoM state trajectory */
   };
 
   /** Model predictive control problem.

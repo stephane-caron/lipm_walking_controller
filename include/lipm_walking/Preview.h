@@ -57,7 +57,7 @@ namespace lipm_walking
     }
 
   protected:
-    double playbackTime_ = 0.;
-    unsigned playbackStep_ = 0;
+    double playbackTime_ = 0.; /**< Current time in the preview window */
+    unsigned playbackStep_ = 0; /**< Current step index in the preview window */
   };
 }

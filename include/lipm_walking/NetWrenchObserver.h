@@ -34,21 +34,17 @@ namespace lipm_walking
    */
   struct NetWrenchObserver
   {
-    /** Constructor.
-     *
-     * \param dt Controller time step.
+    /** Empty constructor.
      *
      */
-    NetWrenchObserver(double dt);
+    NetWrenchObserver();
 
-    /** Constructor.
-     *
-     * \param dt Controller time step.
+    /** Constructor from list of sensor names.
      *
      * \param sensorNames Identifiers of end-effector force-torque sensors.
      *
      */
-    NetWrenchObserver(double dt, const std::vector<std::string> & sensorNames);
+    NetWrenchObserver(const std::vector<std::string> & sensorNames);
 
     /** Update estimates based on the sensed net contact wrench.
      *
@@ -89,9 +85,8 @@ namespace lipm_walking
     void updateNetZMP(const Contact & contact);
 
   private:
-    Eigen::Vector3d netZMP_;
-    double dt_;
-    std::vector<std::string> sensorNames_ = {"LeftFootForceSensor", "RightFootForceSensor"};
-    sva::ForceVecd netWrench_;
+    Eigen::Vector3d netZMP_; /**< Net wrench ZMP in the contact frame */
+    std::vector<std::string> sensorNames_ = {"LeftFootForceSensor", "RightFootForceSensor"}; /**< List of force/torque sensors */
+    sva::ForceVecd netWrench_; /**< Net contact wrench */
   };
 }
