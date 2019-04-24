@@ -223,9 +223,8 @@ namespace lipm_walking
      *
      * \param sole Sole parameters.
      *
-     * This formula is derived in "Stability of Surface Contacts for Humanoid
-     * Robots: Closed-Form Formulae of the Contact Wrench Cone for Rectangular
-     * Support Areas" (Caron et al., ICRA 2015).
+     * See <https://hal.archives-ouvertes.fr/hal-02108449/document> for
+     * technical details on the derivation of this formula.
      *
      */
     void wrenchFaceMatrix(const Sole & sole)
