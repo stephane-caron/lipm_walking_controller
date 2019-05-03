@@ -152,13 +152,6 @@ namespace lipm_walking
      */
     void updateRealFromKinematics();
 
-    /** Update robot mass estimate in all components.
-     *
-     * \param mass New mass estimate.
-     *
-     */
-    void updateRobotMass(double mass);
-
     /** Log a warning message when robot is in the air.
      *
      */
@@ -344,7 +337,6 @@ namespace lipm_walking
     double defaultTorsoPitch_ = 0.1; // [rad]
     double doubleSupportDurationOverride_ = -1.; // [s]
     double leftFootRatio_ = 0.5;
-    double robotMass_ = 0.; // [kg]
     double torsoPitch_;
     mc_rtc::Configuration mpcConfig_;
     mc_rtc::Configuration plans_;

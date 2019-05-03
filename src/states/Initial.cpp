@@ -23,19 +23,10 @@
 
 namespace lipm_walking
 {
-  namespace
-  {
-    constexpr double MAX_ROBOT_MASS = 42.; // [kg]
-    constexpr double MIN_ROBOT_MASS = 35.; // [kg]
-  }
-
   void states::Initial::start()
   {
     auto & ctl = controller();
 
-    isWeighing_ = true;
-    massEstimator_.reset();
-    pleaseReWeigh_ = false;
     postureTaskIsActive_ = true;
     startStandingButton_ = false;
     startStanding_ = false;
@@ -72,7 +63,6 @@ namespace lipm_walking
     if (gui())
     {
       gui()->removeElement({"Walking", "Controller"}, "Footstep plan");
-      gui()->removeElement({"Walking", "Controller"}, "Weigh robot");
       hideStartStandingButton();
     }
   }
@@ -86,15 +76,6 @@ namespace lipm_walking
       ctl.internalReset();
       hideStartStandingButton();
     }
-    else if (isWeighing_)
-    {
-      weighRobot();
-      hideStartStandingButton();
-    }
-    else if (pleaseReWeigh_)
-    {
-      hideStartStandingButton();
-    }
     else
     {
       showStartStandingButton();
@@ -103,33 +84,12 @@ namespace lipm_walking
 
   bool states::Initial::checkTransitions()
   {
-    if (startStanding_ && !postureTaskIsActive_ && !isWeighing_)
+    if (startStanding_ && !postureTaskIsActive_)
     {
       output("Standing");
       return true;
     }
     return false;
-  }
-
-  void states::Initial::weighRobot()
-  {
-    auto & ctl = controller();
-    double LFz = ctl.stabilizer().leftFootTask->measuredWrench().force().z();
-    double RFz = ctl.stabilizer().rightFootTask->measuredWrench().force().z();
-    massEstimator_.add((LFz + RFz) / world::GRAVITY);
-    if (massEstimator_.n() > 100)
-    {
-      if (massEstimator_.avg() < MIN_ROBOT_MASS || massEstimator_.avg() > MAX_ROBOT_MASS)
-      {
-        LOG_ERROR("Negative mass: robot is in the air?");
-        pleaseReWeigh_ = true;
-      }
-      else
-      {
-        ctl.updateRobotMass(massEstimator_.avg());
-      }
-      isWeighing_ = false;
-    }
   }
 
   void states::Initial::showStartStandingButton()

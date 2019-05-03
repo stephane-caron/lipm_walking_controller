@@ -81,7 +81,6 @@ namespace lipm_walking
     }
 
     loadFootstepPlan(initialPlan);
-    updateRobotMass(robot().mass());
     stabilizer_.reset(robots());
     stabilizer_.wrenchFaceMatrix(sole_);
 
@@ -144,13 +143,6 @@ namespace lipm_walking
     logger.addLogEntry("realRobot_posW", [this]() { return realRobot().posW(); });
     logger.addLogEntry("realRobot_wrench", [this]() { return netWrenchObs_.wrench(); });
     logger.addLogEntry("realRobot_zmp", [this]() { return netWrenchObs_.zmp(); });
-  }
-
-  void Controller::updateRobotMass(double mass)
-  {
-    robotMass_ = mass;
-    stabilizer_.mass(mass);
-    LOG_INFO("Robot mass updated to " << mass << " [kg]");
   }
 
   void Controller::internalReset()

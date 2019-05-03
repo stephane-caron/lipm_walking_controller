@@ -39,9 +39,6 @@ namespace lipm_walking
       Button(
         "Reset",
         [this]() { this->resume("Initial"); }),
-      Label(
-        "Mass [kg]",
-        [this]() { return std::round(robotMass_ * 100.) / 100.; }),
       NumberInput(
         "Torso pitch [rad]",
         [this]() { return torsoPitch_; },
@@ -316,7 +313,7 @@ namespace lipm_walking
         [this, FORCE_SCALE]() -> Eigen::Vector3d
         {
           double lambda = std::pow(pendulum_.omega(), 2);
-          Eigen::Vector3d contactForce = robotMass_ * lambda * (pendulum_.com() - pendulum_.zmp());
+          Eigen::Vector3d contactForce = controlRobot().mass() * lambda * (pendulum_.com() - pendulum_.zmp());
           return pendulum_.zmp() + FORCE_SCALE * contactForce;
         }),
       Point3D(

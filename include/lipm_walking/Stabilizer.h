@@ -193,14 +193,6 @@ namespace lipm_walking
       contactState_ = contactState;
     }
 
-    /** Update robot mass.
-     *
-     */
-    void mass(double mass)
-    {
-      mass_ = mass;
-    }
-
     /** Update real-robot state.
      *
      * \param com Position of the center of mass.

@@ -59,13 +59,6 @@ namespace lipm_walking
        */
       void runState() override;
 
-      /** Weigh robot based on force sensor readings. 
-       *
-       * Assumes the robot is standing still in double support on a flat
-       * horizontal surface.
-       */
-      void weighRobot();
-
       /** Add "Start standing" transition button to GUI.
        *
        */
@@ -77,9 +70,6 @@ namespace lipm_walking
       void hideStartStandingButton();
 
     private:
-      AvgStdEstimator massEstimator_;
-      bool isWeighing_;
-      bool pleaseReWeigh_;
       bool postureTaskIsActive_;
       bool startStandingButton_;
       bool startStanding_;
