@@ -74,6 +74,13 @@ namespace lipm_walking
      */
     Controller(std::shared_ptr<mc_rbdyn::RobotModule> robot, double dt, const mc_rtc::Configuration & config);
 
+    /** Reset controller.
+     *
+     * \param data Reset data.
+     *
+     */
+    void reset(const mc_control::ControllerResetData & data) override;
+
     /** Add GUI panel.
      *
      * \param gui GUI handle.

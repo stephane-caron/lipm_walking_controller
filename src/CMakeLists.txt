@@ -18,7 +18,6 @@
 
 set(CONTROLLER_SRC
     Controller.cpp
-    ControllerGUI.cpp
     FloatingBaseObserver.cpp
     FootstepPlan.cpp
     ModelPredictiveControl.cpp
