@@ -151,38 +151,45 @@ namespace lipm_walking
 
   void Controller::internalReset()
   {
-    auto X_0_fb = plan.computeInitialTransform(controlRobot());
+    // (1) update floating-base transforms of both robot mbc's
+    auto X_0_fb = supportContact().robotTransform(controlRobot());
     controlRobot().posW(X_0_fb);
     controlRobot().setBaseLinkVelocity(Eigen::Vector6d::Zero());
     realRobot().posW(X_0_fb);
     realRobot().setBaseLinkVelocity(Eigen::Vector6d::Zero());
-    floatingBaseObs_.reset(X_0_fb);
 
-    Eigen::Vector3d initCom = controlRobot().com();
+    // (2) update contact frames to coincide with surface ones
+    loadFootstepPlan(plan.name);
 
-    comVelFilter_.reset(initCom);
-
-    netWrenchObs_.update(realRobot(), supportContact());
-    pendulum_.reset(initCom);
-    plan.reset();
-
-    // reset solver tasks
+    // (3) reset solver tasks
     postureTask->posture(halfSitPose);
     solver().removeTask(pelvisTask);
     solver().removeTask(torsoTask);
     stabilizer_.reset(robots());
 
-    leftFootRatio_ = 0.5;
-    stabilizer_.updateState(initCom, Eigen::Vector3d::Zero(), sva::ForceVecd{Eigen::Vector6d::Zero()}, leftFootRatio_);
-
-    controlCom_ = initCom;
+    // (4) reset controller attributes
+    controlCom_ = controlRobot().com();
     controlComd_ = Eigen::Vector3d::Zero();
-    leftFootRatioJumped_ = false;
+    leftFootRatioJumped_ = true;
+    leftFootRatio_ = 0.5;
     nbMPCFailures_ = 0;
     pauseWalking = false;
     pauseWalkingRequested = false;
-    realCom_ = initCom; // realRobot() may not be initialized yet
-    realComd_ = Eigen::Vector3d::Zero();
+
+    comVelFilter_.reset(controlCom_);
+    pendulum_.reset(controlCom_);
+    //realCom_ = controlCom_; // set by updateRealFromKinematics()
+    //realComd_ = Eigen::Vector3d::Zero(); // idem
+
+    // (5) reset floating-base observers
+    floatingBaseObs_.reset(controlRobot().posW());
+    floatingBaseObs_.leftFootRatio(leftFootRatio_);
+    floatingBaseObs_.run(realRobot());
+    updateRealFromKinematics(); // after leftFootRatio_ is initialized
+
+    // (6) updates that depend on realCom_
+    netWrenchObs_.update(realRobot(), supportContact());
+    stabilizer_.updateState(realCom_, realComd_, netWrenchObs_.wrench(), leftFootRatio_);
 
     stopLogSegment();
   }
@@ -310,15 +317,20 @@ namespace lipm_walking
 
   void Controller::loadFootstepPlan(std::string name)
   {
+    double initHeight = (plan.name.length() > 0) ? plan.supportContact().p().z() : 0.;
+
     plan = plans_(name);
     plan.name = name;
-    plan.reset();
     mpc_.configure(mpcConfig_);
     if (!plan.mpcConfig.empty())
     {
       mpc_.configure(plan.mpcConfig);
     }
     plan.complete(sole_);
+    const sva::PTransformd & X_0_lf = controlRobot().surfacePose("LeftFootCenter");
+    const sva::PTransformd & X_0_rf = controlRobot().surfacePose("RightFootCenter");
+    plan.updateInitialTransform(X_0_lf, X_0_rf, initHeight);
+    plan.rewind();
     torsoPitch_ = (plan.hasTorsoPitch()) ? plan.torsoPitch() : defaultTorsoPitch_;
     LOG_INFO("Loaded footstep plan \"" << name << "\"");
   }

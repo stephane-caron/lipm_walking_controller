@@ -337,6 +337,20 @@ namespace lipm_walking
       return noisedContact;
     }
 
+    /** Compute floating base transform that puts the robot in contact.
+     *
+     * \param robot Robot model (including its multi-body configuration).
+     *
+     */
+    inline sva::PTransformd robotTransform(const mc_rbdyn::Robot & robot) const
+    {
+      const sva::PTransformd & X_0_c = pose;
+      const sva::PTransformd & X_0_fb = robot.posW();
+      sva::PTransformd X_s_0 = robot.surfacePose(surfaceName).inv();
+      sva::PTransformd X_s_fb = X_0_fb * X_s_0;
+      return X_s_fb * X_0_c;
+    }
+
   public:
     Eigen::Vector3d refVel;
     double halfLength;

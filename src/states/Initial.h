@@ -71,6 +71,7 @@ namespace lipm_walking
 
     private:
       bool postureTaskIsActive_;
+      bool postureTaskWasActive_;
       bool startStandingButton_;
       bool startStanding_;
     };

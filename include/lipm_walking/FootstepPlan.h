@@ -73,7 +73,7 @@ namespace lipm_walking
      * \param startIndex Index of first support contact.
      *
      */
-    void reset(unsigned startIndex = 0);
+    void reset(unsigned startIndex);
 
     /** Rewind one footstep back in plan.
      *
@@ -88,6 +88,17 @@ namespace lipm_walking
      *
      */
     void save(mc_rtc::Configuration & config) const;
+
+    /** Update plan coordinates from robot foot transforms.
+     *
+     * \param X_0_lf Left foot transform.
+     *
+     * \param X_0_rf Right foot transform.
+     *
+     * \param initHeight Height of first two contacts after transform.
+     *
+     */
+    void updateInitialTransform(const sva::PTransformd & X_0_lf, const sva::PTransformd & X_0_rf, double initHeight);
 
     /** Default CoM height.
      *
@@ -359,6 +370,14 @@ namespace lipm_walking
     double torsoPitch() const
     {
       return torsoPitch_;
+    }
+
+    /** Rewind plan to the beginning.
+     *
+     */
+    inline void rewind()
+    {
+      reset(0);
     }
 
   public:

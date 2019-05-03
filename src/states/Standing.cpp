@@ -79,14 +79,20 @@ namespace lipm_walking
     {
       using namespace mc_rtc::gui;
       gui()->removeElement({"Walking", "Controller"}, "Pause walking");
-      if (!ctl.isLastDSP())
-      {
-        gui()->addElement(
-          {"Walking", "Controller"},
-          Button(
-            (supportContact.id == 0) ? "Start walking" : "Resume walking",
-            [this]() { startWalking(); }));
-      }
+      gui()->addElement(
+        {"Walking", "Controller"},
+        ComboInput("Footstep plan",
+          ctl.availablePlans(),
+          [&ctl]() { return ctl.plan.name; },
+          [&ctl](const std::string & name)
+          {
+            ctl.loadFootstepPlan(name);
+          }));
+      gui()->addElement(
+        {"Walking", "Controller"},
+        Button(
+          (supportContact.id == 0 || ctl.isLastDSP()) ? "Start walking" : "Resume walking",
+          [this]() { startWalking(); }));
       gui()->addElement(
         {"Walking", "Standing"},
         NumberInput(
@@ -151,9 +157,10 @@ namespace lipm_walking
     if (gui())
     {
       gui()->removeCategory({"Walking", "Standing"});
+      gui()->removeElement({"Walking", "Controller"}, "Footstep plan");
       gui()->removeElement({"Walking", "Controller"}, "Go to middle");
-      gui()->removeElement({"Walking", "Controller"}, "Start walking");
       gui()->removeElement({"Walking", "Controller"}, "Resume walking");
+      gui()->removeElement({"Walking", "Controller"}, "Start walking");
     }
   }
 

@@ -28,28 +28,17 @@ namespace lipm_walking
     auto & ctl = controller();
 
     postureTaskIsActive_ = true;
+    postureTaskWasActive_ = true;
     startStandingButton_ = false;
     startStanding_ = false;
 
-    ctl.loadFootstepPlan(ctl.plan.name); // reload in case it was updated
     ctl.internalReset();
 
     logger().addLogEntry("walking_phase", []() { return -2.; });
 
     if (gui())
     {
-      using namespace mc_rtc::gui;
       gui()->removeElement({"Walking", "Controller"}, "Pause walking");
-      gui()->addElement(
-        {"Walking", "Controller"},
-        ComboInput("Footstep plan",
-          ctl.availablePlans(),
-          [&ctl]() { return ctl.plan.name; },
-          [&ctl](const std::string & name)
-          {
-            ctl.loadFootstepPlan(name);
-            ctl.internalReset();
-          }));
     }
 
     runState(); // don't wait till next cycle to update reference and tasks
@@ -61,7 +50,6 @@ namespace lipm_walking
 
     if (gui())
     {
-      gui()->removeElement({"Walking", "Controller"}, "Footstep plan");
       hideStartStandingButton();
     }
   }
@@ -72,8 +60,13 @@ namespace lipm_walking
     postureTaskIsActive_ = (ctl.postureTask->speed().norm() > 1e-2);
     if (postureTaskIsActive_)
     {
-      ctl.internalReset();
       hideStartStandingButton();
+      postureTaskWasActive_ = true;
+    }
+    else if (postureTaskWasActive_)
+    {
+      ctl.internalReset();
+      postureTaskWasActive_ = false;
     }
     else
     {
@@ -98,7 +91,9 @@ namespace lipm_walking
       using namespace mc_rtc::gui;
       gui()->addElement(
         {"Walking", "Controller"},
-        Button("Start standing", [this]() { startStanding_ = true; }));
+        Button(
+          "Start standing",
+          [this]() { startStanding_ = true; }));
       startStandingButton_ = true;
     }
   }
