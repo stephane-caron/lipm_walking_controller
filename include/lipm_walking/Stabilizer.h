@@ -127,11 +127,6 @@ namespace lipm_walking
      */
     bool detectTouchdown(const std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact);
 
-    /** Apply stored configuration.
-     *
-     */
-    void reconfigure();
-
     /** Remove tasks from QP solver.
      *
      * \param solver QP solver to remove tasks from.
