@@ -39,7 +39,6 @@ namespace lipm_walking
     if (gui())
     {
       using namespace mc_rtc::gui;
-      gui()->removeElement({"Walking", "Controller"}, "Go back to standing");
       gui()->removeElement({"Walking", "Controller"}, "Pause walking");
       gui()->addElement(
         {"Walking", "Controller"},
