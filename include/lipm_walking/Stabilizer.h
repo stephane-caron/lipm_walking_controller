@@ -462,7 +462,6 @@ namespace lipm_walking
     double vdcZPos_ = 0.;
     double vfcZCtrl_ = 0.;
     double zmpGain_ = 1.; /**< Gain on ZMP error */
-    mc_rtc::Configuration config_; /**< Stabilizer configuration dictionary */
     std::vector<std::string> comActiveJoints_; /**< Joints used by CoM IK task */
     sva::ForceVecd distribWrench_ = sva::ForceVecd::Zero();
     sva::ForceVecd measuredWrench_; /**< Net contact wrench measured from sensors */
