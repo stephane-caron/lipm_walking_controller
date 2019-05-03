@@ -212,25 +212,31 @@ namespace lipm_walking
 
   void Stabilizer::configure(const mc_rtc::Configuration & config)
   {
-    fdqpWeights_.configure(config("fdqp_weights"));
-    if (config.has("admittance"))
+    config_ = config;
+    reconfigure();
+  }
+
+  void Stabilizer::reconfigure()
+  {
+    fdqpWeights_.configure(config_("fdqp_weights"));
+    if (config_.has("admittance"))
     {
-      auto admittance = config("admittance");
+      auto admittance = config_("admittance");
       comAdmittance_ = admittance("com");
       copAdmittance_ = admittance("cop");
       dfzAdmittance_ = admittance("dfz");
     }
-    if (config.has("lipm_tracking"))
+    if (config_.has("lipm_tracking"))
     {
-      auto lipm = config("lipm_tracking");
+      auto lipm = config_("lipm_tracking");
       dcmGain_ = lipm("dcm_gain");
       dcmIntegralGain_ = lipm("dcm_integral_gain");
       dcmIntegrator_.timeConstant(lipm("dcm_integrator_time_constant"));
       zmpGain_ = lipm("zmp_gain");
     }
-    if (config.has("tasks"))
+    if (config_.has("tasks"))
     {
-      auto tasks = config("tasks");
+      auto tasks = config_("tasks");
       if (tasks.has("com"))
       {
         tasks("com")("active_joints", comActiveJoints_);
@@ -252,16 +258,16 @@ namespace lipm_walking
         tasks("swing_foot")("weight", swingFootWeight_);
       }
     }
-    if (config.has("vdc"))
+    if (config_.has("vdc"))
     {
-      auto vdc = config("vdc");
+      auto vdc = config_("vdc");
       vdcDamping_ = vdc("damping");
       vdcFrequency_ = vdc("frequency");
       vdcStiffness_ = vdc("stiffness");
     }
-    if (config.has("zmpcc"))
+    if (config_.has("zmpcc"))
     {
-      auto zmpcc = config("zmpcc");
+      auto zmpcc = config_("zmpcc");
       zmpccIntegrator_.rate(zmpcc("integrator_leak_rate"));
     }
   }
