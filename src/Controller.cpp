@@ -321,54 +321,28 @@ namespace lipm_walking
           return polygons;
         }));
 
+    constexpr double COM_POINT_SIZE = 0.02;
+    constexpr double DCM_POINT_SIZE = 0.015;
+
     gui->addElement(
       {"Walking", "Markers", "Pendulum"},
-      Arrow(
-        "ControlCoMDCMArrow",
-        COLORS.at('b'),
-        [this]() -> Eigen::Vector3d
-        {
-          return controlCom_;
-        },
-        [this]() -> Eigen::Vector3d
-        {
-          return controlCom_ + controlComd_ / pendulum().omega();
-        }),
       Point3D(
-        "ControlCoM",
-        PointConfig(COLORS.at('b')),
+        "PendulumDCM",
+        PointConfig(COLORS.at('y'), DCM_POINT_SIZE),
         [this]()
         {
-          return controlCom_;
-        }),
-      Point3D(
-        "ControlDCM",
-        PointConfig(COLORS.at('b'), 0.01),
-        [this]() -> Eigen::Vector3d
-        {
-          return controlCom_ + controlComd_ / pendulum().omega();
-        }),
-      Arrow(
-        "RealCoMDCMArrow",
-        COLORS.at('b'),
-        [this]() -> Eigen::Vector3d
-        {
-          return realCom_;
-        },
-        [this]() -> Eigen::Vector3d
-        {
-          return realCom_ + realComd_ / pendulum().omega();
+          return pendulum_.dcm();
         }),
       Point3D(
         "RealCoM",
-        PointConfig(COLORS.at('b')),
+        PointConfig(COLORS.at('g'), COM_POINT_SIZE),
         [this]()
         {
           return realCom_;
         }),
       Point3D(
         "RealDCM",
-        PointConfig(COLORS.at('b'), 0.01),
+        PointConfig(COLORS.at('g'), DCM_POINT_SIZE),
         [this]() -> Eigen::Vector3d
         {
           return realCom_ + realComd_ / pendulum().omega();
