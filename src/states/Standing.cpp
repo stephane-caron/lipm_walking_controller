@@ -57,6 +57,11 @@ namespace lipm_walking
           "Unknown surface name: " << supportContact.surfaceName);
     }
 
+    if (ctl.isLastDSP())
+    {
+      ctl.loadFootstepPlan(ctl.plan.name);
+    }
+
     stabilizer().contactState(ContactState::DoubleSupport);
     stabilizer().setContact(stabilizer().leftFootTask, leftFootContact_);
     stabilizer().setContact(stabilizer().rightFootTask, rightFootContact_);
@@ -91,7 +96,7 @@ namespace lipm_walking
       gui()->addElement(
         {"Walking", "Controller"},
         Button(
-          (supportContact.id == 0 || ctl.isLastDSP()) ? "Start walking" : "Resume walking",
+          (supportContact.id == 0) ? "Start walking" : "Resume walking",
           [this]() { startWalking(); }));
       gui()->addElement(
         {"Walking", "Standing"},
