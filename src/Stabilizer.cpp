@@ -103,6 +103,9 @@ namespace lipm_walking
       Button(
         "Disable",
         [this]() { disable(); }),
+      Button(
+        "Reconfigure",
+        [this]() { reconfigure(); }),
       ArrayInput(
         "Foot admittance",
         {"CoPx", "CoPy", "DFz"},
