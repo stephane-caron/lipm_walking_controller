@@ -344,6 +344,8 @@ namespace lipm_walking
     double defaultTorsoPitch_ = 0.1; // [rad]
     double doubleSupportDurationOverride_ = -1.; // [s]
     double leftFootRatio_ = 0.5;
+    double maxCoMHeight_ = 2.;
+    double minCoMHeight_ = 0.;
     double torsoPitch_;
     mc_rtc::Configuration mpcConfig_;
     mc_rtc::Configuration plans_;

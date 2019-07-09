@@ -36,6 +36,31 @@ namespace lipm_walking
   {
     std::string robotName = controlRobot().name();
 
+    // Patch CoM height and step width in all plans
+    std::vector<std::string> plans = config("plans").keys();
+    double comHeight = config(robotName)("com")("height");
+    double stepWidth = config(controlRobot().name())("step_width");
+    maxCoMHeight_ = config(robotName)("com")("max_height");
+    minCoMHeight_ = config(robotName)("com")("min_height");
+    for (const auto & p : plans)
+    {
+      auto plan = config("plans")(p);
+      if (!plan.has("com_height"))
+      {
+        plan.add("com_height", comHeight);
+      }
+      if (plan.has("contacts"))
+      {
+        for (auto contact : plan("contacts"))
+        {
+          std::string surf = contact("surface");
+          Eigen::Vector3d trans = contact("pose")("translation");
+          trans.y() = ((surf == "LeftFootCenter") ? +0.5 : -0.5) * stepWidth;
+          contact("pose").add("translation", trans);
+        }
+      }
+    }
+
     // Add upper-body tasks
     double pelvisStiffness = config("tasks")("pelvis")("stiffness");
     double pelvisWeight = config("tasks")("pelvis")("weight");
@@ -183,7 +208,11 @@ namespace lipm_walking
       NumberInput(
         "CoM height",
         [this]() { return plan.comHeight(); },
-        [this](double height) { plan.comHeight(height); }),
+        [this](double height)
+        {
+          height = clamp(height, minCoMHeight_, maxCoMHeight_);
+          plan.comHeight(height);
+        }),
       NumberInput(
         "Initial DSP duration [s]",
         [this]() { return plan.initDSPDuration(); },
