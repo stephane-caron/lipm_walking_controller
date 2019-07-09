@@ -34,6 +34,8 @@ namespace lipm_walking
       netWrenchObs_(),
       stabilizer_(controlRobot(), pendulum_, dt)
   {
+    std::string robotName = controlRobot().name();
+
     // Add upper-body tasks
     double pelvisStiffness = config("tasks")("pelvis")("stiffness");
     double pelvisWeight = config("tasks")("pelvis")("weight");
@@ -49,11 +51,12 @@ namespace lipm_walking
     postureTask->stiffness(postureStiffness);
     postureTask->weight(postureWeight);
 
+    std::string torsoName = config(robotName)("torso");
     double torsoStiffness = config("tasks")("torso")("stiffness");
     double torsoWeight = config("tasks")("torso")("weight");
     config("tasks")("torso")("pitch", defaultTorsoPitch_);
     torsoPitch_ = defaultTorsoPitch_;
-    torsoTask = std::make_shared<mc_tasks::OrientationTask>("torso", robots(), 0);
+    torsoTask = std::make_shared<mc_tasks::OrientationTask>(torsoName, robots(), 0);
     torsoTask->orientation(mc_rbdyn::rpyToMat({0, torsoPitch_, 0}) * pelvisOrientation_);
     torsoTask->stiffness(torsoStiffness);
     torsoTask->weight(torsoWeight);
@@ -72,13 +75,14 @@ namespace lipm_walking
     // Read settings from configuration file
     plans_ = config("plans");
     mpcConfig_ = config("mpc");
-    sole_ = config("sole");
+    sole_ = config(robotName)("sole");
     std::string initialPlan = plans_.keys()[0];
     config("initial_plan", initialPlan);
-    if (config.has("stabilizer"))
-    {
-      stabilizer_.configure(config("stabilizer"));
-    }
+
+    std::vector<std::string> comActiveJoints = config(robotName)("com")("active_joints");
+    config("stabilizer").add("admittance", config(robotName)("admittance"));
+    config("stabilizer")("tasks")("com").add("active_joints", comActiveJoints);
+    stabilizer_.configure(config("stabilizer"));
 
     loadFootstepPlan(initialPlan);
     stabilizer_.reset(robots());

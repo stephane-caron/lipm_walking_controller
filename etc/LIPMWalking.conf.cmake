@@ -9,13 +9,35 @@
       "zmp": 1000.0
     }
   },
-  "sole":
+  "hrp2_drc": // robot-specific settings for HRP-2Kai
   {
-    "half_length": 0.112,
-    "half_width": 0.065,
-    "friction": 0.7
+    "admittance":
+    {
+      "com": [0.0, 0.0],
+      "cop": [0.001, 0.001],
+      "dfz": 0.0001
+    },
+    "com":
+    {
+      "active_joints": [
+        "Root",
+        "RLEG_JOINT0", "RLEG_JOINT1", "RLEG_JOINT2", "RLEG_JOINT3", "RLEG_JOINT4", "RLEG_JOINT5",
+        "LLEG_JOINT0", "LLEG_JOINT1", "LLEG_JOINT2", "LLEG_JOINT3", "LLEG_JOINT4", "LLEG_JOINT5"
+      ],
+      "height": 0.87,
+      "max_height": 1.0,
+      "min_height": 0.4
+    },
+    "sole":
+    {
+      "half_length": 0.108,
+      "half_width": 0.07,
+      "friction": 0.7
+    },
+    "step_width": 0.2,
+    "torso": "CHEST_LINK1"
   },
-  "stabilizer":
+  "hrp4": // robot-specific settings for HRP-4
   {
     "admittance":
     {
@@ -23,6 +45,28 @@
       "cop": [0.01, 0.01],
       "dfz": 0.0001
     },
+    "com":
+    {
+      "active_joints": [
+        "Root",
+        "R_HIP_Y", "R_HIP_R", "R_HIP_P", "R_KNEE_P", "R_ANKLE_P", "R_ANKLE_R",
+        "L_HIP_Y", "L_HIP_R", "L_HIP_P", "L_KNEE_P", "L_ANKLE_P", "L_ANKLE_R"
+      ],
+      "height": 0.78,
+      "max_height": 0.85,
+      "min_height": 0.55
+    },
+    "sole":
+    {
+      "half_length": 0.112,
+      "half_width": 0.065,
+      "friction": 0.7
+    },
+    "step_width": 0.18,
+    "torso": "torso"
+  },
+  "stabilizer":
+  {
     "fdqp_weights":
     {
       "net_wrench": 10000.0,
@@ -40,12 +84,6 @@
     {
       "com":
       {
-        "active_joints":
-        [
-          "Root",
-          "R_HIP_Y", "R_HIP_R", "R_HIP_P", "R_KNEE_P", "R_ANKLE_P", "R_ANKLE_R",
-          "L_HIP_Y", "L_HIP_R", "L_HIP_P", "L_KNEE_P", "L_ANKLE_P", "L_ANKLE_R"
-        ],
         "stiffness": [1000.0, 1000.0, 100.0],
         "weight": 1000.0
       },
