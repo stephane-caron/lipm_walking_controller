@@ -514,12 +514,8 @@ namespace lipm_walking
       dcmAverageError_ = dcmIntegrator_.eval();
     }
 
-    // desired wrench is expressed as CoM acceleration rather than DCM
-    // velocity, therefore the proportional gain is offset by omega
-    double dcmGainAtCoM = dcmGain_ + omega;
-
     desiredCoMAccel_ = pendulum_.comdd();
-    desiredCoMAccel_ += dcmGainAtCoM * dcmError_;
+    desiredCoMAccel_ += dcmGain_ * dcmError_ + omega * comdError;
     desiredCoMAccel_ += dcmIntegralGain_ * dcmAverageError_;
     desiredCoMAccel_ -= zmpGain_ * zmpError_;
     auto desiredForce = mass_ * (desiredCoMAccel_ - world::gravity);
