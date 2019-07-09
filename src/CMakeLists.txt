@@ -56,7 +56,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DMC_CONTROL_EXP
 pkg_config_use_dependency(${PROJECT_NAME} copra)
 pkg_config_use_dependency(${PROJECT_NAME} mc_rtc)
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} roslib ${FSM_CONTROLLER_LIB})
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${FSM_CONTROLLER_LIB})
 install(TARGETS ${PROJECT_NAME} DESTINATION ${MC_RTC_LIBDIR}/mc_controller)
 
 add_library(${PROJECT_NAME}_controller SHARED lib.cpp)
