@@ -46,11 +46,19 @@ namespace lipm_walking
 
   void FloatingBaseObserver::estimateOrientation(const mc_rbdyn::Robot & realRobot)
   {
-    Eigen::Matrix3d E_0_control = controlRobot_.posW().rotation();
-    Eigen::Matrix3d E_0_imu = realRobot.bodySensor().orientation().toRotationMatrix();
-    Eigen::Vector3d controlRPY = mc_rbdyn::rpyFromMat(E_0_control);
-    Eigen::Vector3d realRPY = mc_rbdyn::rpyFromMat(E_0_imu);
-    orientation_ = mc_rbdyn::rpyToMat(realRPY(0), realRPY(1), controlRPY(2));
+    // Prefixes:
+    // c for control-robot model
+    // r for real-robot model
+    // m for estimated/measured quantities
+    sva::PTransformd X_0_rBase = realRobot.posW();
+    sva::PTransformd X_0_rIMU = realRobot.bodyPosW(realRobot.bodySensor().parentBody());
+    sva::PTransformd X_rIMU_rBase = X_0_rBase * X_0_rIMU.inv();
+    Eigen::Matrix3d E_0_mIMU = realRobot.bodySensor().orientation().toRotationMatrix();
+    Eigen::Matrix3d E_0_cBase = controlRobot_.posW().rotation();
+    Eigen::Matrix3d E_0_mBase = X_rIMU_rBase.rotation() * E_0_mIMU;
+    Eigen::Vector3d cRPY = mc_rbdyn::rpyFromMat(E_0_cBase);
+    Eigen::Vector3d mRPY = mc_rbdyn::rpyFromMat(E_0_mBase);
+    orientation_ = mc_rbdyn::rpyToMat(mRPY(0), mRPY(1), cRPY(2));
   }
 
   void FloatingBaseObserver::estimatePosition(const mc_rbdyn::Robot & realRobot)
