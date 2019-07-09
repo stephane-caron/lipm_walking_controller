@@ -218,7 +218,7 @@ namespace lipm_walking
     leftFootRatio_ = leftFootRatio;
   }
 
-  void states::Standing::makeFootContact(std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact)
+  void states::Standing::makeFootContact(std::shared_ptr<mc_tasks::force::CoPTask> footTask, const Contact & contact)
   {
     auto & stabilizer = controller().stabilizer();
     if (footTask->admittance().couple().x() > 1e-10 || stabilizer.detectTouchdown(footTask, contact))
@@ -228,7 +228,7 @@ namespace lipm_walking
     }
     stabilizer.setSwingFoot(footTask);
     stabilizer.seekTouchdown(footTask);
-    footTask->setCriticalGains(freeFootGain_); // not trajectory tracking
+    footTask->stiffness(freeFootGain_); // sets damping as well
     footTask->targetPose(contact.pose);
     isMakingFootContact_ = true;
   }
@@ -243,7 +243,7 @@ namespace lipm_walking
     makeFootContact(controller().stabilizer().rightFootTask, rightFootContact_);
   }
 
-  bool states::Standing::releaseFootContact(std::shared_ptr<mc_tasks::CoPTask> footTask)
+  bool states::Standing::releaseFootContact(std::shared_ptr<mc_tasks::force::CoPTask> footTask)
   {
     constexpr double MAX_FOOT_RELEASE_PRESSURE = 50.; // [N]
     auto & stabilizer = controller().stabilizer();
@@ -260,7 +260,7 @@ namespace lipm_walking
     sva::PTransformd X_0_f = footTask->surfacePose();
     sva::PTransformd X_f_t = Eigen::Vector3d{0., 0., releaseHeight_};
     stabilizer.setSwingFoot(footTask);
-    footTask->setCriticalGains(freeFootGain_); // not trajectory tracking
+    footTask->stiffness(freeFootGain_); // sets damping as well
     footTask->targetPose(X_f_t * X_0_f);
     return true;
   }

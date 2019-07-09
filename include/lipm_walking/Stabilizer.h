@@ -125,7 +125,7 @@ namespace lipm_walking
      * \param contact Target contact.
      *
      */
-    bool detectTouchdown(const std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact);
+    bool detectTouchdown(const std::shared_ptr<mc_tasks::force::CoPTask> footTask, const Contact & contact);
 
     /** Remove tasks from QP solver.
      *
@@ -157,7 +157,7 @@ namespace lipm_walking
      * z-axis of the contact frame.
      *
      */
-    void seekTouchdown(std::shared_ptr<mc_tasks::CoPTask> footTask);
+    void seekTouchdown(std::shared_ptr<mc_tasks::force::CoPTask> footTask);
 
     /** Configure foot task for contact at a given location.
      *
@@ -166,7 +166,7 @@ namespace lipm_walking
      * \param contact Target contact location.
      *
      */
-    void setContact(std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact);
+    void setContact(std::shared_ptr<mc_tasks::force::CoPTask> footTask, const Contact & contact);
 
     /** Configure foot task for swinging.
      *
@@ -175,7 +175,7 @@ namespace lipm_walking
      * Foot target is reset to the current frame pose.
      *
      */
-    void setSwingFoot(std::shared_ptr<mc_tasks::CoPTask> footTask);
+    void setSwingFoot(std::shared_ptr<mc_tasks::force::CoPTask> footTask);
 
     /** Get contact state.
      *
@@ -311,7 +311,7 @@ namespace lipm_walking
      * \param footTask Target foot.
      *
      */
-    void saturateWrench(const sva::ForceVecd & desiredWrench, std::shared_ptr<mc_tasks::CoPTask> & footTask);
+    void saturateWrench(const sva::ForceVecd & desiredWrench, std::shared_ptr<mc_tasks::force::CoPTask> & footTask);
 
     /** Reset admittance, damping and stiffness for every foot in contact.
      *
@@ -405,8 +405,8 @@ namespace lipm_walking
     Contact leftFootContact;
     Contact rightFootContact;
     std::shared_ptr<mc_tasks::CoMTask> comTask;
-    std::shared_ptr<mc_tasks::CoPTask> leftFootTask;
-    std::shared_ptr<mc_tasks::CoPTask> rightFootTask;
+    std::shared_ptr<mc_tasks::force::CoPTask> leftFootTask;
+    std::shared_ptr<mc_tasks::force::CoPTask> rightFootTask;
 
   private:
     ContactState contactState_ = ContactState::DoubleSupport;

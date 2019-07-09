@@ -23,7 +23,10 @@
 
 #include <cmath>
 
-#include <mc_tasks/CoPTask.h>
+#include <SpaceVecAlg/SpaceVecAlg>
+#include <mc_rtc/Configuration.h>
+#include <mc_rtc/logging.h>
+#include <mc_rbdyn/Robot.h>
 
 #include <lipm_walking/defs.h>
 

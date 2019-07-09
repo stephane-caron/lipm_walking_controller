@@ -75,8 +75,8 @@ namespace lipm_walking
       double remTime_;
       double stateTime_;
       double timeSinceLastPreviewUpdate_;
-      std::shared_ptr<mc_tasks::CoPTask> supportFootTask;
-      std::shared_ptr<mc_tasks::CoPTask> swingFootTask;
+      std::shared_ptr<mc_tasks::force::CoPTask> supportFootTask;
+      std::shared_ptr<mc_tasks::force::CoPTask> swingFootTask;
     };
   }
 }

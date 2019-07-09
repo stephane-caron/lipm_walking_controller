@@ -81,7 +81,7 @@ namespace lipm_walking
        * \param contact Contact target.
        *
        */
-      void makeFootContact(std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact);
+      void makeFootContact(std::shared_ptr<mc_tasks::force::CoPTask> footTask, const Contact & contact);
 
       /** Make left foot contact.
        *
@@ -99,7 +99,7 @@ namespace lipm_walking
        *
        * \return True if the contact was released, false if not.
        */
-      bool releaseFootContact(std::shared_ptr<mc_tasks::CoPTask> footTask);
+      bool releaseFootContact(std::shared_ptr<mc_tasks::force::CoPTask> footTask);
 
       /** Release left foot contact.
        *
