@@ -133,7 +133,6 @@
   {
     "ashibumi": // stepping in place
     {
-      "com_height": 0.78,
       "double_support_duration": 0.2,
       "single_support_duration": 0.8,
       "swing_height": 0.04,
@@ -155,7 +154,6 @@
     },
     "ashibumi_fast":
     {
-      "com_height": 0.78,
       "double_support_duration": 0.1,
       "single_support_duration": 0.7,
       "swing_height": 0.04,
@@ -211,7 +209,6 @@
     },
     "comanoid_airbus_staircase": // 1st part of Sep 10, 2019 experiment video (on YouTube)
     {
-      "com_height": 0.78,
       "init_dsp_duration": 0.6,
       "single_support_duration": 1.4,
       "double_support_duration": 0.2,
@@ -286,7 +283,6 @@
     },
     "comanoid_walk_45cm":  // 2nd part of Sep 10, 2019 experiment video (on YouTube)
     {
-      "com_height": 0.78,
       "double_support_duration": 0.1,
       "single_support_duration": 0.7,
       "swing_height": 0.04,
@@ -302,7 +298,6 @@
     },
     "forward_15cm_steps":
     {
-      "com_height": 0.78,
       "double_support_duration": 0.1,
       "single_support_duration": 0.7,
       "swing_height": 0.04,
@@ -320,7 +315,6 @@
     },
     "forward_20cm_steps":
     {
-      "com_height": 0.78,
       "double_support_duration": 0.1,
       "single_support_duration": 0.7,
       "swing_height": 0.04,
@@ -338,7 +332,6 @@
     },
     "forward_25cm_steps":
     {
-      "com_height": 0.78,
       "double_support_duration": 0.1,
       "single_support_duration": 0.7,
       "swing_height": 0.04,
@@ -356,7 +349,6 @@
     },
     "forward_30cm_steps":
     {
-      "com_height": 0.78,
       "double_support_duration": 0.2,
       "single_support_duration": 0.8,
       "swing_height": 0.05,
@@ -374,7 +366,6 @@
     },
     "forward_35cm_steps":
     {
-      "com_height": 0.78,
       "double_support_duration": 0.2,
       "single_support_duration": 0.8,
       "swing_height": 0.04,
@@ -392,7 +383,6 @@
     },
     "forward_40cm_steps":
     {
-      "com_height": 0.78,
       "double_support_duration": 0.2,
       "single_support_duration": 0.8,
       "swing_height": 0.07,
@@ -410,7 +400,6 @@
     },
     "kajita_2010":
     {
-      "com_height": 0.78,
       "double_support_duration": 0.2,
       "single_support_duration": 0.8,
       "swing_height": 0.04,
@@ -431,7 +420,6 @@
     },
     "koopa_30cm_steps":
     {
-      "com_height": 0.78,
       "double_support_duration": 0.2,
       "single_support_duration": 0.8,
       "swing_height": 0.04,
@@ -447,7 +435,6 @@
     },
     "koopa_40cm_steps":
     {
-      "com_height": 0.78,
       "double_support_duration": 0.2,
       "single_support_duration": 0.8,
       "swing_height": 0.04,
@@ -463,7 +450,6 @@
     },
     "koopa_50cm_steps":
     {
-      "com_height": 0.78,
       "double_support_duration": 0.2,
       "single_support_duration": 0.8,
       "swing_height": 0.04,
@@ -479,7 +465,6 @@
     },
     "lateral_left_10cm_steps":
     {
-      "com_height": 0.78,
       "double_support_duration": 0.2,
       "single_support_duration": 0.8,
       "swing_height": 0.04,
@@ -497,7 +482,6 @@
     },
     "lateral_right_10cm_steps":
     {
-      "com_height": 0.78,
       "double_support_duration": 0.2,
       "single_support_duration": 0.8,
       "swing_height": 0.04,
