@@ -47,7 +47,7 @@ add_compile_options(-DEIGEN_LSSOL_FOUND) # see https://github.com/vsamy/copra/is
 add_required_dependency(eigen-lssol)
 add_required_dependency(mc_rtc)
 
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS roscpp)
 
 catkin_package(
   CATKIN_DEPENDS
