@@ -34,6 +34,7 @@ Link `lipm_walking_controller` from the source folder of your catkin workspace, 
 ```sh
 catkin_make -DCMAKE_BUILD_TYPE=RelWithDebInfo && catkin_make install
 ```
+To avoid a ``sudo`` at ``catkin_make install`` you can change ownership or permissions of the ``/usr/local/lib/mc_controller`` folder.
 
 ## Usage
 
