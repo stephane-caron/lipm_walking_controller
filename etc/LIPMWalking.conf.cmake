@@ -13,9 +13,12 @@
   {
     "admittance":
     {
+      // NB: in the paper and videos CoM admittances are reported at the acceleration level,
+      // but in the controller they are expressed at the velocity level (sorry for the discrepancy).
+      // Multiply the former by 0.005 to obtain the latter.
       "com": [0.0, 0.0],
-      "cop": [0.001, 0.001],
-      "dfz": 0.0001
+      "cop": [0.01, 0.01],
+      "dfz": 0.0002
     },
     "com":
     {
@@ -41,6 +44,9 @@
   {
     "admittance":
     {
+      // NB: in the paper and videos CoM admittances are reported at the acceleration level,
+      // but in the controller they are expressed at the velocity level (sorry for the discrepancy).
+      // Multiply the former by 0.005 to obtain the latter.
       "com": [0.1, 0.5],
       "cop": [0.01, 0.01],
       "dfz": 0.0001
