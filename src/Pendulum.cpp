@@ -34,8 +34,10 @@ namespace lipm_walking
     com_ = com;
     comd_ = comd;
     comdd_ = comdd;
+    comddd_ = Eigen::Vector3d::Zero();
     omega_ = std::sqrt(DEFAULT_LAMBDA);
     zmp_ = com_ - comdd_ / DEFAULT_LAMBDA;
+    zmpd_ = comd_ - comddd_ / DEFAULT_LAMBDA;
   }
 
   void Pendulum::integrateIPM(Eigen::Vector3d zmp, double lambda, double dt)
@@ -51,6 +53,10 @@ namespace lipm_walking
     comdd_ = lambda * (com_prev - zmp_) + world::gravity;
     comd_ = comd_prev * ch + omega_ * (com_prev - vrp) * sh;
     com_ = com_prev * ch + comd_prev * sh / omega_ - vrp * (ch - 1.0);
+
+    // default values for third-order terms
+    comddd_ = Eigen::Vector3d::Zero();
+    zmpd_ = comd_ - comddd_ / lambda;
   }
 
   void Pendulum::integrateCoMJerk(const Eigen::Vector3d & comddd, double dt)
@@ -58,6 +64,7 @@ namespace lipm_walking
     com_ += dt * (comd_ + dt * (comdd_ / 2 + dt * (comddd / 6)));
     comd_ += dt * (comdd_ + dt * (comddd / 2));
     comdd_ += dt * comddd;
+    comddd_ = comddd;
   }
 
   void Pendulum::resetCoMHeight(double height, const Contact & plane)
@@ -66,6 +73,7 @@ namespace lipm_walking
     com_ += (height + n.dot(plane.p() - com_)) * n;
     comd_ -= n.dot(comd_) * n;
     comdd_ -= n.dot(comdd_) * n;
+    comddd_ -= n.dot(comddd_) * n;
   }
 
   void Pendulum::completeIPM(const Contact & plane)
@@ -74,6 +82,7 @@ namespace lipm_walking
     auto gravitoInertial = world::gravity - comdd_;
     double lambda = n.dot(gravitoInertial) / n.dot(plane.p() - com_);
     zmp_ = com_ + gravitoInertial / lambda;
+    zmpd_ = comd_ - comddd_ / lambda;
     omega_ = std::sqrt(lambda);
   }
 }

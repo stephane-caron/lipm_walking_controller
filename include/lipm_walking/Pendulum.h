@@ -133,7 +133,10 @@ namespace lipm_walking
       return omega_;
     }
 
-    /** Centroidal Moment Pivot of last IPM integration.
+    /** Zero-tilting moment point from last integration.
+     *
+     * \note In the linear inverted pendulum mode, the ZMP coincides with the
+     * centroidal moment pivot (CMP) or its extended version (eCMP).
      *
      */
     const Eigen::Vector3d & zmp() const
@@ -141,11 +144,21 @@ namespace lipm_walking
       return zmp_;
     }
 
+    /** Velocity of the zero-tilting moment point.
+     *
+     */
+    const Eigen::Vector3d & zmpd() const
+    {
+      return zmpd_;
+    }
+
   protected:
     Eigen::Vector3d com_; /**< Position of the center of mass */
     Eigen::Vector3d comd_; /**< Velocity of the center of mass */
     Eigen::Vector3d comdd_; /**< Acceleration of the center of mass */
+    Eigen::Vector3d comddd_; /**< Jerk of the center of mass */
     Eigen::Vector3d zmp_; /**< Position of the zero-tilting moment point */
+    Eigen::Vector3d zmpd_; /**< Velocity of the zero-tilting moment point */
     double omega_; /**< Natural frequency of the linear inverted pendulum */
   };
 }
