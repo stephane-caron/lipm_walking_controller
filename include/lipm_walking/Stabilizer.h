@@ -56,10 +56,10 @@ namespace lipm_walking
 
     /* Maximum gains for HRP4LIRMM in standing static equilibrium. */
     static constexpr double MAX_COM_ADMITTANCE = 20;
-    static constexpr double MAX_COP_ADMITTANCE = 0.05;
-    static constexpr double MAX_DCM_I_GAIN = 20.;
+    static constexpr double MAX_COP_ADMITTANCE = 0.1;
+    static constexpr double MAX_DCM_I_GAIN = 30.;
     static constexpr double MAX_DCM_P_GAIN = 10.;
-    static constexpr double MAX_DFZ_ADMITTANCE = 1.75e-4;
+    static constexpr double MAX_DFZ_ADMITTANCE = 5e-4;
     static constexpr double MAX_ZMP_GAIN = 20.;
 
     /* Avoid low-pressure targets too close to contact switches */
