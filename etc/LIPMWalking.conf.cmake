@@ -203,14 +203,14 @@
       "swing_height": 0.05,
       "contacts":
       [
-        { "pose": { "translation": [0.0,  -0.1, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "RightFootCenter" },
-        { "pose": { "translation": [0.0,   0.1, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter"  },
-        { "pose": { "translation": [-0.2, -0.1, 0.0] }, "ref_vel": [-0.1, 0.0, 0.0], "surface": "RightFootCenter" },
-        { "pose": { "translation": [-0.4,  0.1, 0.0] }, "ref_vel": [-0.2, 0.0, 0.0], "surface": "LeftFootCenter"  },
-        { "pose": { "translation": [-0.6, -0.1, 0.0] }, "ref_vel": [-0.2, 0.0, 0.0], "surface": "RightFootCenter" },
-        { "pose": { "translation": [-0.8,  0.1, 0.0] }, "ref_vel": [-0.1, 0.0, 0.0], "surface": "LeftFootCenter"  },
-        { "pose": { "translation": [-1.0, -0.1, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "RightFootCenter" },
-        { "pose": { "translation": [-1.0,  0.1, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter"  }
+        { "pose": { "translation": [0.0,  -0.09, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "RightFootCenter" },
+        { "pose": { "translation": [0.0,   0.09, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter"  },
+        { "pose": { "translation": [-0.2, -0.09, 0.0] }, "ref_vel": [-0.1, 0.0, 0.0], "surface": "RightFootCenter" },
+        { "pose": { "translation": [-0.4,  0.09, 0.0] }, "ref_vel": [-0.2, 0.0, 0.0], "surface": "LeftFootCenter"  },
+        { "pose": { "translation": [-0.6, -0.09, 0.0] }, "ref_vel": [-0.2, 0.0, 0.0], "surface": "RightFootCenter" },
+        { "pose": { "translation": [-0.8,  0.09, 0.0] }, "ref_vel": [-0.1, 0.0, 0.0], "surface": "LeftFootCenter"  },
+        { "pose": { "translation": [-1.0, -0.09, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "RightFootCenter" },
+        { "pose": { "translation": [-1.0,  0.09, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter"  }
       ]
     },
     "comanoid_airbus_staircase": // 1st part of Sep 10, 2019 experiment video (on YouTube)
