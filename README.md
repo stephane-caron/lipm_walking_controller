@@ -40,7 +40,7 @@ To avoid a ``sudo`` at ``catkin_make install`` you can change ownership or permi
 
 First, launch RViz for the HRP-4 model by:
 ```sh
-roslaunch lipm_walking_controller display_hrp4.launch
+roslaunch lipm_walking_controller display.launch robot:=hrp4
 ```
 Enable the controller in your mc\_rtc configuration:
 ```sh

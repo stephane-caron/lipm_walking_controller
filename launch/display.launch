@@ -1,7 +1,9 @@
 <launch>
-  <!-- HRP-2KAI model -->
-  <arg name="model" value="$(find hrp2_drc_description)/urdf/hrp2drc.urdf"/>
-  <param name="robot_description" textfile="$(arg model)" />
+  <!-- Robot model model -->
+  <!-- Call with `robot:=hrp4` for HRP-4 (default) -->
+  <!-- Call with `robot:=hrp2_drc` for HRP-2Kai -->
+  <arg name="robot" default="hrp4" />
+  <include file="$(find mc_scenario)/robot/$(arg robot).xml" />
 
   <!-- RViz -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find lipm_walking_controller)/etc/display.rviz"/>
