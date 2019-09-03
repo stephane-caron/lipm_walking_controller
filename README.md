@@ -38,7 +38,7 @@ To avoid a ``sudo`` at ``catkin_make install`` you can change ownership or permi
 
 ## Usage
 
-First, launch RViz for the HRP-4 model by:
+Launch RViz for the HRP-4 model by:
 ```sh
 roslaunch lipm_walking_controller display.launch robot:=hrp4
 ```
@@ -49,7 +49,18 @@ Enable the controller in your mc\_rtc configuration:
   "Enabled": ["LIPMWalking"]
 }
 ```
-Finally, run your mc\_rtc interface, for instance ``mc_vrep`` or ``MCUDPControl``.
+Finally, start the controller from your mc\_rtc interface. Here is the example
+of a local [Choreonoid](https://choreonoid.org/en/) simulation using the
+[mc\_udp](https://gite.lirmm.fr/multi-contact/mc_udp) interface:
+```sh
+cd /usr/local/share/hrpsys/samples/HRP4LIRMM && choreonoid --start-simulation
+HRP4LIRMM_udp.cnoid  # in one terminal
+MCUDPControl -h localhost  # in another terminal
+```
+You should see something like this:
+![2019-09-03-104321_1920x1080_scrot](https://user-images.githubusercontent.com/1189580/64157945-ead71c80-ce37-11e9-9081-7936702c5fbc.png)
+See the [Graphical user interface](wiki/Graphical-user-interface) page of the
+wiki for further instructions on how to use this GUI.
 
 ## Thanks
 
