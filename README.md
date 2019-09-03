@@ -53,8 +53,8 @@ Finally, start the controller from your mc\_rtc interface. Here is the example
 of a local [Choreonoid](https://choreonoid.org/en/) simulation using the
 [mc\_udp](https://gite.lirmm.fr/multi-contact/mc_udp) interface:
 ```sh
-cd /usr/local/share/hrpsys/samples/HRP4LIRMM && choreonoid --start-simulation
-HRP4LIRMM_udp.cnoid  # in one terminal
+cd /usr/local/share/hrpsys/samples/HRP4LIRMM
+choreonoid --start-simulation HRP4LIRMM_udp.cnoid  # in one terminal
 MCUDPControl -h localhost  # in another terminal
 ```
 You should see something like this:
