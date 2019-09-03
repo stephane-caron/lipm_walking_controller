@@ -57,9 +57,9 @@ cd /usr/local/share/hrpsys/samples/HRP4LIRMM
 choreonoid --start-simulation HRP4LIRMM_udp.cnoid  # in one terminal
 MCUDPControl -h localhost  # in another terminal
 ```
-You should see something like this:
+You should end up with the following windows:
 ![2019-09-03-104321_1920x1080_scrot](https://user-images.githubusercontent.com/1189580/64157945-ead71c80-ce37-11e9-9081-7936702c5fbc.png)
-See the [Graphical user interface](wiki/Graphical-user-interface) page of the
+See the [Graphical user interface](https://github.com/stephane-caron/lipm_walking_controller/wiki/Graphical-user-interface) page of the
 wiki for further instructions on how to use this GUI.
 
 ## Thanks
