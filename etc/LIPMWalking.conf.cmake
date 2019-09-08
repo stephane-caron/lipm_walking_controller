@@ -9,68 +9,6 @@
       "zmp": 1000.0
     }
   },
-  "hrp2_drc": // robot-specific settings for HRP-2Kai
-  {
-    "admittance":
-    {
-      // NB: in the paper and videos CoM admittances are reported at the acceleration level,
-      // but in the controller they are expressed at the velocity level (sorry for the discrepancy).
-      // Multiply the former by 0.005 to obtain the latter.
-      "com": [0.0, 0.0],
-      "cop": [0.01, 0.01],
-      "dfz": 0.0002
-    },
-    "com":
-    {
-      "active_joints": [
-        "Root",
-        "RLEG_JOINT0", "RLEG_JOINT1", "RLEG_JOINT2", "RLEG_JOINT3", "RLEG_JOINT4", "RLEG_JOINT5",
-        "LLEG_JOINT0", "LLEG_JOINT1", "LLEG_JOINT2", "LLEG_JOINT3", "LLEG_JOINT4", "LLEG_JOINT5"
-      ],
-      "height": 0.87,
-      "max_height": 1.0,
-      "min_height": 0.4
-    },
-    "sole":
-    {
-      "half_length": 0.108,
-      "half_width": 0.07,
-      "friction": 0.7
-    },
-    "step_width": 0.2,
-    "torso": "CHEST_LINK1"
-  },
-  "hrp4": // robot-specific settings for HRP-4
-  {
-    "admittance":
-    {
-      // NB: in the paper and videos CoM admittances are reported at the acceleration level,
-      // but in the controller they are expressed at the velocity level (sorry for the discrepancy).
-      // Multiply the former by 0.005 to obtain the latter.
-      "com": [0.1, 0.5],
-      "cop": [0.01, 0.01],
-      "dfz": 0.0001
-    },
-    "com":
-    {
-      "active_joints": [
-        "Root",
-        "R_HIP_Y", "R_HIP_R", "R_HIP_P", "R_KNEE_P", "R_ANKLE_P", "R_ANKLE_R",
-        "L_HIP_Y", "L_HIP_R", "L_HIP_P", "L_KNEE_P", "L_ANKLE_P", "L_ANKLE_R"
-      ],
-      "height": 0.78,
-      "max_height": 0.85,
-      "min_height": 0.55
-    },
-    "sole":
-    {
-      "half_length": 0.112,
-      "half_width": 0.065,
-      "friction": 0.7
-    },
-    "step_width": 0.18,
-    "torso": "torso"
-  },
   "stabilizer":
   {
     "fdqp_weights":
@@ -133,6 +71,68 @@
       "pitch": 0.1,
       "stiffness": 10.0,
       "weight": 100.0
+    }
+  },
+  "robot_models":
+  {
+    "hrp4":
+    {
+      "admittance":
+      {
+        // NB: in the paper and videos CoM admittances are reported at the acceleration level,
+        // but in the controller they are expressed at the velocity level (sorry for the discrepancy).
+        // Multiply the former by 0.005 to obtain the latter.
+        "com": [0.1, 0.5],
+        "cop": [0.01, 0.01],
+        "dfz": 0.0001
+      },
+      "com":
+      {
+        "active_joints": [
+          "Root",
+          "R_HIP_Y", "R_HIP_R", "R_HIP_P", "R_KNEE_P", "R_ANKLE_P", "R_ANKLE_R",
+          "L_HIP_Y", "L_HIP_R", "L_HIP_P", "L_KNEE_P", "L_ANKLE_P", "L_ANKLE_R"
+        ],
+        "height": 0.78,
+        "max_height": 0.85,
+        "min_height": 0.55
+      },
+      "sole":
+      {
+        "half_length": 0.112,
+        "half_width": 0.065,
+        "friction": 0.7
+      },
+      "step_width": 0.18,
+      "torso": "torso"
+    },
+    "hrp2_drc":
+    {
+      "admittance":
+      {
+        "com": [0.0, 0.0],
+        "cop": [0.01, 0.01],
+        "dfz": 0.0002
+      },
+      "com":
+      {
+        "active_joints": [
+          "Root",
+          "RLEG_JOINT0", "RLEG_JOINT1", "RLEG_JOINT2", "RLEG_JOINT3", "RLEG_JOINT4", "RLEG_JOINT5",
+          "LLEG_JOINT0", "LLEG_JOINT1", "LLEG_JOINT2", "LLEG_JOINT3", "LLEG_JOINT4", "LLEG_JOINT5"
+        ],
+        "height": 0.87,
+        "max_height": 1.0,
+        "min_height": 0.4
+      },
+      "sole":
+      {
+        "half_length": 0.108,
+        "half_width": 0.07,
+        "friction": 0.7
+      },
+      "step_width": 0.2,
+      "torso": "CHEST_LINK1"
     }
   },
   "plans":
@@ -543,7 +543,7 @@
   },
 
   //
-  // mc_control::fsm::Controller configuration
+  // Finite state machine
   // 
 
   "init": "Initial",
@@ -557,9 +557,6 @@
     ["DoubleSupport", "Standing", "Standing"],
     ["SingleSupport", "DoubleSupport", "DoubleSupport"]
   ],
-
-  // Disable floating-base update from MCGlobalController
-  "UpdateRealFromSensors": false,
 
   // When true, the FSM transitions are managed by an external tool
   "Managed": false,
@@ -575,6 +572,9 @@
 
   // When true, state factory will be more verbose
   "VerboseStateFactory": true,
+
+  // Controller has its own floating base estimator
+  "UpdateRealFromSensors": false,
 
   // Controller is created in a sandbox, which in between a thread and a fork;
   // try to keep it to false, as it can create weird conflicts with threads

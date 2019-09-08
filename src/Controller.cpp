@@ -34,14 +34,14 @@ namespace lipm_walking
       netWrenchObs_(),
       stabilizer_(controlRobot(), pendulum_, dt)
   {
-    std::string robotName = controlRobot().name();
+    auto robotConfig = config("robot_models")(controlRobot().name());
 
     // Patch CoM height and step width in all plans
     std::vector<std::string> plans = config("plans").keys();
-    double comHeight = config(robotName)("com")("height");
-    double stepWidth = config(controlRobot().name())("step_width");
-    maxCoMHeight_ = config(robotName)("com")("max_height");
-    minCoMHeight_ = config(robotName)("com")("min_height");
+    double comHeight = robotConfig("com")("height");
+    double stepWidth = robotConfig("step_width");
+    maxCoMHeight_ = robotConfig("com")("max_height");
+    minCoMHeight_ = robotConfig("com")("min_height");
     for (const auto & p : plans)
     {
       auto plan = config("plans")(p);
@@ -76,7 +76,7 @@ namespace lipm_walking
     postureTask->stiffness(postureStiffness);
     postureTask->weight(postureWeight);
 
-    std::string torsoName = config(robotName)("torso");
+    std::string torsoName = robotConfig("torso");
     double torsoStiffness = config("tasks")("torso")("stiffness");
     double torsoWeight = config("tasks")("torso")("weight");
     config("tasks")("torso")("pitch", defaultTorsoPitch_);
@@ -100,12 +100,12 @@ namespace lipm_walking
     // Read settings from configuration file
     plans_ = config("plans");
     mpcConfig_ = config("mpc");
-    sole_ = config(robotName)("sole");
+    sole_ = robotConfig("sole");
     std::string initialPlan = plans_.keys()[0];
     config("initial_plan", initialPlan);
 
-    std::vector<std::string> comActiveJoints = config(robotName)("com")("active_joints");
-    config("stabilizer").add("admittance", config(robotName)("admittance"));
+    std::vector<std::string> comActiveJoints = robotConfig("com")("active_joints");
+    config("stabilizer").add("admittance", robotConfig("admittance"));
     config("stabilizer")("tasks")("com").add("active_joints", comActiveJoints);
     stabilizer_.configure(config("stabilizer"));
 
