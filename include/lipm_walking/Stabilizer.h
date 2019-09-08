@@ -361,7 +361,7 @@ namespace lipm_walking
      * This implementation is based on
      * "体幹位置コンプライアンス制御によるモデル誤差吸収" (Section 6.2.2 of
      * Nagasaka's PhD thesis, 1999), available from
-     * <http://www.geocities.jp/kamono3/public.htm>.
+     * <https://sites.google.com/site/humanoidchannel/home/publication>.
      *
      */
     //void updateCoMPosZMPCC();
