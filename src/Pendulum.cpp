@@ -30,13 +30,14 @@ namespace lipm_walking
 
   void Pendulum::reset(const Eigen::Vector3d & com, const Eigen::Vector3d & comd, const Eigen::Vector3d & comdd)
   {
-    constexpr double DEFAULT_LAMBDA = world::GRAVITY / 0.8;
+    constexpr double DEFAULT_HEIGHT = 0.8; // [m]
+    constexpr double DEFAULT_LAMBDA = world::GRAVITY / DEFAULT_HEIGHT;
     com_ = com;
     comd_ = comd;
     comdd_ = comdd;
     comddd_ = Eigen::Vector3d::Zero();
     omega_ = std::sqrt(DEFAULT_LAMBDA);
-    zmp_ = com_ - comdd_ / DEFAULT_LAMBDA;
+    zmp_ = com_ + (world::gravity - comdd_) / DEFAULT_LAMBDA;
     zmpd_ = comd_ - comddd_ / DEFAULT_LAMBDA;
   }
 
