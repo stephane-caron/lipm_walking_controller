@@ -22,6 +22,7 @@ cmake_minimum_required(VERSION 2.8)
 #set(CXX_DISABLE_WERROR 1)
 
 set(CMAKE_CXX_FLAGS "-pedantic -Wno-long-long -Wall -Wextra -Wcast-align -Wcast-qual -Wformat -Wwrite-strings -Wconversion")
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(cmake/base.cmake)
@@ -34,29 +35,11 @@ set(PROJECT_VERSION 1.1.0)
 
 project(${PROJECT_NAME})  # because setup_project() is not called
 
-# Enable C++14
-if(NOT WIN32)
-  add_definitions(-std=c++14)
-endif()
-
-# Use jrl-cmakemodules to get mc_rtc depency
-set(PKG_CONFIG_ADDITIONAL_VARIABLES "${PKG_CONFIG_ADDITIONAL_VARIABLES} libdir")
-add_required_dependency(copra)
-add_compile_options(-DEIGEN_QLD_FOUND) # see https://github.com/vsamy/copra/issues/2
-add_compile_options(-DEIGEN_LSSOL_FOUND) # see https://github.com/vsamy/copra/issues/2
-add_required_dependency(eigen-lssol)
-add_required_dependency(mc_rtc)
-
 find_package(catkin REQUIRED COMPONENTS roscpp)
+find_package(copra REQUIRED)
+find_package(mc_rtc REQUIRED)
 
-catkin_package(
-  CATKIN_DEPENDS
-  geometry_msgs
-  roscpp
-  roslib
-  std_msgs
-  tf
-)
+catkin_package(CATKIN_DEPENDS geometry_msgs roscpp roslib std_msgs tf)
 
 include_directories(include ${catkin_INCLUDE_DIRS} $ENV{HOME}/.local/include)
 link_directories(${catkin_LIBRARY_DIRS} $ENV{HOME}/.local/lib)

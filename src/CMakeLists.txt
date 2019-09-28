@@ -24,8 +24,7 @@ set(CONTROLLER_SRC
     NetWrenchObserver.cpp
     Pendulum.cpp
     Stabilizer.cpp
-    SwingFoot.cpp
-)
+    SwingFoot.cpp)
 
 set(CONTROLLER_HDR
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/Contact.h
@@ -46,27 +45,24 @@ set(CONTROLLER_HDR
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/clamp.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/polynomials.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/rotations.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/stats.h
-)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/stats.h)
 
-set(FSM_CONTROLLER_LIB mc_control_fsm)
+set(CONTROLLER_NAME "${PROJET_NAME}_controller")
+
 add_library(${PROJECT_NAME} SHARED ${CONTROLLER_SRC} ${CONTROLLER_HDR})
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DMC_CONTROL_EXPORTS")
-pkg_config_use_dependency(${PROJECT_NAME} copra)
-pkg_config_use_dependency(${PROJECT_NAME} mc_rtc)
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${FSM_CONTROLLER_LIB})
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} copra::copra eigen-lssol::eigen-lssol mc_rtc::mc_control_fsm)
 install(TARGETS ${PROJECT_NAME} DESTINATION ${MC_RTC_LIBDIR}/mc_controller)
 
-add_library(${PROJECT_NAME}_controller SHARED lib.cpp)
-set_target_properties(${PROJECT_NAME}_controller
+add_library(${CONTROLLER_NAME} SHARED lib.cpp)
+set_target_properties(${CONTROLLER_NAME}
   PROPERTIES
     PREFIX ""
     OUTPUT_NAME "${PROJECT_NAME}"
-    LIBRARY_OUTPUT_DIRECTORY "${CATKIN_DEVEL_PREFIX}/lib/${PROJECT_NAME}"
-)
-target_link_libraries(${PROJECT_NAME}_controller ${PROJECT_NAME})
-install(TARGETS ${PROJECT_NAME}_controller DESTINATION ${MC_RTC_LIBDIR}/mc_controller)
+    LIBRARY_OUTPUT_DIRECTORY "${CATKIN_DEVEL_PREFIX}/lib/${PROJECT_NAME}")
+target_link_libraries(${CONTROLLER_NAME} ${PROJECT_NAME})
+install(TARGETS ${CONTROLLER_NAME} DESTINATION ${MC_RTC_LIBDIR}/mc_controller)
 
 set(CONF_OUT "$ENV{HOME}/.config/mc_rtc/controllers/LIPMWalking.conf")
 set(AROBASE "@")
@@ -75,7 +71,7 @@ set(LIPM_WALKING_STATES_DATA_DIR "${LIPM_WALKING_STATES_DIR}/data")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../etc/LIPMWalking.conf.cmake" "${CONF_OUT}")
 unset(AROBASE)
 
-set(LIPM_WALKING_STATES_DIR "${MC_RTC_LIBDIR}/mc_controller/lipm_walking_controller/states")
+set(LIPM_WALKING_STATES_DIR "${MC_RTC_LIBDIR}/mc_controller/${PROJECT_NAME}/states")
 set(LIPM_WALKING_STATES_DATA_DIR "${LIPM_WALKING_STATES_DIR}/data")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../etc/LIPMWalking.conf.cmake" "${CMAKE_CURRENT_BINARY_DIR}/etc/LIPMWalking.conf")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/etc/LIPMWalking.conf"

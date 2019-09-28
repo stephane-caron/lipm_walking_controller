@@ -16,7 +16,7 @@
 # along with lipm_walking_controller. If not, see
 # <http://www.gnu.org/licenses/>.
 
-set(FSM_STATES_INSTALL_PREFIX "${MC_RTC_LIBDIR}/mc_controller/lipm_walking_controller/states")
+set(FSM_STATES_INSTALL_PREFIX "${MC_RTC_LIBDIR}/mc_controller/${PROJECT_NAME}/states")
 
 macro(add_fsm_state state_name state_SRC state_HDR)
   add_library(${state_name} SHARED  ${state_SRC} ${state_HDR})
@@ -24,7 +24,7 @@ macro(add_fsm_state state_name state_SRC state_HDR)
       PROPERTIES
       PREFIX ""
       LIBRARY_OUTPUT_DIRECTORY "${CATKIN_DEVEL_PREFIX}/lib/${PROJECT_NAME}/states")
-  target_link_libraries(${state_name} lipm_walking_controller)
+  target_link_libraries(${state_name} ${PROJECT_NAME})
   install(TARGETS ${state_name} DESTINATION ${FSM_STATES_INSTALL_PREFIX})
   install(FILES ${state_HDR} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/mc_control/fsm/states)
 endmacro()
