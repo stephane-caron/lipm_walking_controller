@@ -18,9 +18,6 @@
 
 cmake_minimum_required(VERSION 2.8)
 
-#set(ROS_BUILD_TYPE Debug) # remove for Release
-#set(CXX_DISABLE_WERROR 1)
-
 set(CMAKE_CXX_FLAGS "-pedantic -Wno-long-long -Wall -Wextra -Wcast-align -Wcast-qual -Wformat -Wwrite-strings -Wconversion")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

@@ -49,16 +49,6 @@ namespace lipm_walking
       {
         plan.add("com_height", comHeight);
       }
-      if (plan.has("contacts"))
-      {
-        for (auto contact : plan("contacts"))
-        {
-          std::string surf = contact("surface");
-          Eigen::Vector3d trans = contact("pose")("translation");
-          trans.y() = ((surf == "LeftFootCenter") ? +0.5 : -0.5) * stepWidth;
-          contact("pose").add("translation", trans);
-        }
-      }
     }
 
     // Add upper-body tasks

@@ -302,6 +302,56 @@
         { "pose": { "translation": [0.45,  0.09, 0.0] }, "ref_vel": [0.07, 0.0, 0.0], "surface": "LeftFootCenter" }
       ]
     },
+    "curved_15cm_steps":
+    {
+      "double_support_duration": 0.2,
+      "single_support_duration": 0.8,
+      "swing_height": 0.04,
+      "contacts":
+      [
+        { "pose": {"translation": [2.77078, -0.590245, 0], "rotation": [0.940452, 0.339926, 0, -0.339926, 0.940452, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [2.74776, -0.38652, 0], "rotation": [0.875393, 0.483412, 0, -0.483412, 0.875393, 0, 0, 0, 1] }, "surface": "LeftFootCenter" }, 
+        { "pose": {"translation": [2.95499, -0.503226, 0 ], "rotation": [0.893052, 0.449954, 0, -0.449954, 0.893052, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [2.98469, -0.267551, 0 ], "rotation": [0.912718, 0.408589, 0, -0.408589, 0.912718, 0, 0, 0, 1] }, "surface": "LeftFootCenter" },
+        { "pose": {"translation": [3.18044, -0.402869, 0 ], "rotation": [0.93489, 0.354938, 0, -0.354938, 0.93489, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [3.23814, -0.172172, 0 ], "rotation": [0.958776, 0.284164, 0, -0.284164, 0.958776, 0, 0, 0, 1] }, "surface": "LeftFootCenter" },
+        { "pose": {"translation": [3.4113, -0.335461, 0 ], "rotation": [0.982527, 0.186121, 0, -0.186121, 0.982527, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [3.51403, -0.121684, 0 ], "rotation": [0.998708, 0.0508231, 0, -0.0508231, 0.998708, 0, 0, 0, 1] }, "surface": "LeftFootCenter" },
+        { "pose": {"translation": [3.63427, -0.325807, 0 ], "rotation": [0.989986, -0.141166, 0, 0.141166, 0.989986, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [3.81101, -0.167986, 0 ], "rotation": [0.922807, -0.385262, 0, 0.385262, 0.922807, 0, 0, 0, 1] }, "surface": "LeftFootCenter" },
+        { "pose": {"translation": [3.81955, -0.403709, 0 ], "rotation": [0.77646, -0.630166, 0, 0.630166, 0.77646, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [4.05162, -0.36087, 0 ], "rotation": [0.589049, -0.808097, 0, 0.808097, 0.589049, 0, 0, 0, 1] }, "surface": "LeftFootCenter" },
+        { "pose": {"translation": [3.92777, -0.518618, 0 ], "rotation": [0.500388, -0.865801, 0, 0.865801, 0.500388, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [4.05162, -0.46087, 0 ], "rotation": [0.589049, -0.808097, 0, 0.808097, 0.589049, 0, 0, 0, 1] }, "surface": "LeftFootCenter" }
+      ]
+    },
+    "curved_20cm_steps":
+    {
+      "double_support_duration": 0.1,
+      "single_support_duration": 0.7,
+      "swing_height": 0.04,
+      "contacts":
+      [
+        { "pose": {"translation": [0.0393791, -0.0897642, 0], "rotation": [0.999997, -0.00256075, 0, 0.00256075, 0.999997, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [0.0393791, 0.0897642, 0], "rotation": [0.999997, -0.00256075, 0, 0.00256075, 0.999997, 0, 0, 0, 1] }, "surface": "LeftFootCenter" },
+        { "pose": {"translation": [0.120362, -0.108239, 0], "rotation": [0.981797, -0.189932, 0, 0.189932, 0.981797, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [0.351217, 0.0276016, 0], "rotation": [0.976051, -0.217542, 0, 0.217542, 0.976051, 0, 0, 0, 1] }, "surface": "LeftFootCenter" },
+        { "pose": {"translation": [0.503607, -0.193613, 0], "rotation": [0.969694, -0.244323, 0, 0.244323, 0.969694, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [0.741152, -0.0704351, 0], "rotation": [0.963175, -0.268874, 0, 0.268874, 0.963175, 0, 0, 0, 1] }, "surface": "LeftFootCenter" },
+        { "pose": {"translation": [0.883438, -0.29945, 0], "rotation": [0.956937, -0.290295, 0, 0.290295, 0.956937, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [1.12694, -0.187005, 0], "rotation": [0.951955, -0.306238, 0, 0.306238, 0.951955, 0, 0, 0, 1] }, "surface": "LeftFootCenter" },
+        { "pose": {"translation": [1.2605, -0.420172, 0], "rotation": [0.949275, -0.314448, 0, 0.314448, 0.949275, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [1.50508, -0.311387, 0], "rotation": [0.950331, -0.311241, 0, 0.311241, 0.950331, 0, 0, 0, 1] }, "surface": "LeftFootCenter" },
+        { "pose": {"translation": [1.64046, -0.543348, 0], "rotation": [0.95659, -0.291438, 0, 0.291438, 0.95659, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [1.87991, -0.423968, 0], "rotation": [0.968801, -0.247841, 0, 0.247841, 0.968801, 0, 0, 0, 1] }, "surface": "LeftFootCenter" },
+        { "pose": {"translation": [2.03754, -0.64234, 0], "rotation": [0.985361, -0.170483, 0, 0.170483, 0.985361, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [2.25466, -0.486607, 0], "rotation": [0.998584, -0.0532061, 0, 0.0532061, 0.998584, 0, 0, 0, 1] }, "surface": "LeftFootCenter" },
+        { "pose": {"translation": [2.45886, -0.661726, 0], "rotation": [0.994881, 0.101058, 0, -0.101058, 0.994881, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [2.62191, -0.448698, 0], "rotation": [0.964239, 0.265033, 0, -0.265033, 0.964239, 0, 0, 0, 1] }, "surface": "LeftFootCenter" },
+        { "pose": {"translation": [2.77046, -0.590235, 0], "rotation": [0.94045, 0.339933, 0, -0.339933, 0.94045, 0, 0, 0, 1] }, "surface": "RightFootCenter" },
+        { "pose": {"translation": [2.74776, -0.38652, 0], "rotation": [0.875393, 0.483412, 0, -0.483412, 0.875393, 0, 0, 0, 1] }, "surface": "LeftFootCenter" }
+      ]
+    },
     "forward_15cm_steps":
     {
       "double_support_duration": 0.1,
