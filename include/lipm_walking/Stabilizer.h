@@ -421,8 +421,8 @@ namespace lipm_walking
     Eigen::Vector2d copAdmittance_ = Eigen::Vector2d::Zero();
     Eigen::Vector3d comStiffness_ = {1000., 1000., 100.}; /**< Stiffness of CoM IK task */
     Eigen::Vector3d dcmAverageError_ = Eigen::Vector3d::Zero();
+    Eigen::Vector3d dcmDerivError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d dcmError_ = Eigen::Vector3d::Zero();
-    Eigen::Vector3d desiredCoMAccel_;
     Eigen::Vector3d measuredCoM_;
     Eigen::Vector3d measuredCoMd_;
     Eigen::Vector3d measuredZMP_;
