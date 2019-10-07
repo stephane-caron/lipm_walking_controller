@@ -111,8 +111,8 @@
       "admittance":
       {
         "com": [0.0, 0.0],
-        "cop": [0.01, 0.01],
-        "dfz": 0.0002
+        "cop": [0.002, 0.005],
+        "dfz": 0.0001
       },
       "com":
       {
@@ -122,8 +122,8 @@
           "LLEG_JOINT0", "LLEG_JOINT1", "LLEG_JOINT2", "LLEG_JOINT3", "LLEG_JOINT4", "LLEG_JOINT5"
         ],
         "height": 0.87,
-        "max_height": 1.0,
-        "min_height": 0.4
+        "max_height": 0.92,
+        "min_height": 0.6
       },
       "sole":
       {
