@@ -100,13 +100,16 @@ namespace lipm_walking
   {
     using namespace mc_rtc::gui;
     gui->addElement(
-      {"Stabilizer", "Gains"},
+      {"Stabilizer", "DCM tracking"},
       Button(
-        "Disable",
+        "Disable stabilizer",
         [this]() { disable(); }),
       Button(
         "Reconfigure",
         [this]() { reconfigure(); }),
+      Button(
+        "Reset DCM integrator",
+        [this]() { dcmIntegrator_.setZero(); }),
       ArrayInput(
         "Foot admittance",
         {"CoPx", "CoPy", "DFz"},
@@ -133,16 +136,40 @@ namespace lipm_walking
           dcmIntegralGain_ = clamp(gains(1), 0., MAX_DCM_I_GAIN);
           dcmDerivGain_ = clamp(gains(2), 0., MAX_DCM_D_GAIN);
         }),
-      ArrayInput(
-        "Vertical drift control",
-        {"frequency", "stiffness", "damping"},
-        [this]() -> Eigen::Vector3d { return {vdcFrequency_, vdcStiffness_, vdcDamping_}; },
-        [this](const Eigen::Vector3d & v)
-        {
-          vdcFrequency_ = clamp(v(0), 0., 10.);
-          vdcStiffness_ = clamp(v(1), 0., 1e4);
-          vdcDamping_ = clamp(v(2), 0., 100.);
-        }),
+      NumberInput(
+        "DCM integrator T [s]",
+        [this]() { return dcmIntegrator_.timeConstant(); },
+        [this](double T) { dcmIntegrator_.timeConstant(T); }),
+      // TODO: put in Extra panel
+      // ArrayInput(
+      //   "Vertical drift control",
+      //   {"frequency", "stiffness", "damping"},
+      //   [this]() -> Eigen::Vector3d { return {vdcFrequency_, vdcStiffness_, vdcDamping_}; },
+      //   [this](const Eigen::Vector3d & v)
+      //   {
+      //     vdcFrequency_ = clamp(v(0), 0., 10.);
+      //     vdcStiffness_ = clamp(v(1), 0., 1e4);
+      //     vdcDamping_ = clamp(v(2), 0., 100.);
+      //   }),
+      ArrayLabel("DCM error [mm]",
+        {"x", "y"},
+        [this]() { return vecFromError(dcmError_); }),
+      // ArrayLabel("DCM avg. error [mm]",
+      //   {"x", "y"},
+      //   [this]() { return vecFromError(dcmAverageError_); }),
+      Label("Foot height diff [mm]",
+        [this]() { return std::round(1000. * vfcZCtrl_); }));
+    gui->addElement(
+      {"Stabilizer", "CoM admittance"},
+      Button(
+        "Disable stabilizer",
+        [this]() { disable(); }),
+      Button(
+        "Reconfigure",
+        [this]() { reconfigure(); }),
+      Button(
+        "Reset CoM integrator",
+        [this]() { zmpccIntegrator_.setZero(); }),
       ArrayInput(
         "CoM admittance",
         {"Ax", "Ay"},
@@ -151,61 +178,18 @@ namespace lipm_walking
         {
           comAdmittance_.x() = clamp(a.x(), 0., MAX_COM_ADMITTANCE);
           comAdmittance_.y() = clamp(a.y(), 0., MAX_COM_ADMITTANCE);
-        }));
-    gui->addElement(
-      {"Stabilizer", "Integrators"},
-      Button(
-        "Reset DCM integrator",
-        [this]() { dcmIntegrator_.setZero(); }),
-      Button(
-        "Reset ZMPCC integrator",
-        [this]() { zmpccIntegrator_.setZero(); }),
-      NumberInput(
-        "DCM integrator T",
-        [this]() { return dcmIntegrator_.timeConstant(); },
-        [this](double T) { dcmIntegrator_.timeConstant(T); }),
+        }),
       Checkbox(
-        "Use ZMPCC only in double support?",
+        "Apply only in double support?",
         [this]() { return zmpccOnlyDS_; },
         [this]() { zmpccOnlyDS_ = !zmpccOnlyDS_; }),
       NumberInput(
-        "ZMPCC leak rate [Hz]",
+        "Integrator leak rate [Hz]",
         [this]() { return zmpccIntegrator_.rate(); },
-        [this](double T) { zmpccIntegrator_.rate(T); }));
-    gui->addElement(
-      {"Stabilizer", "Status"},
-      Label(
-        "Contact state",
-        [this]()
-        {
-          switch (contactState_)
-          {
-            case ContactState::DoubleSupport:
-              return "DoubleSupport";
-            case ContactState::LeftFoot:
-              return "LeftFoot";
-            case ContactState::RightFoot:
-            default:
-              return "RightFoot";
-          }
-        }),
-      ArrayLabel("DCM error [mm]",
-        {"x", "y"},
-        [this]() { return vecFromError(dcmError_); }),
-      ArrayLabel("DCM avg. error [mm]",
-        {"x", "y"},
-        [this]() { return vecFromError(dcmAverageError_); }),
-      ArrayLabel("DCM deriv. [mm]",
-        {"x", "y"},
-        [this]() { return vecFromError(dcmDerivError_); }),
-      ArrayLabel("ZMP error [mm]",
-        {"x", "y"},
-        [this]() { return vecFromError(zmpError_); }),
+        [this](double T) { zmpccIntegrator_.rate(T); }),
       ArrayLabel("CoM offset [mm]",
         {"x", "y"},
-        [this]() { return vecFromError(zmpccCoMOffset_); }),
-      Label("Foot height diff [mm]",
-        [this]() { return std::round(1000. * vfcZCtrl_); }));
+        [this]() { return vecFromError(zmpccCoMOffset_); }));
   }
 
   void Stabilizer::disable()
