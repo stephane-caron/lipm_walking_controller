@@ -35,16 +35,16 @@ namespace lipm_walking
       stabilizer_(controlRobot(), pendulum_, dt)
   {
     auto robotConfig = config("robot_models")(controlRobot().name());
+    auto planConfig = config("plans")(controlRobot().name());
 
     // Patch CoM height and step width in all plans
-    std::vector<std::string> plans = config("plans").keys();
+    std::vector<std::string> plans = planConfig.keys();
     double comHeight = robotConfig("com")("height");
-    double stepWidth = robotConfig("step_width");
     maxCoMHeight_ = robotConfig("com")("max_height");
     minCoMHeight_ = robotConfig("com")("min_height");
     for (const auto & p : plans)
     {
-      auto plan = config("plans")(p);
+      auto plan = planConfig(p);
       if (!plan.has("com_height"))
       {
         plan.add("com_height", comHeight);
@@ -88,7 +88,7 @@ namespace lipm_walking
     }
 
     // Read settings from configuration file
-    plans_ = config("plans");
+    plans_ = planConfig;
     mpcConfig_ = config("mpc");
     sole_ = robotConfig("sole");
     std::string initialPlan = plans_.keys()[0];

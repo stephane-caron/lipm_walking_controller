@@ -14,8 +14,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- More recent versions of copra and mc\_rtc dependencies
+- Footstep plans are now robot-specific
 - Updated CMake configuration
+- Updated copra and mc\_rtc dependencies
 
 ## [v1.1] - 2019/04/15
 
