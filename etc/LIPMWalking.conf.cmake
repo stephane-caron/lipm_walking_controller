@@ -17,12 +17,12 @@
       "ankle_torque": 100.0,
       "pressure": 1.0
     },
-    "lipm_tracking":
+    "dcm_tracking":
     {
-      "dcm_gain": 5.0,
-      "dcm_integral_gain": 20.0,
-      "dcm_integrator_time_constant": 20.0,
-      "zmp_gain": 2.0
+      "prop_gain": 5.0,
+      "integral_gain": 20.0,
+      "integrator_time_constant": 20.0,
+      "deriv_gain": 2.0
     },
     "tasks":
     {
