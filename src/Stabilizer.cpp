@@ -64,6 +64,7 @@ namespace lipm_walking
       });
     logger.addLogEntry("error_dcm", [this]() { return dcmError_; });
     logger.addLogEntry("error_dcmAverage", [this]() { return dcmAverageError_; });
+    logger.addLogEntry("error_dcmDeriv", [this]() { return dcmDerivError_; });
     logger.addLogEntry("error_dfz", [this]() { return logTargetDFz_ - logMeasuredDFz_; });
     logger.addLogEntry("error_sfz", [this]() { return logTargetSTz_ - logMeasuredSTz_; });
     logger.addLogEntry("error_zmp", [this]() { return zmpError_; });
@@ -71,13 +72,13 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_admittance_com", [this]() { return comAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_cop", [this]() { return copAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_dfz", [this]() { return dfzAdmittance_; });
+    logger.addLogEntry("stabilizer_dcmTracking_derivGain", [this]() { return dcmDerivGain_; });
+    logger.addLogEntry("stabilizer_dcmTracking_integralGain", [this]() { return dcmIntegralGain_; });
+    logger.addLogEntry("stabilizer_dcmTracking_integratorTimeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
+    logger.addLogEntry("stabilizer_dcmTracking_propGain", [this]() { return dcmPropGain_; });
     logger.addLogEntry("stabilizer_fdqp_weights_ankleTorque", [this]() { return std::pow(fdqpWeights_.ankleTorqueSqrt, 2); });
     logger.addLogEntry("stabilizer_fdqp_weights_netWrench", [this]() { return std::pow(fdqpWeights_.netWrenchSqrt, 2); });
     logger.addLogEntry("stabilizer_fdqp_weights_pressure", [this]() { return std::pow(fdqpWeights_.pressureSqrt, 2); });
-    logger.addLogEntry("stabilizer_integrator_timeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
-    logger.addLogEntry("stabilizer_dcm_tracking_deriv", [this]() { return dcmDerivGain_; });
-    logger.addLogEntry("stabilizer_dcm_tracking_integral", [this]() { return dcmIntegralGain_; });
-    logger.addLogEntry("stabilizer_dcm_tracking_prop", [this]() { return dcmPropGain_; });
     logger.addLogEntry("stabilizer_vdc_damping", [this]() { return vdcDamping_; });
     logger.addLogEntry("stabilizer_vdc_frequency", [this]() { return vdcFrequency_; });
     logger.addLogEntry("stabilizer_vdc_stiffness", [this]() { return vdcStiffness_; });
@@ -194,6 +195,9 @@ namespace lipm_walking
       ArrayLabel("DCM avg. error [mm]",
         {"x", "y"},
         [this]() { return vecFromError(dcmAverageError_); }),
+      ArrayLabel("DCM deriv. [mm]",
+        {"x", "y"},
+        [this]() { return vecFromError(dcmDerivError_); }),
       ArrayLabel("ZMP error [mm]",
         {"x", "y"},
         [this]() { return vecFromError(zmpError_); }),
@@ -302,6 +306,7 @@ namespace lipm_walking
     Eigen::Vector3d staticForce = -mass_ * world::gravity;
 
     dcmAverageError_ = Eigen::Vector3d::Zero();
+    dcmDerivError_ = Eigen::Vector3d::Zero();
     dcmError_ = Eigen::Vector3d::Zero();
     distribWrench_ = {pendulum_.com().cross(staticForce), staticForce};
     logMeasuredDFz_ = 0.;
@@ -519,6 +524,7 @@ namespace lipm_walking
     zmpError_ = pendulum_.zmp() - measuredZMP_; // XXX: both in same plane?
     dcmError_.z() = 0.;
     zmpError_.z() = 0.;
+    dcmDerivError_ = omega * (dcmError_ - zmpError_);
 
     if (!inTheAir_) // don't accumulate error if robot is in the air
     {
@@ -526,11 +532,11 @@ namespace lipm_walking
       dcmAverageError_ = dcmIntegrator_.eval();
     }
 
-    desiredCoMAccel_ = pendulum_.comdd();
-    desiredCoMAccel_ += omega * (dcmPropGain_ * dcmError_ + comdError);
-    desiredCoMAccel_ += omega * dcmIntegralGain_ * dcmAverageError_;
-    desiredCoMAccel_ += omega * dcmDerivGain_ * omega * (dcmError_ - zmpError_);
-    auto desiredForce = mass_ * (desiredCoMAccel_ - world::gravity);
+    Eigen::Vector3d desiredCoMAccel = pendulum_.comdd();
+    desiredCoMAccel += omega * (dcmPropGain_ * dcmError_ + comdError);
+    desiredCoMAccel += omega * dcmIntegralGain_ * dcmAverageError_;
+    desiredCoMAccel += omega * dcmDerivGain_ * dcmDerivError_;
+    auto desiredForce = mass_ * (desiredCoMAccel - world::gravity);
     return {pendulum_.com().cross(desiredForce), desiredForce};
   }
 

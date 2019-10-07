@@ -22,7 +22,7 @@
       "prop_gain": 5.0,
       "integral_gain": 20.0,
       "integrator_time_constant": 20.0,
-      "deriv_gain": 2.0
+      "deriv_gain": 0.0
     },
     "tasks":
     {
