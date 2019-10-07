@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## Unreleased (will be v1.2)
 
 ### Added
 
@@ -10,11 +10,13 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- ...
+- Initialization of reference pendulum ZMP
+- Stabilizer: formula of proportional term in desired CoM acceleration
 
 ### Changed
 
 - Footstep plans are now robot-specific
+- Removed legacy mass estimation phase
 - Updated CMake configuration
 - Updated copra and mc\_rtc dependencies
 
