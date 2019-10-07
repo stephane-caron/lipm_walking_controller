@@ -75,9 +75,9 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_fdqp_weights_netWrench", [this]() { return std::pow(fdqpWeights_.netWrenchSqrt, 2); });
     logger.addLogEntry("stabilizer_fdqp_weights_pressure", [this]() { return std::pow(fdqpWeights_.pressureSqrt, 2); });
     logger.addLogEntry("stabilizer_integrator_timeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
-    logger.addLogEntry("stabilizer_lipm_tracking_dcm", [this]() { return dcmGain_; });
-    logger.addLogEntry("stabilizer_lipm_tracking_dcmIntegral", [this]() { return dcmIntegralGain_; });
-    logger.addLogEntry("stabilizer_lipm_tracking_zmp", [this]() { return zmpGain_; });
+    logger.addLogEntry("stabilizer_dcm_tracking_deriv", [this]() { return dcmDerivGain_; });
+    logger.addLogEntry("stabilizer_dcm_tracking_integral", [this]() { return dcmIntegralGain_; });
+    logger.addLogEntry("stabilizer_dcm_tracking_prop", [this]() { return dcmPropGain_; });
     logger.addLogEntry("stabilizer_vdc_damping", [this]() { return vdcDamping_; });
     logger.addLogEntry("stabilizer_vdc_frequency", [this]() { return vdcFrequency_; });
     logger.addLogEntry("stabilizer_vdc_stiffness", [this]() { return vdcStiffness_; });
@@ -120,14 +120,17 @@ namespace lipm_walking
           dfzAdmittance_ = clamp(a(2), 0., MAX_DFZ_ADMITTANCE);
         }),
       ArrayInput(
-        "LIPM tracking",
-        {"DCMp", "DCMi", "ZMP"},
-        [this]() -> Eigen::Vector3d { return {dcmGain_, dcmIntegralGain_, zmpGain_}; },
+        "DCM tracking",
+        {"Prop.", "Integral", "Deriv."},
+        [this]() -> Eigen::Vector3d
+        {
+          return {dcmPropGain_, dcmIntegralGain_, dcmDerivGain_};
+        },
         [this](const Eigen::Vector3d & gains)
         {
-          dcmGain_ = clamp(gains(0), 0., MAX_DCM_P_GAIN);
+          dcmPropGain_ = clamp(gains(0), 0., MAX_DCM_P_GAIN);
           dcmIntegralGain_ = clamp(gains(1), 0., MAX_DCM_I_GAIN);
-          zmpGain_ = clamp(gains(2), 0., MAX_ZMP_GAIN);
+          dcmDerivGain_ = clamp(gains(2), 0., MAX_DCM_D_GAIN);
         }),
       ArrayInput(
         "Vertical drift control",
@@ -205,12 +208,12 @@ namespace lipm_walking
   {
     comAdmittance_.setZero();
     copAdmittance_.setZero();
-    dcmGain_ = 0.;
+    dcmDerivGain_ = 0.;
     dcmIntegralGain_ = 0.;
+    dcmPropGain_ = 0.;
     dfzAdmittance_ = 0.;
     vdcFrequency_ = 0.;
     vdcStiffness_ = 0.;
-    zmpGain_ = 0.;
   }
 
   void Stabilizer::configure(const mc_rtc::Configuration & config)
@@ -229,13 +232,13 @@ namespace lipm_walking
       copAdmittance_ = admittance("cop");
       dfzAdmittance_ = admittance("dfz");
     }
-    if (config_.has("lipm_tracking"))
+    if (config_.has("dcm_tracking"))
     {
-      auto lipm = config_("lipm_tracking");
-      dcmGain_ = lipm("dcm_gain");
-      dcmIntegralGain_ = lipm("dcm_integral_gain");
-      dcmIntegrator_.timeConstant(lipm("dcm_integrator_time_constant"));
-      zmpGain_ = lipm("zmp_gain");
+      auto dcmTracking = config_("dcm_tracking");
+      dcmPropGain_ = dcmTracking("prop_gain");
+      dcmIntegralGain_ = dcmTracking("integral_gain");
+      dcmIntegrator_.timeConstant(dcmTracking("integrator_time_constant"));
+      dcmDerivGain_ = dcmTracking("deriv_gain");
     }
     if (config_.has("tasks"))
     {
@@ -318,10 +321,10 @@ namespace lipm_walking
     clampInPlace(comAdmittance_.y(), 0., MAX_COM_ADMITTANCE, "CoM y-admittance");
     clampInPlace(copAdmittance_.x(), 0., MAX_COP_ADMITTANCE, "CoP x-admittance");
     clampInPlace(copAdmittance_.y(), 0., MAX_COP_ADMITTANCE, "CoP y-admittance");
-    clampInPlace(dcmGain_, 0., MAX_DCM_P_GAIN, "DCM x-gain");
+    clampInPlace(dcmDerivGain_, 0., MAX_DCM_D_GAIN, "DCM deriv x-gain");
     clampInPlace(dcmIntegralGain_, 0., MAX_DCM_I_GAIN, "DCM integral x-gain");
+    clampInPlace(dcmPropGain_, 0., MAX_DCM_P_GAIN, "DCM prop x-gain");
     clampInPlace(dfzAdmittance_, 0., MAX_DFZ_ADMITTANCE, "DFz admittance");
-    clampInPlace(zmpGain_, 0., MAX_ZMP_GAIN, "ZMP x-gain");
   }
 
   void Stabilizer::addTasks(mc_solver::QPSolver & solver)
@@ -512,7 +515,7 @@ namespace lipm_walking
     double omega = pendulum_.omega();
     Eigen::Vector3d comError = pendulum_.com() - measuredCoM_;
     Eigen::Vector3d comdError = pendulum_.comd() - measuredCoMd_;
-    dcmError_ = comdError + omega * comError;
+    dcmError_ = comError + comdError / omega;
     zmpError_ = pendulum_.zmp() - measuredZMP_; // XXX: both in same plane?
     dcmError_.z() = 0.;
     zmpError_.z() = 0.;
@@ -524,9 +527,9 @@ namespace lipm_walking
     }
 
     desiredCoMAccel_ = pendulum_.comdd();
-    desiredCoMAccel_ += dcmGain_ * dcmError_ + omega * comdError;
-    desiredCoMAccel_ += dcmIntegralGain_ * dcmAverageError_;
-    desiredCoMAccel_ -= zmpGain_ * zmpError_;
+    desiredCoMAccel_ += omega * (dcmPropGain_ * dcmError_ + comdError);
+    desiredCoMAccel_ += omega * dcmIntegralGain_ * dcmAverageError_;
+    desiredCoMAccel_ += omega * dcmDerivGain_ * omega * (dcmError_ - zmpError_);
     auto desiredForce = mass_ * (desiredCoMAccel_ - world::gravity);
     return {pendulum_.com().cross(desiredForce), desiredForce};
   }

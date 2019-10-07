@@ -57,10 +57,10 @@ namespace lipm_walking
     /* Maximum gains for HRP4LIRMM in standing static equilibrium. */
     static constexpr double MAX_COM_ADMITTANCE = 20;
     static constexpr double MAX_COP_ADMITTANCE = 0.1;
+    static constexpr double MAX_DCM_D_GAIN = 10.;
     static constexpr double MAX_DCM_I_GAIN = 30.;
     static constexpr double MAX_DCM_P_GAIN = 10.;
     static constexpr double MAX_DFZ_ADMITTANCE = 5e-4;
-    static constexpr double MAX_ZMP_GAIN = 20.;
 
     /* Avoid low-pressure targets too close to contact switches */
     static constexpr double MIN_DS_PRESSURE = 15.; // [N]
@@ -440,8 +440,9 @@ namespace lipm_walking
     const mc_rbdyn::Robot & controlRobot_; /**< Control robot model (input to joint position controllers) */
     double comWeight_ = 1000.; /**< Weight of CoM IK task */
     double contactWeight_ = 100000.; /**< Weight of contact IK tasks */
-    double dcmGain_ = 1.; /**< Proportional gain on DCM error */
+    double dcmDerivGain_ = 0.; /**< Derivative gain on DCM error */
     double dcmIntegralGain_ = 5.; /**< Integral gain on DCM error */
+    double dcmPropGain_ = 1.; /**< Proportional gain on DCM error */
     double dfzAdmittance_ = 1e-4; /**< Admittance for vertical foot force control */
     double dt_ = 0.005; /**< Controller cycle in [s] */
     double leftFootRatio_ = 0.5;
@@ -458,7 +459,6 @@ namespace lipm_walking
     double vdcStiffness_ = 1000.; /**< Vertical Drift Compensation stiffness */
     double vdcZPos_ = 0.;
     double vfcZCtrl_ = 0.;
-    double zmpGain_ = 1.; /**< Gain on ZMP error */
     mc_rtc::Configuration config_; /**< Stabilizer configuration dictionary */
     std::vector<std::string> comActiveJoints_; /**< Joints used by CoM IK task */
     sva::ForceVecd distribWrench_ = sva::ForceVecd::Zero();
