@@ -100,7 +100,7 @@ namespace lipm_walking
      */
     void updateInitialTransform(const sva::PTransformd & X_0_lf, const sva::PTransformd & X_0_rf, double initHeight);
 
-    /** Default CoM height.
+    /** Default CoM height above ground contact.
      *
      */
     double comHeight() const
@@ -108,14 +108,12 @@ namespace lipm_walking
       return comHeight_;
     }
 
-    /** Set default CoM height.
+    /** Set default CoM height above ground contact.
      *
      */
     void comHeight(double height)
     {
-      constexpr double MIN_COM_HEIGHT = 0.7; // [m]
-      constexpr double MAX_COM_HEIGHT = 0.85; // [m]
-      comHeight_ = clamp(height, MIN_COM_HEIGHT, MAX_COM_HEIGHT);
+      comHeight_ = clamp(height, 0., 2.);
     }
 
     /** Reference to list of contacts.
@@ -390,7 +388,7 @@ namespace lipm_walking
     Contact supportContact_;
     Contact targetContact_;
     Eigen::Vector3d takeoffOffset_ = Eigen::Vector3d::Zero(); // [m]
-    double comHeight_ = 0.78; // [m]
+    double comHeight_ = 0.8; // [m]
     double doubleSupportDuration_ = 0.2; // [s]
     double finalDSPDuration_ = 0.3; // [s]
     double initDSPDuration_ = 0.6; // [s]
