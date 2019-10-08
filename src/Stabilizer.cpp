@@ -477,9 +477,7 @@ namespace lipm_walking
         break;
     }
 
-    //updateCoMZMPCC();
-    //updateCoMAccelZMPCC();
-    updateCoMZMPCC();
+    updateCoMTaskZMPCC();
 
     updateFootForceDifferenceControl();
 
@@ -681,34 +679,7 @@ namespace lipm_walking
     distribWrench_ = w_0;
   }
 
-  // void Stabilizer::updateCoMPosZMPCC()
-  // {
-  //   auto refForce = mass_ * (pendulum_.comdd() - world::gravity);
-  //   sva::ForceVecd refWrench = {pendulum_.com().cross(refForce), refForce};
-  //   auto refZMP = computeZMP(refWrench);
-  //   auto zmpccError = refZMP - measuredZMP_;
-  //   constexpr double T = 0.1;
-  //   Eigen::Vector3d comAdmittance = {comAdmittance_.x(), comAdmittance_.y(), 0.};
-  //   auto offsetVel = -comAdmittance.cwiseProduct(zmpccError) - zmpccPosOffset / T;
-  //   zmpccPosOffset += offsetVel * dt_;
-  //   comTask->com(pendulum_.com() + zmpccPosOffset);
-  //   comTask->refVel(pendulum_.comd());
-  //   comTask->refAccel(pendulum_.comdd());
-  // }
-
-  // void Stabilizer::updateCoMAccelZMPCC()
-  // {
-  //   //auto zmpccError = pendulum_.zmp() - measuredZMP_; // nope
-  //   auto distribZMP = computeZMP(distribWrench_);
-  //   zmpccError_ = distribZMP - measuredZMP_; // yes!
-  //   Eigen::Vector3d comAdmittance = {comAdmittance_.x(), comAdmittance_.y(), 0.};
-  //   zmpccCoMAccel_ = -comAdmittance.cwiseProduct(zmpccError_);
-  //   comTask->com(pendulum_.com());
-  //   comTask->refVel(pendulum_.comd());
-  //   comTask->refAccel(pendulum_.comdd() + zmpccCoMAccel_);
-  // }
-
-  void Stabilizer::updateCoMZMPCC()
+  void Stabilizer::updateCoMTaskZMPCC()
   {
     if (zmpccOnlyDS_ && contactState_ != ContactState::DoubleSupport)
     {
