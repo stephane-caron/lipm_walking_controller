@@ -46,7 +46,6 @@
     "vdc":
     {
       "frequency": 1.0,
-      "damping": 0.0,
       "stiffness": 1000.0
     },
     "zmpcc":
@@ -85,7 +84,8 @@
         // by 0.005 to obtain the latter.
         "com": [0.1, 0.5],
         "cop": [0.01, 0.01],
-        "dfz": 0.0001
+        "dfz": 0.0001,
+        "dfz_damping": 0.0
       },
       "com":
       {
@@ -112,7 +112,8 @@
       {
         "com": [0.0, 0.0],
         "cop": [0.002, 0.005],
-        "dfz": 0.0001
+        "dfz": 0.0001,
+        "dfz_damping": 0.0
       },
       "com":
       {

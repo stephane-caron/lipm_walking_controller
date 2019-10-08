@@ -66,7 +66,7 @@ namespace lipm_walking
     logger.addLogEntry("error_dcmAverage", [this]() { return dcmAverageError_; });
     logger.addLogEntry("error_dcmDeriv", [this]() { return dcmDerivError_; });
     logger.addLogEntry("error_dfz", [this]() { return logTargetDFz_ - logMeasuredDFz_; });
-    logger.addLogEntry("error_sfz", [this]() { return logTargetSTz_ - logMeasuredSTz_; });
+    logger.addLogEntry("error_vdc", [this]() { return logTargetSTz_ - logMeasuredSTz_; });
     logger.addLogEntry("error_zmp", [this]() { return zmpError_; });
     logger.addLogEntry("perf_Stabilizer", [this]() { return runTime_; });
     logger.addLogEntry("stabilizer_admittance_com", [this]() { return comAdmittance_; });
@@ -76,18 +76,17 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_dcmTracking_integralGain", [this]() { return dcmIntegralGain_; });
     logger.addLogEntry("stabilizer_dcmTracking_integratorTimeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
     logger.addLogEntry("stabilizer_dcmTracking_propGain", [this]() { return dcmPropGain_; });
+    logger.addLogEntry("stabilizer_dfz_damping", [this]() { return dfzDamping_; });
+    logger.addLogEntry("stabilizer_dfz_measured", [this]() { return logMeasuredDFz_; });
+    logger.addLogEntry("stabilizer_dfz_target", [this]() { return logTargetDFz_; });
+    logger.addLogEntry("stabilizer_dfz_heightDiff", [this]() { return dfzHeightDiff_; });
     logger.addLogEntry("stabilizer_fdqp_weights_ankleTorque", [this]() { return std::pow(fdqpWeights_.ankleTorqueSqrt, 2); });
     logger.addLogEntry("stabilizer_fdqp_weights_netWrench", [this]() { return std::pow(fdqpWeights_.netWrenchSqrt, 2); });
     logger.addLogEntry("stabilizer_fdqp_weights_pressure", [this]() { return std::pow(fdqpWeights_.pressureSqrt, 2); });
-    logger.addLogEntry("stabilizer_vdc_damping", [this]() { return vdcDamping_; });
     logger.addLogEntry("stabilizer_vdc_frequency", [this]() { return vdcFrequency_; });
     logger.addLogEntry("stabilizer_vdc_stiffness", [this]() { return vdcStiffness_; });
-    logger.addLogEntry("stabilizer_vdc_z_pos", [this]() { return vdcZPos_; });
-    logger.addLogEntry("stabilizer_vfc_dfz_measured", [this]() { return logMeasuredDFz_; });
-    logger.addLogEntry("stabilizer_vfc_dfz_target", [this]() { return logTargetDFz_; });
     logger.addLogEntry("stabilizer_vfc_stz_measured", [this]() { return logMeasuredSTz_; });
     logger.addLogEntry("stabilizer_vfc_stz_target", [this]() { return logTargetSTz_; });
-    logger.addLogEntry("stabilizer_vfc_z_ctrl", [this]() { return vfcZCtrl_; });
     logger.addLogEntry("stabilizer_zmp", [this]() { return zmp(); });
     logger.addLogEntry("stabilizer_zmpcc_comAccel", [this]() { return zmpccCoMAccel_; });
     logger.addLogEntry("stabilizer_zmpcc_comOffset", [this]() { return zmpccCoMOffset_; });
@@ -112,16 +111,27 @@ namespace lipm_walking
         [this]() { dcmIntegrator_.setZero(); }),
       ArrayInput(
         "Foot admittance",
-        {"CoPx", "CoPy", "DFz"},
-        [this]() -> Eigen::Vector3d
+        {"CoPx", "CoPy"},
+        [this]() -> Eigen::Vector2d
         {
-          return {copAdmittance_.x(), copAdmittance_.y(), dfzAdmittance_};
+          return {copAdmittance_.x(), copAdmittance_.y()};
         },
-        [this](const Eigen::Vector3d & a)
+        [this](const Eigen::Vector2d & a)
         {
           copAdmittance_.x() = clamp(a(0), 0., MAX_COP_ADMITTANCE);
           copAdmittance_.y() = clamp(a(1), 0., MAX_COP_ADMITTANCE);
-          dfzAdmittance_ = clamp(a(2), 0., MAX_DFZ_ADMITTANCE);
+        }),
+      ArrayInput(
+        "Foot force diff. control",
+        {"Admittance", "Damping"},
+        [this]() -> Eigen::Vector2d
+        {
+          return {dfzAdmittance_, dfzDamping_};
+        },
+        [this](const Eigen::Vector2d & a)
+        {
+          dfzAdmittance_ = clamp(a(0), 0., MAX_DFZ_ADMITTANCE);
+          dfzDamping_ = clamp(a(1), 0., MAX_DFZ_DAMPING);
         }),
       ArrayInput(
         "DCM tracking",
@@ -158,7 +168,7 @@ namespace lipm_walking
       //   {"x", "y"},
       //   [this]() { return vecFromError(dcmAverageError_); }),
       Label("Foot height diff [mm]",
-        [this]() { return std::round(1000. * vfcZCtrl_); }));
+        [this]() { return std::round(1000. * dfzHeightDiff_); }));
     gui->addElement(
       {"Stabilizer", "CoM admittance"},
       Button(
@@ -219,6 +229,7 @@ namespace lipm_walking
       comAdmittance_ = admittance("com");
       copAdmittance_ = admittance("cop");
       dfzAdmittance_ = admittance("dfz");
+      dfzDamping_ = admittance("dfz_damping");
     }
     if (config_.has("dcm_tracking"))
     {
@@ -255,7 +266,6 @@ namespace lipm_walking
     if (config_.has("vdc"))
     {
       auto vdc = config_("vdc");
-      vdcDamping_ = vdc("damping");
       vdcFrequency_ = vdc("frequency");
       vdcStiffness_ = vdc("stiffness");
     }
@@ -716,13 +726,12 @@ namespace lipm_walking
 
       double LTz = leftFootTask->surfacePose().translation().z();
       double RTz = rightFootTask->surfacePose().translation().z();
-      vfcZCtrl_ = RTz - LTz;
-      dz_ctrl -= vdcDamping_ * vfcZCtrl_;
+      dfzHeightDiff_ = RTz - LTz;
+      dz_ctrl -= dfzDamping_ * dfzHeightDiff_;
 
       double LTz_d = leftFootTask->targetPose().translation().z();
       double RTz_d = rightFootTask->targetPose().translation().z();
       double dz_pos = vdcFrequency_ * ((LTz_d + RTz_d) - (LTz + RTz));
-      vdcZPos_ = RTz + LTz;
 
       sva::MotionVecd velF = {{0., 0., 0.}, {0., 0., dz_ctrl}};
       sva::MotionVecd velT = {{0., 0., 0.}, {0., 0., dz_pos}};
@@ -743,8 +752,7 @@ namespace lipm_walking
       logMeasuredSTz_ = 0.;
       logTargetDFz_ = 0.;
       logTargetSTz_ = 0.;
-      vdcZPos_ = 0.;
-      vfcZCtrl_ = 0.;
+      dfzHeightDiff_ = 0.;
     }
   }
 }
