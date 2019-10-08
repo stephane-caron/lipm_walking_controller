@@ -22,7 +22,7 @@
 #include <mc_rbdyn/rpy_utils.h>
 
 #include <lipm_walking/SwingFoot.h>
-#include <lipm_walking/utils/rotations.h>
+#include <lipm_walking/utils/slerp.h>
 
 namespace lipm_walking
 {

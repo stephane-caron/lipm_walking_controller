@@ -44,8 +44,6 @@
 #include <lipm_walking/Stabilizer.h>
 #include <lipm_walking/defs.h>
 #include <lipm_walking/utils/LowPassVelocityFilter.h>
-#include <lipm_walking/utils/clamp.h>
-#include <lipm_walking/utils/rotations.h>
 
 namespace lipm_walking
 {
