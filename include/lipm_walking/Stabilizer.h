@@ -323,20 +323,6 @@ namespace lipm_walking
      */
     void setSupportFootGains();
 
-    /** Simplest CoM control law: no feedback.
-     *
-     */
-    //void updateCoMOpenLoop();
-
-    /** Send desired net force after QP distribution.
-     *
-     * This approach is e.g. found in "Walking on Partial Footholds Including
-     * Line Contacts with the Humanoid Robot Atlas" (Wiedebach et al.,
-     * Humanoids 2016).
-     *
-     */
-    //void updateCoMDistribForce();
-
     /** CoM compliance control.
      *
      * This approach is e.g. found in "Stabilization for the compliant humanoid

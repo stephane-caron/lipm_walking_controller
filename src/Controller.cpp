@@ -486,8 +486,6 @@ namespace lipm_walking
 
     comVelFilter_.reset(controlCom_);
     pendulum_.reset(controlCom_);
-    //realCom_ = controlCom_; // set by updateRealFromKinematics()
-    //realComd_ = Eigen::Vector3d::Zero(); // idem
 
     // (5) reset floating-base observers
     floatingBaseObs_.reset(controlRobot().posW());

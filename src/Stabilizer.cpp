@@ -477,8 +477,6 @@ namespace lipm_walking
         break;
     }
 
-    //updateCoMOpenLoop();
-    //updateCoMDistribForce();
     //updateCoMComplianceControl();
     //updateCoMForceTracking();
     //updateCoMZMPCC();
@@ -684,19 +682,6 @@ namespace lipm_walking
     footTask->targetForce(w_c.force());
     distribWrench_ = w_0;
   }
-
-  // void Stabilizer::updateCoMOpenLoop()
-  // {
-  //   comTask->com(pendulum_.com());
-  //   comTask->refVel(pendulum_.comd());
-  //   comTask->refAccel(pendulum_.comdd());
-  // }
-
-  // void Stabilizer::updateCoMDistribForce()
-  // {
-  //   comTask->setGains(0., 0.);
-  //   comTask->refAccel(distribWrench_.force() / mass_ + world::gravity);
-  // }
 
   // void Stabilizer::updateCoMComplianceControl()
   // {
