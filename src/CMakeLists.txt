@@ -40,7 +40,6 @@ set(CONTROLLER_HDR
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/State.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/SwingFoot.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/defs.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/AvgStdEstimator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/ExponentialMovingAverage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/LeakyIntegrator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/LowPassVelocityFilter.h
