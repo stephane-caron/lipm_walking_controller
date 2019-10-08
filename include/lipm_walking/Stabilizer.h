@@ -74,12 +74,12 @@ namespace lipm_walking
      *
      * \param robot Robot model.
      *
-     * \param ref CoM state reference placeholder.
+     * \param pendulum CoM state reference placeholder.
      *
      * \param dt Controller timestep.
      *
      */
-    Stabilizer(const mc_rbdyn::Robot & robot, const Pendulum & ref, double dt);
+    Stabilizer(const mc_rbdyn::Robot & robot, const Pendulum & pendulum, double dt);
 
     /** Add GUI panel.
      *

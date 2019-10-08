@@ -28,6 +28,8 @@
 template <typename T>
 struct LowPassVelocityFilter
 {
+  static constexpr double MIN_CUTOFF_PERIOD = 0.01; // [s]
+
   /** Constructor.
    *
    * \param dt Sampling period.
@@ -68,6 +70,7 @@ struct LowPassVelocityFilter
    */
   void cutoffPeriod(double period)
   {
+    period = std::max(period, MIN_CUTOFF_PERIOD);
     cutoffPeriod_ = period;
   }
 
