@@ -660,9 +660,7 @@ namespace lipm_walking
     bu.setConstant(NB_VAR + NB_CONS, +1e5);
     bu.tail<NB_CONS>().setZero();
 
-    //Eigen::MatrixXd A0 = A; // A is modified by solve()
-    //Eigen::VectorXd b0 = b; // b is modified by solve()
-    wrenchSolver_.solve(A, b, C, bl, bu);
+    wrenchSolver_.solve(A, b, C, bl, bu); // A and b are modified by solve()
     Eigen::VectorXd x = wrenchSolver_.result();
     if (wrenchSolver_.inform() != Eigen::lssol::eStatus::STRONG_MINIMUM)
     {

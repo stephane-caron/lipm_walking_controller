@@ -152,7 +152,7 @@ namespace lipm_walking
     }
     for (long i = 0; i <= NB_STEPS; i++)
     {
-      // NB: SSP constraint is enforced at the very first step of DSP
+      // SSP constraint is enforced at the very first step of DSP
       if (i < nbInitSupportSteps_ || (0 < i && i == nbInitSupportSteps_))
       {
         indexToHrep_[i] = 0;
