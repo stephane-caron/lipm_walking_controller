@@ -323,33 +323,17 @@ namespace lipm_walking
      */
     void setSupportFootGains();
 
-    /** ZMP Compensation Control.
-     *
-     * This implementation is based on
-     * "体幹位置コンプライアンス制御によるモデル誤差吸収" (Section 6.2.2 of
-     * Nagasaka's PhD thesis, 1999), available from
-     * <https://sites.google.com/site/humanoidchannel/home/publication>.
-     *
-     */
-    //void updateCoMPosZMPCC();
-
-    /** ZMP Compensation Control applied after ZMP distribution.
-     *
-     * Same approach as Nagasaka's ZMPCC but (1) implemented as CoM
-     * acceleration reference sent to the inverse kinematics and (2) applied to
-     * the distributed ZMP.
-     *
-     */
-    //void updateCoMAccelZMPCC();
-
     /** Update CoM task with ZMP Compensation Control.
      *
-     * Same approach as Nagasaka's ZMPCC but (1) implemented as CoM damping
-     * control with an internal leaky integrator and (2) applied to the
-     * distributed ZMP.
+     * This approach is based on Section 6.2.2 of Dr Nagasaka's PhD thesis
+     * "体幹位置コンプライアンス制御によるモデル誤差吸収" (1999) from
+     * <https://sites.google.com/site/humanoidchannel/home/publication>.
+     * The main differences is that the CoM offset is (1) implemented as CoM
+     * damping control with an internal leaky integrator and (2) computed from
+     * the distributed rather than reference ZMP.
      *
      */
-    void updateCoMZMPCC();
+    void updateCoMTaskZMPCC();
 
     /** Apply foot pressure difference control.
      *
