@@ -11,18 +11,19 @@
   },
   "stabilizer":
   {
-    "fdqp_weights":
-    {
-      "net_wrench": 10000.0,
-      "ankle_torque": 100.0,
-      "pressure": 1.0
-    },
     "dcm_tracking":
     {
       "prop_gain": 5.0,
       "integral_gain": 20.0,
       "integrator_time_constant": 20.0,
-      "deriv_gain": 0.0
+      "deriv_gain": 0.0,
+      "derivator_cutoff_period": 0.1
+    },
+    "fdqp_weights":
+    {
+      "net_wrench": 10000.0,
+      "ankle_torque": 100.0,
+      "pressure": 1.0
     },
     "tasks":
     {

@@ -25,12 +25,13 @@
 #include <mc_tasks/CoMTask.h>
 #include <mc_tasks/CoPTask.h>
 
-#include <lipm_walking/Pendulum.h>
 #include <lipm_walking/Contact.h>
+#include <lipm_walking/Pendulum.h>
 #include <lipm_walking/Sole.h>
 #include <lipm_walking/defs.h>
 #include <lipm_walking/utils/ExponentialMovingAverage.h>
 #include <lipm_walking/utils/LeakyIntegrator.h>
+#include <lipm_walking/utils/LowPassVelocityFilter.h>
 #include <lipm_walking/utils/rotations.h>
 
 namespace lipm_walking
@@ -54,7 +55,7 @@ namespace lipm_walking
     static constexpr double MAX_FDC_RY_VEL = 0.2; // [rad] / [s]
     static constexpr double MAX_FDC_RZ_VEL = 0.2; // [rad] / [s]
 
-    /* Maximum gains for HRP4LIRMM in standing static equilibrium. */
+    /* Maximum gains in standing static equilibrium. */
     static constexpr double MAX_COM_ADMITTANCE = 20;
     static constexpr double MAX_COP_ADMITTANCE = 0.1;
     static constexpr double MAX_DCM_D_GAIN = 10.;
@@ -373,8 +374,9 @@ namespace lipm_walking
     Eigen::Vector2d copAdmittance_ = Eigen::Vector2d::Zero();
     Eigen::Vector3d comStiffness_ = {1000., 1000., 100.}; /**< Stiffness of CoM IK task */
     Eigen::Vector3d dcmAverageError_ = Eigen::Vector3d::Zero();
-    Eigen::Vector3d dcmDerivError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d dcmError_ = Eigen::Vector3d::Zero();
+    Eigen::Vector3d dcmModelVelError_ = Eigen::Vector3d::Zero();
+    Eigen::Vector3d dcmVelError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d measuredCoM_;
     Eigen::Vector3d measuredCoMd_;
     Eigen::Vector3d measuredZMP_;
@@ -386,7 +388,9 @@ namespace lipm_walking
     ExponentialMovingAverage dcmIntegrator_;
     FDQPWeights fdqpWeights_;
     LeakyIntegrator zmpccIntegrator_;
+    LowPassVelocityFilter<Eigen::Vector3d> dcmDerivator_;
     bool inTheAir_ = false; /**< Is the robot in the air? */
+    bool useModelDCMDerivator_ = false;
     bool zmpccOnlyDS_ = true;
     const Pendulum & pendulum_; /**< Reference to desired reduced-model state */
     const mc_rbdyn::Robot & controlRobot_; /**< Control robot model (input to joint position controllers) */
