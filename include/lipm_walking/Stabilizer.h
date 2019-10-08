@@ -32,6 +32,7 @@
 #include <lipm_walking/utils/ExponentialMovingAverage.h>
 #include <lipm_walking/utils/LeakyIntegrator.h>
 #include <lipm_walking/utils/LowPassVelocityFilter.h>
+#include <lipm_walking/utils/StationaryOffsetFilter.h>
 
 namespace lipm_walking
 {
@@ -374,7 +375,6 @@ namespace lipm_walking
     Eigen::Vector3d comStiffness_ = {1000., 1000., 100.}; /**< Stiffness of CoM IK task */
     Eigen::Vector3d dcmAverageError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d dcmError_ = Eigen::Vector3d::Zero();
-    Eigen::Vector3d dcmModelVelError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d dcmVelError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d measuredCoM_;
     Eigen::Vector3d measuredCoMd_;
@@ -388,8 +388,9 @@ namespace lipm_walking
     FDQPWeights fdqpWeights_;
     LeakyIntegrator zmpccIntegrator_;
     LowPassVelocityFilter<Eigen::Vector3d> dcmDerivator_;
+    StationaryOffsetFilter dcmDerivatorModel_;
     bool inTheAir_ = false; /**< Is the robot in the air? */
-    bool useModelDCMDerivator_ = false;
+    bool useModelDCMDerivator_ = true;
     bool zmpccOnlyDS_ = true;
     const Pendulum & pendulum_; /**< Reference to desired reduced-model state */
     const mc_rbdyn::Robot & controlRobot_; /**< Control robot model (input to joint position controllers) */
