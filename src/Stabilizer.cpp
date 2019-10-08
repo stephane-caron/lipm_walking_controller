@@ -39,6 +39,7 @@ namespace lipm_walking
   Stabilizer::Stabilizer(const mc_rbdyn::Robot & controlRobot, const Pendulum & pendulum, double dt)
     : dcmIntegrator_(dt, /* timeConstant = */ 5.),
       dcmDerivator_(dt, /* cutoffPeriod = */ 0.01),
+      dcmDerivatorModel_(dt, /* timeConstant = */ 1.),
       pendulum_(pendulum),
       controlRobot_(controlRobot),
       dt_(dt),
@@ -65,7 +66,8 @@ namespace lipm_walking
       });
     logger.addLogEntry("error_dcm_average", [this]() { return dcmAverageError_; });
     logger.addLogEntry("error_dcm_finiteVel", [this]() { return dcmDerivator_.vel(); });
-    logger.addLogEntry("error_dcm_modelVel", [this]() { return dcmModelVelError_; });
+    logger.addLogEntry("error_dcm_modelVel_filtered", [this]() { return dcmDerivatorModel_.eval(); });
+    logger.addLogEntry("error_dcm_modelVel_raw", [this]() { return dcmDerivatorModel_.raw(); });
     logger.addLogEntry("error_dcm_pos", [this]() { return dcmError_; });
     logger.addLogEntry("error_dcm_vel", [this]() { return dcmVelError_; });
     logger.addLogEntry("error_dfz", [this]() { return logTargetDFz_ - logMeasuredDFz_; });
@@ -78,6 +80,7 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_dcmTracking_derivGain", [this]() { return dcmDerivGain_; });
     logger.addLogEntry("stabilizer_dcmTracking_integralGain", [this]() { return dcmIntegralGain_; });
     logger.addLogEntry("stabilizer_dcmTracking_integratorTimeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
+    logger.addLogEntry("stabilizer_dcmTracking_derivatorTimeConstant", [this]() { return dcmDerivatorModel_.timeConstant(); });
     logger.addLogEntry("stabilizer_dcmTracking_propGain", [this]() { return dcmPropGain_; });
     logger.addLogEntry("stabilizer_dfz_damping", [this]() { return dfzDamping_; });
     logger.addLogEntry("stabilizer_dfz_measured", [this]() { return logMeasuredDFz_; });
@@ -155,15 +158,16 @@ namespace lipm_walking
         [this]() { useModelDCMDerivator_ = !useModelDCMDerivator_; }),
       ArrayInput(
         "DCM filters",
-        {"Integrator T [s]", "Derivator T [s]"},
-        [this]() -> Eigen::Vector2d
+        {"Integrator T [s]", "FD Derivator T [s]", "M Derivator T [s]"},
+        [this]() -> Eigen::Vector3d
         {
-          return {dcmIntegrator_.timeConstant(), dcmDerivator_.cutoffPeriod()};
+          return {dcmIntegrator_.timeConstant(), dcmDerivator_.cutoffPeriod(), dcmDerivatorModel_.timeConstant()};
         },
-        [this](const Eigen::Vector2d & T)
+        [this](const Eigen::Vector3d & T)
         {
           dcmIntegrator_.timeConstant(T(0));
           dcmDerivator_.cutoffPeriod(T(1));
+          dcmDerivatorModel_.timeConstant(T(2));
         }));
     gui->addElement(
       {"Stabilizer", "CoM admittance"},
@@ -318,6 +322,7 @@ namespace lipm_walking
     setContact(rightFootTask, rightFootTask->surfacePose());
 
     dcmDerivator_.reset(Eigen::Vector3d::Zero());
+    dcmDerivatorModel_.setZero();
     dcmIntegrator_.saturation(MAX_AVERAGE_DCM_ERROR);
     dcmIntegrator_.setZero();
     zmpccIntegrator_.saturation(MAX_ZMPCC_COM_OFFSET);
@@ -328,7 +333,6 @@ namespace lipm_walking
     dcmAverageError_ = Eigen::Vector3d::Zero();
     dcmVelError_ = Eigen::Vector3d::Zero();
     dcmError_ = Eigen::Vector3d::Zero();
-    dcmModelVelError_ = Eigen::Vector3d::Zero();
     distribWrench_ = {pendulum_.com().cross(staticForce), staticForce};
     logMeasuredDFz_ = 0.;
     logMeasuredSTz_ = 0.;
@@ -546,9 +550,9 @@ namespace lipm_walking
 
     zmpError_ = pendulum_.zmp() - measuredZMP_; // XXX: both in same plane?
     zmpError_.z() = 0.;
-    dcmModelVelError_ = omega * (dcmError_ - zmpError_);
+    dcmDerivatorModel_.update(omega * (dcmError_ - zmpError_));
     dcmDerivator_.update(dcmError_);
-    dcmVelError_ = (useModelDCMDerivator_) ? dcmModelVelError_ : dcmDerivator_.vel();
+    dcmVelError_ = (useModelDCMDerivator_) ? dcmDerivatorModel_.eval() : dcmDerivator_.vel();
 
     Eigen::Vector3d desiredCoMAccel = pendulum_.comdd();
     desiredCoMAccel += omega * (dcmPropGain_ * dcmError_ + comdError);

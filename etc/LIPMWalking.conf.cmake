@@ -14,8 +14,8 @@
     "dcm_tracking":
     {
       "prop_gain": 5.0,
-      "integral_gain": 20.0,
-      "integrator_time_constant": 20.0,
+      "integral_gain": 10.0,
+      "integrator_time_constant": 10.0,
       "deriv_gain": 0.0,
       "derivator_cutoff_period": 0.1
     },
@@ -112,7 +112,7 @@
       "admittance":
       {
         "com": [0.0, 0.0],
-        "cop": [0.002, 0.005],
+        "cop": [0.005, 0.005],
         "dfz": 0.0001,
         "dfz_damping": 0.0
       },
