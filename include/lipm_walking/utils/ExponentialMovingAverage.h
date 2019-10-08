@@ -39,6 +39,8 @@
  */
 struct ExponentialMovingAverage
 {
+  static constexpr double MIN_TIME_CONSTANT = 0.01; // [s]
+
   /** Constructor.
    *
    * \param dt Time in [s] between two readings.
@@ -110,8 +112,8 @@ struct ExponentialMovingAverage
    */
   void timeConstant(double T)
   {
+    T = std::max(T, MIN_TIME_CONSTANT);
     alpha_ = 1. - std::exp(-dt_ / T);
-    //alpha_ = dt_ / T; // valid if dt_ << T
     timeConstant_ = T;
   }
 
