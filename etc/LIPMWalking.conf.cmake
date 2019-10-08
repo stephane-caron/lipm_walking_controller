@@ -16,8 +16,9 @@
       "prop_gain": 5.0,
       "integral_gain": 10.0,
       "integrator_time_constant": 10.0,
-      "deriv_gain": 0.0,
-      "derivator_cutoff_period": 0.1
+      "deriv_gain": 0.5,
+      "derivator_cutoff_period": 0.1,
+      "derivator_time_constant": 1.0
     },
     "fdqp_weights":
     {
