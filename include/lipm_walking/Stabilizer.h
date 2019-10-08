@@ -335,7 +335,7 @@ namespace lipm_walking
      */
     void updateCoMTaskZMPCC();
 
-    /** Apply foot pressure difference control.
+    /** Apply foot force difference control.
      *
      * This method is described in Section III.E of "Biped walking
      * stabilization based on linear inverted pendulum tracking" (Kajita et

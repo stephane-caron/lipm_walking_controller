@@ -21,7 +21,8 @@
 
 #pragma once
 
-/** Low-pass velocity filter from series of position measurements.
+/** Compute velocity by finite difference of position measurements, applying a
+ * low-pass filter to it.
  *
  */
 template <typename T>

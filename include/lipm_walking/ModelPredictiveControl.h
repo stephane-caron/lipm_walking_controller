@@ -177,12 +177,13 @@ namespace lipm_walking
      */
     bool solve();
 
-    /** Set the target CoM height.
+    /** Set CoM height.
+     *
+     * \param height CoM height above contacts.
      *
      */
     void comHeight(double height)
     {
-      comHeight_ = height;
       zeta_ = height / world::GRAVITY;
       double omegaInv = std::sqrt(zeta_);
       dcmFromState_ << 
@@ -229,6 +230,16 @@ namespace lipm_walking
       return solution_;
     }
 
+    /** Get index of inequality constraints
+     *
+     * \param i Timestep in preview horizon.
+     *
+     * \returns hrepIndex Index of corresponding ZMP H-rep.
+     *
+     * \note Inequality constraints are the halfspace representation (H-rep) of
+     * a polyhedron. In this class we call them H-rep for short.
+     *
+     */
     unsigned indexToHrep(unsigned i) const
     {
       return indexToHrep_[i];
@@ -301,15 +312,15 @@ namespace lipm_walking
     void updateZMPCost();
 
   public:
-    Eigen::Vector2d velWeights = {10., 10.};
-    double jerkWeight = 1.;
-    double zmpWeight = 1000.;
+    Eigen::Vector2d velWeights = {10., 10.}; /**< Weights of CoM velocity tracking cost */
+    double jerkWeight = 1.; /**< Weight of CoM jerk regularization cost */
+    double zmpWeight = 1000.; /**< Weight of reference ZMP tracking cost */
 
   private:
     Contact initContact_;
     Contact nextContact_;
     Contact targetContact_;
-    Eigen::HrepXd hreps_[4];
+    Eigen::HrepXd hreps_[4]; /**< ZMP inequality constraints (H-rep) */
     Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1> velRef_;
     Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1> zmpRef_;
     Eigen::Matrix<double, 2 * (NB_STEPS + 1), STATE_SIZE * (NB_STEPS + 1)> velCostMat_;
@@ -318,7 +329,6 @@ namespace lipm_walking
     Eigen::VectorXd initState_;
     copra::SolverFlag solver_ = copra::SolverFlag::QLD;
     double buildAndSolveTime_ = 0.; // [s]
-    double comHeight_;
     double solveTime_ = 0.; // [s]
     double zeta_;
     std::shared_ptr<ModelPredictiveControlSolution> solution_ = nullptr;
@@ -329,7 +339,7 @@ namespace lipm_walking
     std::shared_ptr<copra::TrajectoryConstraint> zmpCons_;
     std::shared_ptr<copra::TrajectoryCost> velCost_;
     std::shared_ptr<copra::TrajectoryCost> zmpCost_;
-    unsigned indexToHrep_[NB_STEPS + 1];
+    unsigned indexToHrep_[NB_STEPS + 1]; /**< Mapping from timestep index to ZMP inequality constraints */
     unsigned nbDoubleSupportSteps_;
     unsigned nbInitSupportSteps_;
     unsigned nbNextDoubleSupportSteps_;
