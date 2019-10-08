@@ -323,15 +323,6 @@ namespace lipm_walking
      */
     void setSupportFootGains();
 
-    /** CoM compliance control.
-     *
-     * This approach is e.g. found in "Stabilization for the compliant humanoid
-     * robot COMAN exploiting intrinsic and controlled compliance" (Li et al.,
-     * ICRA 2012).
-     *
-     */
-    //void updateCoMComplianceControl();
-
     /** CoM acceleration used for additional reaction force tracking.
      *
      * Same idea as ZMPCC but replacing the ZMP with the reaction force.
