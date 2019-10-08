@@ -38,6 +38,7 @@ namespace lipm_walking
 
   Stabilizer::Stabilizer(const mc_rbdyn::Robot & controlRobot, const Pendulum & pendulum, double dt)
     : dcmIntegrator_(dt, /* timeConstant = */ 5.),
+      dcmDerivator_(dt, /* cutoffPeriod = */ 0.01),
       pendulum_(pendulum),
       controlRobot_(controlRobot),
       dt_(dt),
@@ -62,9 +63,11 @@ namespace lipm_walking
             return -3;
         }
       });
-    logger.addLogEntry("error_dcm", [this]() { return dcmError_; });
-    logger.addLogEntry("error_dcmAverage", [this]() { return dcmAverageError_; });
-    logger.addLogEntry("error_dcmDeriv", [this]() { return dcmDerivError_; });
+    logger.addLogEntry("error_dcm_average", [this]() { return dcmAverageError_; });
+    logger.addLogEntry("error_dcm_finiteVel", [this]() { return dcmDerivator_.vel(); });
+    logger.addLogEntry("error_dcm_modelVel", [this]() { return dcmModelVelError_; });
+    logger.addLogEntry("error_dcm_pos", [this]() { return dcmError_; });
+    logger.addLogEntry("error_dcm_vel", [this]() { return dcmVelError_; });
     logger.addLogEntry("error_dfz", [this]() { return logTargetDFz_ - logMeasuredDFz_; });
     logger.addLogEntry("error_vdc", [this]() { return logTargetSTz_ - logMeasuredSTz_; });
     logger.addLogEntry("error_zmp", [this]() { return zmpError_; });
@@ -146,29 +149,22 @@ namespace lipm_walking
           dcmIntegralGain_ = clamp(gains(1), 0., MAX_DCM_I_GAIN);
           dcmDerivGain_ = clamp(gains(2), 0., MAX_DCM_D_GAIN);
         }),
-      NumberInput(
-        "DCM integrator T [s]",
-        [this]() { return dcmIntegrator_.timeConstant(); },
-        [this](double T) { dcmIntegrator_.timeConstant(T); }),
-      // TODO: put in Extra panel
-      // ArrayInput(
-      //   "Vertical drift control",
-      //   {"frequency", "stiffness", "damping"},
-      //   [this]() -> Eigen::Vector3d { return {vdcFrequency_, vdcStiffness_, vdcDamping_}; },
-      //   [this](const Eigen::Vector3d & v)
-      //   {
-      //     vdcFrequency_ = clamp(v(0), 0., 10.);
-      //     vdcStiffness_ = clamp(v(1), 0., 1e4);
-      //     vdcDamping_ = clamp(v(2), 0., 100.);
-      //   }),
-      ArrayLabel("DCM error [mm]",
-        {"x", "y"},
-        [this]() { return vecFromError(dcmError_); }),
-      // ArrayLabel("DCM avg. error [mm]",
-      //   {"x", "y"},
-      //   [this]() { return vecFromError(dcmAverageError_); }),
-      Label("Foot height diff [mm]",
-        [this]() { return std::round(1000. * dfzHeightDiff_); }));
+      Checkbox(
+        "Use model DCM derivator?",
+        [this]() { return useModelDCMDerivator_; },
+        [this]() { useModelDCMDerivator_ = !useModelDCMDerivator_; }),
+      ArrayInput(
+        "DCM filters",
+        {"Integrator T [s]", "Derivator T [s]"},
+        [this]() -> Eigen::Vector2d
+        {
+          return {dcmIntegrator_.timeConstant(), dcmDerivator_.cutoffPeriod()};
+        },
+        [this](const Eigen::Vector2d & T)
+        {
+          dcmIntegrator_.timeConstant(T(0));
+          dcmDerivator_.cutoffPeriod(T(1));
+        }));
     gui->addElement(
       {"Stabilizer", "CoM admittance"},
       Button(
@@ -196,10 +192,38 @@ namespace lipm_walking
       NumberInput(
         "Integrator leak rate [Hz]",
         [this]() { return zmpccIntegrator_.rate(); },
-        [this](double T) { zmpccIntegrator_.rate(T); }),
+        [this](double T) { zmpccIntegrator_.rate(T); }));
+    gui->addElement(
+      {"Stabilizer", "Misc"},
+      Button(
+        "Disable stabilizer",
+        [this]() { disable(); }),
+      Button(
+        "Reconfigure",
+        [this]() { reconfigure(); }),
+      ArrayInput(
+        "Vertical drift control",
+        {"frequency", "stiffness"},
+        [this]() -> Eigen::Vector2d
+        {
+          return {vdcFrequency_, vdcStiffness_};
+        },
+        [this](const Eigen::Vector2d & v)
+        {
+          vdcFrequency_ = clamp(v(0), 0., 10.);
+          vdcStiffness_ = clamp(v(1), 0., 1e4);
+        }),
       ArrayLabel("CoM offset [mm]",
         {"x", "y"},
-        [this]() { return vecFromError(zmpccCoMOffset_); }));
+        [this]() { return vecFromError(zmpccCoMOffset_); }),
+      ArrayLabel("DCM avg. error [mm]",
+        {"x", "y"},
+        [this]() { return vecFromError(dcmAverageError_); }),
+      ArrayLabel("DCM error [mm]",
+        {"x", "y"},
+        [this]() { return vecFromError(dcmError_); }),
+      Label("Foot height diff [mm]",
+        [this]() { return std::round(1000. * dfzHeightDiff_); }));
   }
 
   void Stabilizer::disable()
@@ -237,6 +261,7 @@ namespace lipm_walking
       dcmPropGain_ = dcmTracking("prop_gain");
       dcmIntegralGain_ = dcmTracking("integral_gain");
       dcmIntegrator_.timeConstant(dcmTracking("integrator_time_constant"));
+      dcmDerivator_.cutoffPeriod(dcmTracking("derivator_cutoff_period"));
       dcmDerivGain_ = dcmTracking("deriv_gain");
     }
     if (config_.has("tasks"))
@@ -292,16 +317,18 @@ namespace lipm_walking
     setContact(leftFootTask, leftFootTask->surfacePose());
     setContact(rightFootTask, rightFootTask->surfacePose());
 
-    dcmIntegrator_.setZero();
+    dcmDerivator_.reset(Eigen::Vector3d::Zero());
     dcmIntegrator_.saturation(MAX_AVERAGE_DCM_ERROR);
-    zmpccIntegrator_.setZero();
+    dcmIntegrator_.setZero();
     zmpccIntegrator_.saturation(MAX_ZMPCC_COM_OFFSET);
+    zmpccIntegrator_.setZero();
 
     Eigen::Vector3d staticForce = -mass_ * world::gravity;
 
     dcmAverageError_ = Eigen::Vector3d::Zero();
-    dcmDerivError_ = Eigen::Vector3d::Zero();
+    dcmVelError_ = Eigen::Vector3d::Zero();
     dcmError_ = Eigen::Vector3d::Zero();
+    dcmModelVelError_ = Eigen::Vector3d::Zero();
     distribWrench_ = {pendulum_.com().cross(staticForce), staticForce};
     logMeasuredDFz_ = 0.;
     logMeasuredSTz_ = 0.;
@@ -509,10 +536,7 @@ namespace lipm_walking
     Eigen::Vector3d comError = pendulum_.com() - measuredCoM_;
     Eigen::Vector3d comdError = pendulum_.comd() - measuredCoMd_;
     dcmError_ = comError + comdError / omega;
-    zmpError_ = pendulum_.zmp() - measuredZMP_; // XXX: both in same plane?
     dcmError_.z() = 0.;
-    zmpError_.z() = 0.;
-    dcmDerivError_ = omega * (dcmError_ - zmpError_);
 
     if (!inTheAir_) // don't accumulate error if robot is in the air
     {
@@ -520,10 +544,16 @@ namespace lipm_walking
       dcmAverageError_ = dcmIntegrator_.eval();
     }
 
+    zmpError_ = pendulum_.zmp() - measuredZMP_; // XXX: both in same plane?
+    zmpError_.z() = 0.;
+    dcmModelVelError_ = omega * (dcmError_ - zmpError_);
+    dcmDerivator_.update(dcmError_);
+    dcmVelError_ = (useModelDCMDerivator_) ? dcmModelVelError_ : dcmDerivator_.vel();
+
     Eigen::Vector3d desiredCoMAccel = pendulum_.comdd();
     desiredCoMAccel += omega * (dcmPropGain_ * dcmError_ + comdError);
     desiredCoMAccel += omega * dcmIntegralGain_ * dcmAverageError_;
-    desiredCoMAccel += omega * dcmDerivGain_ * dcmDerivError_;
+    desiredCoMAccel += omega * dcmDerivGain_ * dcmVelError_;
     auto desiredForce = mass_ * (desiredCoMAccel - world::gravity);
     return {pendulum_.com().cross(desiredForce), desiredForce};
   }
