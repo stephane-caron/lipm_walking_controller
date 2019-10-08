@@ -266,6 +266,7 @@ namespace lipm_walking
       dcmIntegralGain_ = dcmTracking("integral_gain");
       dcmIntegrator_.timeConstant(dcmTracking("integrator_time_constant"));
       dcmDerivator_.cutoffPeriod(dcmTracking("derivator_cutoff_period"));
+      dcmDerivatorModel_.timeConstant(dcmTracking("derivator_time_constant"));
       dcmDerivGain_ = dcmTracking("deriv_gain");
     }
     if (config_.has("tasks"))
