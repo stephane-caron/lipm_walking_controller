@@ -477,7 +477,6 @@ namespace lipm_walking
         break;
     }
 
-    //updateCoMForceTracking();
     //updateCoMZMPCC();
     //updateCoMAccelZMPCC();
     updateCoMZMPCC();
@@ -681,16 +680,6 @@ namespace lipm_walking
     footTask->targetForce(w_c.force());
     distribWrench_ = w_0;
   }
-
-  // void Stabilizer::updateCoMForceTracking()
-  // {
-  //   auto forceError = (distribWrench_ - measuredWrench_).force();
-  //   Eigen::Vector3d comAdmittance = {comAdmittance_.x(), comAdmittance_.y(), 0.};
-  //   Eigen::Vector3d comddFT = comAdmittance.cwiseProduct(forceError);
-  //   comTask->com(pendulum_.com());
-  //   comTask->refVel(pendulum_.comd());
-  //   comTask->refAccel(pendulum_.comdd() + comddFT);
-  // }
 
   // void Stabilizer::updateCoMPosZMPCC()
   // {

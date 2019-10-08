@@ -323,16 +323,6 @@ namespace lipm_walking
      */
     void setSupportFootGains();
 
-    /** CoM acceleration used for additional reaction force tracking.
-     *
-     * Same idea as ZMPCC but replacing the ZMP with the reaction force.
-     * Problem with looking at force rather than torque readings is that it
-     * yields steady-state ZMP error (standing upright, yes but not with the
-     * ZMP at the correct location).
-     *
-     */
-    //void updateCoMForceTracking();
-
     /** ZMP Compensation Control.
      *
      * This implementation is based on
