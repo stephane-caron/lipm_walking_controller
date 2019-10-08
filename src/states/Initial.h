@@ -26,7 +26,6 @@
 
 #include <lipm_walking/Controller.h>
 #include <lipm_walking/State.h>
-#include <lipm_walking/utils/stats.h>
 
 namespace lipm_walking
 {

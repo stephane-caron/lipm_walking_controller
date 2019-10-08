@@ -29,9 +29,9 @@
 #include <lipm_walking/Contact.h>
 #include <lipm_walking/Sole.h>
 #include <lipm_walking/defs.h>
+#include <lipm_walking/utils/ExponentialMovingAverage.h>
 #include <lipm_walking/utils/LeakyIntegrator.h>
 #include <lipm_walking/utils/rotations.h>
-#include <lipm_walking/utils/stats.h>
 
 namespace lipm_walking
 {
