@@ -32,7 +32,6 @@
 #include <lipm_walking/utils/ExponentialMovingAverage.h>
 #include <lipm_walking/utils/LeakyIntegrator.h>
 #include <lipm_walking/utils/LowPassVelocityFilter.h>
-#include <lipm_walking/utils/rotations.h>
 
 namespace lipm_walking
 {

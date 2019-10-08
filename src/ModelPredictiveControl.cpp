@@ -23,7 +23,7 @@
 
 #include <lipm_walking/ModelPredictiveControl.h>
 #include <lipm_walking/utils/clamp.h>
-#include <lipm_walking/utils/rotations.h>
+#include <lipm_walking/utils/slerp.h>
 
 namespace lipm_walking
 {
