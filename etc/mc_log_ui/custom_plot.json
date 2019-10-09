@@ -1,7 +1,7 @@
 [
     ["3D CoM", "t", ["pendulum_com_x", "controlRobot_com_x", "realRobot_com_x", "pendulum_com_y", "controlRobot_com_y", "realRobot_com_y", "pendulum_com_z", "controlRobot_com_z", "realRobot_com_z"], [], [], []],
     ["3D DCM", "t", ["pendulum_dcm_x", "realRobot_dcm_x", "pendulum_dcm_y", "realRobot_dcm_y"], [], [], []],
-    ["3D ZMP", "t", ["pendulum_zmp_x", "stabilizer_distrib_zmp_x", "realRobot_zmp_x", "pendulum_zmp_y", "stabilizer_distrib_zmp_y", "realRobot_zmp_y"], [], [], []],
+    ["3D ZMP", "t", ["pendulum_zmp_x", "stabilizer_zmp_x", "realRobot_zmp_x", "pendulum_zmp_y", "stabilizer_zmp_y", "realRobot_zmp_y"], [], [], []],
     ["Floating-base observers Y", "t", ["observers_flex_posW_ty", "observers_kin_posW_ty", "pIn_y"], [], [], []],
     ["Foot pressure both", "t", ["cop_hrp4_LeftFootCenter_measured_wrench_fz", "cop_hrp4_LeftFootCenter_target_wrench_fz", "cop_hrp4_RightFootCenter_measured_wrench_fz", "cop_hrp4_RightFootCenter_target_wrench_fz"], [], [], []],
     ["Foot pressure left", "t", ["cop_hrp4_LeftFootCenter_measured_wrench_fz", "cop_hrp4_LeftFootCenter_target_wrench_fz"], [], [], []],
@@ -24,8 +24,8 @@
     ["Tracking CoM Z", "t", ["pendulum_com_z", "controlRobot_com_z", "realRobot_com_z"], [], [], []],
     ["Tracking DCM X", "t", ["pendulum_dcm_x", "controlRobot_dcm_x", "realRobot_dcm_x"], [], [], []],
     ["Tracking DCM Y", "t", ["pendulum_dcm_y", "controlRobot_dcm_y", "realRobot_dcm_y"], [], [], []],
-    ["Tracking DCM-ZMP X", "t", ["support_xmin", "support_xmax", "pendulum_dcm_x", "realRobot_dcm_x", "pendulum_zmp_x", "realRobot_zmp_x", "stabilizer_distrib_zmp_x"], [], [], []],
-    ["Tracking DCM-ZMP Y", "t", ["support_ymin", "support_ymax", "pendulum_dcm_y", "realRobot_dcm_y", "pendulum_zmp_y", "realRobot_zmp_y", "stabilizer_distrib_zmp_y"], [], [], []],
+    ["Tracking DCM-ZMP X", "t", ["support_xmin", "support_xmax", "pendulum_dcm_x", "realRobot_dcm_x", "pendulum_zmp_x", "realRobot_zmp_x", "stabilizer_zmp_x"], [], [], []],
+    ["Tracking DCM-ZMP Y", "t", ["support_ymin", "support_ymax", "pendulum_dcm_y", "realRobot_dcm_y", "pendulum_zmp_y", "realRobot_zmp_y", "stabilizer_zmp_y"], [], [], []],
     ["Tracking ZMP X", "t", ["pendulum_zmp_x", "realRobot_zmp_x"], [], [], []],
     ["Tracking ZMP Y", "t", ["pendulum_zmp_y", "realRobot_zmp_y"], [], [], []]
 ]
