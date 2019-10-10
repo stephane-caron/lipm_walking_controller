@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Initialization of reference pendulum ZMP
+- Stabilizer: damping term of foot force difference control for stair climbing
 - Stabilizer: formula of proportional term in desired CoM acceleration
 
 ### Changed
