@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Default footstep plans and settings for HRP-2Kai
 - Model-based DCM derivative estimator ("derivator")
 - Sample curved footstep plans
 - StationaryOffsetFilter class used by DCM derivator
