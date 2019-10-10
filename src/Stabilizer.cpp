@@ -537,17 +537,17 @@ namespace lipm_walking
 
     if (inTheAir_)
     {
+      dcmDerivator_.setZero();
       dcmIntegrator_.append(Eigen::Vector3d::Zero());
     }
     else
     {
+      zmpError_ = pendulum_.zmp() - measuredZMP_; // XXX: both in same plane?
+      zmpError_.z() = 0.;
+      dcmDerivator_.update(omega * (dcmError_ - zmpError_));
       dcmIntegrator_.append(dcmError_);
     }
     dcmAverageError_ = dcmIntegrator_.eval();
-
-    zmpError_ = pendulum_.zmp() - measuredZMP_; // XXX: both in same plane?
-    zmpError_.z() = 0.;
-    dcmDerivator_.update(omega * (dcmError_ - zmpError_));
     dcmVelError_ = dcmDerivator_.eval();
 
     Eigen::Vector3d desiredCoMAccel = pendulum_.comdd();
