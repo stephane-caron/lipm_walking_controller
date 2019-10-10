@@ -96,6 +96,7 @@ namespace lipm_walking
 
     std::vector<std::string> comActiveJoints = robotConfig("com")("active_joints");
     config("stabilizer").add("admittance", robotConfig("admittance"));
+    config("stabilizer").add("dcm_tracking", robotConfig("dcm_tracking"));
     config("stabilizer")("tasks")("com").add("active_joints", comActiveJoints);
     stabilizer_.configure(config("stabilizer"));
 
