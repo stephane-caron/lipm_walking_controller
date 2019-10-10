@@ -11,15 +11,6 @@
   },
   "stabilizer":
   {
-    "dcm_tracking":
-    {
-      "prop_gain": 5.0,
-      "integral_gain": 10.0,
-      "integrator_time_constant": 10.0,
-      "deriv_gain": 0.5,
-      "derivator_cutoff_period": 0.1,
-      "derivator_time_constant": 1.0
-    },
     "fdqp_weights":
     {
       "net_wrench": 10000.0,
@@ -100,6 +91,15 @@
         "max_height": 0.85,
         "min_height": 0.55
       },
+      "dcm_tracking":
+      {
+        "prop_gain": 5.0,
+        "integral_gain": 10.0,
+        "integrator_time_constant": 10.0,
+        "deriv_gain": 0.0,
+        "derivator_cutoff_period": 0.1,
+        "derivator_time_constant": 1.0
+      },
       "sole":
       {
         "half_length": 0.112,
@@ -113,7 +113,7 @@
       "admittance":
       {
         "com": [0.0, 0.0],
-        "cop": [0.005, 0.005],
+        "cop": [0.01, 0.01],
         "dfz": 0.0001,
         "dfz_damping": 0.0
       },
@@ -127,6 +127,15 @@
         "height": 0.87,
         "max_height": 0.92,
         "min_height": 0.6
+      },
+      "dcm_tracking":
+      {
+        "prop_gain": 4.0,
+        "integral_gain": 15.0,
+        "integrator_time_constant": 15.0,
+        "deriv_gain": 0.5,
+        "derivator_cutoff_period": 0.1,
+        "derivator_time_constant": 1.0
       },
       "sole":
       {
