@@ -61,7 +61,7 @@ namespace lipm_walking
     static constexpr double MAX_DCM_I_GAIN = 30.;
     static constexpr double MAX_DCM_P_GAIN = 10.;
     static constexpr double MAX_DFZ_ADMITTANCE = 5e-4;
-    static constexpr double MAX_DFZ_DAMPING = 1e-2;
+    static constexpr double MAX_DFZ_DAMPING = 10.;
 
     /* Avoid low-pressure targets too close to contact switches */
     static constexpr double MIN_DS_PRESSURE = 15.; // [N]
@@ -398,20 +398,17 @@ namespace lipm_walking
     double dcmPropGain_ = 1.; /**< Proportional gain on DCM error */
     double dfzAdmittance_ = 1e-4; /**< Admittance for foot force difference control */
     double dfzDamping_ = 0.; /**< Damping term in foot force difference control */
-    double dfzHeightDiff_ = 0.; /**< Sole height difference in foot force difference control */
+    double dfzForceError_ = 0.; /**< Force error in foot force difference control */
+    double dfzHeightError_ = 0.; /**< Height error in foot force difference control */
     double dt_ = 0.005; /**< Controller cycle in [s] */
     double leftFootRatio_ = 0.5;
-    double logMeasuredDFz_ = 0.; /**< Measured vertical force difference between left and right foot */
-    double logMeasuredSTz_ = 0.; /**< Model vertical position average between left and right foot */
-    double logTargetDFz_ = 0.; /**< Desired vertical force difference between left and right foot */
-    double logTargetSTz_ = 0.; /**< Desired vertical position average between left and right foot */
     double mass_ = 38.; /**< Robot mass in [kg] */
     double runTime_ = 0.;
     double swingFootStiffness_ = 2000.; /**< Stiffness of swing foot IK task */
     double swingFootWeight_ = 500.; /**< Weight of swing foot IK task */
-    double vdcFrequency_ = 1.; /**< Vertical Drift Compensation frequency */
-    double vdcStiffness_ = 1000.; /**< Vertical Drift Compensation stiffness */
-    double vdcZPos_ = 0.;
+    double vdcFrequency_ = 1.; /**< Frequency used in double-support vertical drift compensation */
+    double vdcHeightError_ = 0.; /**< Average height error used in vertical drift compensation */
+    double vdcStiffness_ = 1000.; /**< Stiffness used in single-support vertical drift compensation */
     mc_rtc::Configuration config_; /**< Stabilizer configuration dictionary */
     std::vector<std::string> comActiveJoints_; /**< Joints used by CoM IK task */
     sva::ForceVecd distribWrench_ = sva::ForceVecd::Zero();
