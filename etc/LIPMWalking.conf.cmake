@@ -611,18 +611,18 @@
         "swing_height": 0.04,
         "contacts":
         [
-          { "pose": { "translation": [0.0, -0.1, 0.0] }, "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.0,  0.1, 0.0] }, "surface": "LeftFootCenter" },
-          { "pose": { "translation": [0.0, -0.1, 0.0] }, "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.0,  0.1, 0.0] }, "surface": "LeftFootCenter" },
-          { "pose": { "translation": [0.0, -0.1, 0.0] }, "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.0,  0.1, 0.0] }, "surface": "LeftFootCenter" },
-          { "pose": { "translation": [0.0, -0.1, 0.0] }, "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.0,  0.1, 0.0] }, "surface": "LeftFootCenter" },
-          { "pose": { "translation": [0.0, -0.1, 0.0] }, "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.0,  0.1, 0.0] }, "surface": "LeftFootCenter" },
-          { "pose": { "translation": [0.0, -0.1, 0.0] }, "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.0,  0.1, 0.0] }, "surface": "LeftFootCenter" }
+          { "pose": { "translation": [0.0, -0.105, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.105, 0.0] }, "surface": "LeftFootCenter" },
+          { "pose": { "translation": [0.0, -0.105, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.105, 0.0] }, "surface": "LeftFootCenter" },
+          { "pose": { "translation": [0.0, -0.105, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.105, 0.0] }, "surface": "LeftFootCenter" },
+          { "pose": { "translation": [0.0, -0.105, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.105, 0.0] }, "surface": "LeftFootCenter" },
+          { "pose": { "translation": [0.0, -0.105, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.105, 0.0] }, "surface": "LeftFootCenter" },
+          { "pose": { "translation": [0.0, -0.105, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.105, 0.0] }, "surface": "LeftFootCenter" }
         ]
       },
       "forward_15cm_steps":
@@ -632,14 +632,14 @@
         "swing_height": 0.04,
         "contacts":
         [
-          { "pose": { "translation": [0.0,  -0.1, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.0,   0.1, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter" },
-          { "pose": { "translation": [0.15, -0.1, 0.0] }, "ref_vel": [0.07, 0.0, 0.0], "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.3,   0.1, 0.0] }, "ref_vel": [0.15, 0.0, 0.0], "surface": "LeftFootCenter" },
-          { "pose": { "translation": [0.45, -0.1, 0.0] }, "ref_vel": [0.15, 0.0, 0.0], "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.6,   0.1, 0.0] }, "ref_vel": [0.07, 0.0, 0.0], "surface": "LeftFootCenter" },
-          { "pose": { "translation": [0.75, -0.1, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.75,  0.1, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter" }
+          { "pose": { "translation": [0.0,  -0.105, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,   0.105, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter" },
+          { "pose": { "translation": [0.15, -0.105, 0.0] }, "ref_vel": [0.07, 0.0, 0.0], "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.3,   0.105, 0.0] }, "ref_vel": [0.15, 0.0, 0.0], "surface": "LeftFootCenter" },
+          { "pose": { "translation": [0.45, -0.105, 0.0] }, "ref_vel": [0.15, 0.0, 0.0], "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.6,   0.105, 0.0] }, "ref_vel": [0.07, 0.0, 0.0], "surface": "LeftFootCenter" },
+          { "pose": { "translation": [0.75, -0.105, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.75,  0.105, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter" }
         ]
       },
       "forward_20cm_steps":
@@ -649,14 +649,14 @@
         "swing_height": 0.04,
         "contacts":
         [
-          { "pose": { "translation": [0.0, -0.1, 0.0] }, "ref_vel": [0.0, 0.0, 0.0], "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.0,  0.1, 0.0] }, "ref_vel": [0.0, 0.0, 0.0], "surface": "LeftFootCenter" },
-          { "pose": { "translation": [0.2, -0.1, 0.0] }, "ref_vel": [0.1, 0.0, 0.0], "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.4,  0.1, 0.0] }, "ref_vel": [0.2, 0.0, 0.0], "surface": "LeftFootCenter" },
-          { "pose": { "translation": [0.6, -0.1, 0.0] }, "ref_vel": [0.2, 0.0, 0.0], "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.8,  0.1, 0.0] }, "ref_vel": [0.1, 0.0, 0.0], "surface": "LeftFootCenter" },
-          { "pose": { "translation": [1.0, -0.1, 0.0] }, "ref_vel": [0.0, 0.0, 0.0], "surface": "RightFootCenter" },
-          { "pose": { "translation": [1.0,  0.1, 0.0] }, "ref_vel": [0.0, 0.0, 0.0], "surface": "LeftFootCenter" }
+          { "pose": { "translation": [0.0, -0.105, 0.0] }, "ref_vel": [0.0, 0.0, 0.0], "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.105, 0.0] }, "ref_vel": [0.0, 0.0, 0.0], "surface": "LeftFootCenter" },
+          { "pose": { "translation": [0.2, -0.105, 0.0] }, "ref_vel": [0.1, 0.0, 0.0], "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.4,  0.105, 0.0] }, "ref_vel": [0.2, 0.0, 0.0], "surface": "LeftFootCenter" },
+          { "pose": { "translation": [0.6, -0.105, 0.0] }, "ref_vel": [0.2, 0.0, 0.0], "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.8,  0.105, 0.0] }, "ref_vel": [0.1, 0.0, 0.0], "surface": "LeftFootCenter" },
+          { "pose": { "translation": [1.0, -0.105, 0.0] }, "ref_vel": [0.0, 0.0, 0.0], "surface": "RightFootCenter" },
+          { "pose": { "translation": [1.0,  0.105, 0.0] }, "ref_vel": [0.0, 0.0, 0.0], "surface": "LeftFootCenter" }
         ]
       },
       "warmup":
@@ -666,10 +666,10 @@
         "swing_height": 0.04,
         "contacts":
         [
-          { "pose": { "translation": [0.035, -0.1, 0.0] }, "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.035,  0.1, 0.0] }, "surface": "LeftFootCenter"  },
-          { "pose": { "translation": [0.035, -0.1, 0.0] }, "surface": "RightFootCenter" },
-          { "pose": { "translation": [0.035,  0.1, 0.0] }, "surface": "LeftFootCenter"  }
+          { "pose": { "translation": [0.035, -0.105, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.035,  0.105, 0.0] }, "surface": "LeftFootCenter"  },
+          { "pose": { "translation": [0.035, -0.105, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.035,  0.105, 0.0] }, "surface": "LeftFootCenter"  }
         ]
       }
     }
