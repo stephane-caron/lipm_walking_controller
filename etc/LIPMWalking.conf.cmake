@@ -93,12 +93,14 @@
       },
       "dcm_tracking":
       {
-        "prop_gain": 5.0,
-        "integral_gain": 10.0,
-        "integrator_time_constant": 10.0,
-        "deriv_gain": 0.0,
-        "derivator_cutoff_period": 0.1,
-        "derivator_time_constant": 1.0
+        "gains":
+        {
+          "prop": 5.0,
+          "integral": 10.0,
+          "deriv": 0.0
+        },
+        "derivator_time_constant": 1.0,
+        "integrator_time_constant": 10.0
       },
       "sole":
       {
@@ -130,12 +132,14 @@
       },
       "dcm_tracking":
       {
-        "prop_gain": 4.0,
-        "integral_gain": 15.0,
-        "integrator_time_constant": 15.0,
-        "deriv_gain": 0.5,
-        "derivator_cutoff_period": 0.1,
-        "derivator_time_constant": 1.0
+        "gains":
+        {
+          "prop": 4.0,
+          "integral": 15.0,
+          "deriv": 0.5
+        },
+        "derivator_time_constant": 1.0,
+        "integrator_time_constant": 15.0
       },
       "sole":
       {
