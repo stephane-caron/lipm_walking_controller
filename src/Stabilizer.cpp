@@ -535,11 +535,15 @@ namespace lipm_walking
     dcmError_ = comError + comdError / omega;
     dcmError_.z() = 0.;
 
-    if (!inTheAir_) // don't accumulate error if robot is in the air
+    if (inTheAir_)
+    {
+      dcmIntegrator_.append(Eigen::Vector3d::Zero());
+    }
+    else
     {
       dcmIntegrator_.append(dcmError_);
-      dcmAverageError_ = dcmIntegrator_.eval();
     }
+    dcmAverageError_ = dcmIntegrator_.eval();
 
     zmpError_ = pendulum_.zmp() - measuredZMP_; // XXX: both in same plane?
     zmpError_.z() = 0.;
