@@ -38,8 +38,7 @@ namespace lipm_walking
 
   Stabilizer::Stabilizer(const mc_rbdyn::Robot & controlRobot, const Pendulum & pendulum, double dt)
     : dcmIntegrator_(dt, /* timeConstant = */ 5.),
-      dcmDerivator_(dt, /* cutoffPeriod = */ 0.01),
-      dcmDerivatorModel_(dt, /* timeConstant = */ 1.),
+      dcmDerivator_(dt, /* timeConstant = */ 1.),
       pendulum_(pendulum),
       controlRobot_(controlRobot),
       dt_(dt),
@@ -65,9 +64,6 @@ namespace lipm_walking
         }
       });
     logger.addLogEntry("error_dcm_average", [this]() { return dcmAverageError_; });
-    logger.addLogEntry("error_dcm_finiteVel", [this]() { return dcmDerivator_.vel(); });
-    logger.addLogEntry("error_dcm_modelVel_filtered", [this]() { return dcmDerivatorModel_.eval(); });
-    logger.addLogEntry("error_dcm_modelVel_raw", [this]() { return dcmDerivatorModel_.raw(); });
     logger.addLogEntry("error_dcm_pos", [this]() { return dcmError_; });
     logger.addLogEntry("error_dcm_vel", [this]() { return dcmVelError_; });
     logger.addLogEntry("error_dfz", [this]() { return logTargetDFz_ - logMeasuredDFz_; });
@@ -77,15 +73,17 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_admittance_com", [this]() { return comAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_cop", [this]() { return copAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_dfz", [this]() { return dfzAdmittance_; });
+    logger.addLogEntry("stabilizer_dcmDerivator_filtered", [this]() { return dcmDerivator_.eval(); });
+    logger.addLogEntry("stabilizer_dcmDerivator_raw", [this]() { return dcmDerivator_.raw(); });
+    logger.addLogEntry("stabilizer_dcmDerivator_timeConstant", [this]() { return dcmDerivator_.timeConstant(); });
+    logger.addLogEntry("stabilizer_dcmIntegrator_timeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
     logger.addLogEntry("stabilizer_dcmTracking_derivGain", [this]() { return dcmDerivGain_; });
     logger.addLogEntry("stabilizer_dcmTracking_integralGain", [this]() { return dcmIntegralGain_; });
-    logger.addLogEntry("stabilizer_dcmTracking_integratorTimeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
-    logger.addLogEntry("stabilizer_dcmTracking_derivatorTimeConstant", [this]() { return dcmDerivatorModel_.timeConstant(); });
     logger.addLogEntry("stabilizer_dcmTracking_propGain", [this]() { return dcmPropGain_; });
     logger.addLogEntry("stabilizer_dfz_damping", [this]() { return dfzDamping_; });
+    logger.addLogEntry("stabilizer_dfz_heightDiff", [this]() { return dfzHeightDiff_; });
     logger.addLogEntry("stabilizer_dfz_measured", [this]() { return logMeasuredDFz_; });
     logger.addLogEntry("stabilizer_dfz_target", [this]() { return logTargetDFz_; });
-    logger.addLogEntry("stabilizer_dfz_heightDiff", [this]() { return dfzHeightDiff_; });
     logger.addLogEntry("stabilizer_fdqp_weights_ankleTorque", [this]() { return std::pow(fdqpWeights_.ankleTorqueSqrt, 2); });
     logger.addLogEntry("stabilizer_fdqp_weights_netWrench", [this]() { return std::pow(fdqpWeights_.netWrenchSqrt, 2); });
     logger.addLogEntry("stabilizer_fdqp_weights_pressure", [this]() { return std::pow(fdqpWeights_.pressureSqrt, 2); });
@@ -152,22 +150,17 @@ namespace lipm_walking
           dcmIntegralGain_ = clamp(gains(1), 0., MAX_DCM_I_GAIN);
           dcmDerivGain_ = clamp(gains(2), 0., MAX_DCM_D_GAIN);
         }),
-      Checkbox(
-        "Use model DCM derivator?",
-        [this]() { return useModelDCMDerivator_; },
-        [this]() { useModelDCMDerivator_ = !useModelDCMDerivator_; }),
       ArrayInput(
         "DCM filters",
-        {"Integrator T [s]", "FD Derivator T [s]", "M Derivator T [s]"},
-        [this]() -> Eigen::Vector3d
+        {"Integrator T [s]", "Derivator T [s]"},
+        [this]() -> Eigen::Vector2d
         {
-          return {dcmIntegrator_.timeConstant(), dcmDerivator_.cutoffPeriod(), dcmDerivatorModel_.timeConstant()};
+          return {dcmIntegrator_.timeConstant(), dcmDerivator_.timeConstant()};
         },
-        [this](const Eigen::Vector3d & T)
+        [this](const Eigen::Vector2d & T)
         {
           dcmIntegrator_.timeConstant(T(0));
-          dcmDerivator_.cutoffPeriod(T(1));
-          dcmDerivatorModel_.timeConstant(T(2));
+          dcmDerivator_.timeConstant(T(1));
         }));
     gui->addElement(
       {"Stabilizer", "CoM admittance"},
@@ -262,12 +255,11 @@ namespace lipm_walking
     if (config_.has("dcm_tracking"))
     {
       auto dcmTracking = config_("dcm_tracking");
-      dcmPropGain_ = dcmTracking("prop_gain");
-      dcmIntegralGain_ = dcmTracking("integral_gain");
+      dcmPropGain_ = dcmTracking("gains")("prop");
+      dcmIntegralGain_ = dcmTracking("gains")("integral");
+      dcmDerivGain_ = dcmTracking("gains")("deriv");
+      dcmDerivator_.timeConstant(dcmTracking("derivator_time_constant"));
       dcmIntegrator_.timeConstant(dcmTracking("integrator_time_constant"));
-      dcmDerivator_.cutoffPeriod(dcmTracking("derivator_cutoff_period"));
-      dcmDerivatorModel_.timeConstant(dcmTracking("derivator_time_constant"));
-      dcmDerivGain_ = dcmTracking("deriv_gain");
     }
     if (config_.has("tasks"))
     {
@@ -322,8 +314,7 @@ namespace lipm_walking
     setContact(leftFootTask, leftFootTask->surfacePose());
     setContact(rightFootTask, rightFootTask->surfacePose());
 
-    dcmDerivator_.reset(Eigen::Vector3d::Zero());
-    dcmDerivatorModel_.setZero();
+    dcmDerivator_.setZero();
     dcmIntegrator_.saturation(MAX_AVERAGE_DCM_ERROR);
     dcmIntegrator_.setZero();
     zmpccIntegrator_.saturation(MAX_ZMPCC_COM_OFFSET);
@@ -551,9 +542,8 @@ namespace lipm_walking
 
     zmpError_ = pendulum_.zmp() - measuredZMP_; // XXX: both in same plane?
     zmpError_.z() = 0.;
-    dcmDerivatorModel_.update(omega * (dcmError_ - zmpError_));
-    dcmDerivator_.update(dcmError_);
-    dcmVelError_ = (useModelDCMDerivator_) ? dcmDerivatorModel_.eval() : dcmDerivator_.vel();
+    dcmDerivator_.update(omega * (dcmError_ - zmpError_));
+    dcmVelError_ = dcmDerivator_.eval();
 
     Eigen::Vector3d desiredCoMAccel = pendulum_.comdd();
     desiredCoMAccel += omega * (dcmPropGain_ * dcmError_ + comdError);
