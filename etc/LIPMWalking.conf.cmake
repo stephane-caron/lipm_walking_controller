@@ -538,7 +538,16 @@
           { "pose": { "translation": [0.0,  0.11, 0.0] }, "surface": "RightFootCenter" },
           { "pose": { "translation": [0.0,  0.39, 0.0] }, "surface": "LeftFootCenter" },
           { "pose": { "translation": [0.0,  0.21, 0.0] }, "surface": "RightFootCenter" }
-        ]
+        ],
+        "mpc":
+        {
+          "weights":
+          {
+            "jerk": 1.0,
+            "vel": [10.0, 300.0],
+            "zmp": 1000.0
+          }
+        }
       },
       "lateral_right_10cm_steps":
       {
@@ -555,7 +564,16 @@
           { "pose": { "translation": [0.0, -0.11, 0.0] }, "surface": "LeftFootCenter" },
           { "pose": { "translation": [0.0, -0.39, 0.0] }, "surface": "RightFootCenter" },
           { "pose": { "translation": [0.0, -0.21, 0.0] }, "surface": "LeftFootCenter" }
-        ]
+        ],
+        "mpc":
+        {
+          "weights":
+          {
+            "jerk": 1.0,
+            "vel": [10.0, 300.0],
+            "zmp": 1000.0
+          }
+        }
       },
       "warmup":
       {
