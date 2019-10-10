@@ -6,20 +6,24 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Curved footstep plans
+- Model-based DCM derivative estimator ("derivator")
+- Sample curved footstep plans
+- StationaryOffsetFilter class used by DCM derivator
 
 ### Fixed
 
 - Initialization of reference pendulum ZMP
-- Stabilizer: damping term of foot force difference control for stair climbing
+- Stabilizer: damping term of foot force difference control
 - Stabilizer: formula of proportional term in desired CoM acceleration
 
 ### Changed
 
+- Cleaned up legacy code
 - Footstep plans are now robot-specific
 - Removed legacy mass estimation phase
 - Updated CMake configuration
 - Updated copra and mc\_rtc dependencies
+- Stabilizer: switch from ZMP to DCM derivative term in DCM tracking
 
 ## [v1.1] - 2019/04/15
 
