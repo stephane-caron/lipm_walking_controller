@@ -99,7 +99,7 @@ namespace lipm_walking
           (supportContact.id == 0) ? "Start walking" : "Resume walking",
           [this]() { startWalking(); }));
       gui()->addElement(
-        {"Walking", "Standing"},
+        {"Standing"},
         NumberInput(
           "CoM target [0-1]",
           [this]() { return std::round(leftFootRatio_ * 10.) / 10.; },
@@ -161,7 +161,7 @@ namespace lipm_walking
 
     if (gui())
     {
-      gui()->removeCategory({"Walking", "Standing"});
+      gui()->removeCategory({"Standing"});
       gui()->removeElement({"Walking", "Controller"}, "Footstep plan");
       gui()->removeElement({"Walking", "Controller"}, "Go to middle");
       gui()->removeElement({"Walking", "Controller"}, "Resume walking");
