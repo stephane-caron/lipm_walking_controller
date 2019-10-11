@@ -180,30 +180,13 @@ namespace lipm_walking
         }),
       Button(
         "Reset",
-        [this]() { this->resume("Initial"); }),
-      NumberInput(
-        "Torso pitch [rad]",
-        [this]() { return torsoPitch_; },
-        [this](double pitch)
-        {
-          pitch = clamp(pitch, MIN_CHEST_P, MAX_CHEST_P);
-          defaultTorsoPitch_ = pitch;
-          torsoPitch_ = pitch;
-        }));
+        [this]() { this->resume("Initial"); }));
 
     gui->addElement(
-      {"Walking", "Plan"},
+      {"Walking", "Phases"},
       Label(
-        "Name",
+        "Plan name",
         [this]() { return plan.name; }),
-      NumberInput(
-        "CoM height",
-        [this]() { return plan.comHeight(); },
-        [this](double height)
-        {
-          height = clamp(height, minCoMHeight_, maxCoMHeight_);
-          plan.comHeight(height);
-        }),
       NumberInput(
         "Initial DSP duration [s]",
         [this]() { return plan.initDSPDuration(); },
@@ -229,7 +212,36 @@ namespace lipm_walking
       NumberInput(
         "Final DSP duration [s]",
         [this]() { return plan.finalDSPDuration(); },
-        [this](double duration) { plan.finalDSPDuration(duration); }),
+        [this](double duration) { plan.finalDSPDuration(duration); }));
+
+    gui->addElement(
+      {"Walking", "CoM"},
+      Label(
+        "Plan name",
+        [this]() { return plan.name; }),
+      NumberInput(
+          "CoM height",
+          [this]() { return plan.comHeight(); },
+          [this](double height)
+          {
+            height = clamp(height, minCoMHeight_, maxCoMHeight_);
+            plan.comHeight(height);
+          }),
+      NumberInput(
+        "Torso pitch [rad]",
+        [this]() { return torsoPitch_; },
+        [this](double pitch)
+        {
+          pitch = clamp(pitch, MIN_CHEST_P, MAX_CHEST_P);
+          defaultTorsoPitch_ = pitch;
+          torsoPitch_ = pitch;
+        }));
+
+    gui->addElement(
+      {"Walking", "Swing foot"},
+      Label(
+        "Plan name",
+        [this]() { return plan.name; }),
       NumberInput(
         "Swing height [m]",
         [this]() { return plan.swingHeight(); },
@@ -345,23 +357,34 @@ namespace lipm_walking
     constexpr double DCM_POINT_SIZE = 0.015;
 
     gui->addElement(
-      {"Walking", "Markers", "Pendulum"},
-      Point3D(
-        "PendulumDCM",
-        PointConfig(COLORS.at('y'), DCM_POINT_SIZE),
-        [this]()
+      {"Walking", "Markers", "CoM-DCM"},
+      Arrow(
+        "Pendulum_CoM",
+        pendulumArrowConfig,
+        [this]() -> Eigen::Vector3d
         {
-          return pendulum_.dcm();
+          return this->pendulum_.zmp();
+        },
+        [this]() -> Eigen::Vector3d
+        {
+          return this->pendulum_.com();
         }),
       Point3D(
-        "RealCoM",
+        "Measured_CoM",
         PointConfig(COLORS.at('g'), COM_POINT_SIZE),
         [this]()
         {
           return realCom_;
         }),
       Point3D(
-        "RealDCM",
+        "Pendulum_DCM",
+        PointConfig(COLORS.at('y'), DCM_POINT_SIZE),
+        [this]()
+        {
+          return pendulum_.dcm();
+        }),
+      Point3D(
+        "Measured_DCM",
         PointConfig(COLORS.at('g'), DCM_POINT_SIZE),
         [this]() -> Eigen::Vector3d
         {
@@ -369,9 +392,38 @@ namespace lipm_walking
         }));
 
     gui->addElement(
-      {"Walking", "Markers", "Force"},
+      {"Walking", "Markers", "Net wrench"},
+      Point3D(
+        "Stabilizer_ZMP",
+        PointConfig(COLORS.at('m'), 0.02),
+        [this]() { return stabilizer_.zmp(); }),
+      Point3D(
+        "Measured_ZMP",
+        PointConfig(COLORS.at('r'), 0.02),
+        [this]() -> Eigen::Vector3d
+        {
+          return netWrenchObs_.zmp();
+        }),
+      Arrow(
+        "Measured_ZMPForce",
+        netWrenchForceArrowConfig,
+        [this]() -> Eigen::Vector3d
+        {
+          return this->netWrenchObs_.zmp();
+        },
+        [this, FORCE_SCALE]() -> Eigen::Vector3d
+        {
+          return netWrenchObs_.zmp() + FORCE_SCALE * netWrenchObs_.wrench().force();
+        }));
+
+    gui->addElement(
+      {"Walking", "Markers", "Foot wrenches"},
+      Point3D(
+        "Stabilizer_LeftCoP",
+        PointConfig(COLORS.at('m'), 0.01),
+        [this]() { return stabilizer_.leftFootTask->targetCoPW(); }),
       Force(
-        "LeftCoPForce",
+        "Measured_LeftCoPForce",
         copForceConfig,
         [this]()
         {
@@ -382,8 +434,12 @@ namespace lipm_walking
           Eigen::Vector3d cop = this->robot().copW("LeftFootCenter");
           return sva::PTransformd(this->robot().surface("LeftFootCenter").X_0_s(this->robot()).rotation(), cop);
         }),
+      Point3D(
+        "Stabilizer_RightCoP",
+        PointConfig(COLORS.at('m'), 0.01),
+        [this]() { return stabilizer_.rightFootTask->targetCoPW(); }),
       Force(
-        "RightCoPForce",
+        "Measured_RightCoPForce",
         copForceConfig,
         [this]()
         {
@@ -393,60 +449,7 @@ namespace lipm_walking
         {
           Eigen::Vector3d cop = this->robot().copW("RightFootCenter");
           return sva::PTransformd(this->robot().surface("RightFootCenter").X_0_s(this->robot()).rotation(), cop);
-        }),
-      Point3D(
-        "NetWrenchZMP",
-        PointConfig(COLORS.at('r'), 0.01),
-        [this]() -> Eigen::Vector3d
-        {
-          return netWrenchObs_.zmp();
-        }),
-      Arrow(
-        "NetWrenchForce",
-        netWrenchForceArrowConfig,
-        [this]() -> Eigen::Vector3d
-        {
-          return this->netWrenchObs_.zmp();
-        },
-        [this, FORCE_SCALE]() -> Eigen::Vector3d
-        {
-          return netWrenchObs_.zmp() + FORCE_SCALE * netWrenchObs_.wrench().force();
-        }),
-      Arrow(
-        "RefPendulum",
-        pendulumArrowConfig,
-        [this]() -> Eigen::Vector3d
-        {
-          return this->pendulum_.zmp();
-        },
-        [this]() -> Eigen::Vector3d
-        {
-          return this->pendulum_.com();
-        }),
-      Arrow(
-        "RefPendulumForce",
-        refPendulumForceArrowConfig,
-        [this]() -> Eigen::Vector3d
-        {
-          return this->pendulum_.zmp();
-        },
-        [this, FORCE_SCALE]() -> Eigen::Vector3d
-        {
-          Eigen::Vector3d contactForce = controlRobot().mass() * (pendulum_.comdd() - world::gravity);
-          return pendulum_.zmp() + FORCE_SCALE * contactForce;
-        }),
-      Point3D(
-        "StabilizerZMP",
-        PointConfig(COLORS.at('m'), 0.02),
-        [this]() { return stabilizer_.zmp(); }),
-      Point3D(
-        "StabilizerCoP_LeftFootCenter",
-        PointConfig(COLORS.at('m'), 0.01),
-        [this]() { return stabilizer_.leftFootTask->targetCoPW(); }),
-      Point3D(
-        "StabilizerCoP_RightFootCenter",
-        PointConfig(COLORS.at('m'), 0.01),
-        [this]() { return stabilizer_.rightFootTask->targetCoPW(); }));
+        }));
   }
 
   void Controller::reset(const mc_control::ControllerResetData & data)

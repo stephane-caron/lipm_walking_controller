@@ -71,8 +71,8 @@ namespace lipm_walking
   {
     using namespace mc_rtc::gui;
     gui->addElement(
-      {"Walking", "MPC"},
-      ArrayInput("Cost weights",
+      {"Walking", "CoM"},
+      ArrayInput("MPC cost weights",
         {"jerk", "vel_x", "vel_y", "zmp"},
         [this]()
         {
@@ -91,7 +91,7 @@ namespace lipm_walking
           zmpWeight = weights[3];
         }),
       ComboInput(
-        "QP solver",
+        "MPC QP solver",
         {"QuadProgDense", "QLD", "LSSOL"},
         [this]()
         {
