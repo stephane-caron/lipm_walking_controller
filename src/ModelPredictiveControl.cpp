@@ -243,8 +243,6 @@ namespace lipm_walking
   {
     hreps_[0] = initContact_.hrep();
     hreps_[2] = targetContact_.hrep();
-    //hreps_[1] = getDoubleSupportHrep(initContact_, targetContact_);
-    //hreps_[3] = getDoubleSupportHrep(targetContact_, nextContact_);
     unsigned totalRows = 0;
     for (long i = 0; i <= NB_STEPS; i++)
     {
