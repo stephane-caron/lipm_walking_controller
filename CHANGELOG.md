@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Changed
+
+- Switch license to BSD 2-clause for compatibility with other mc\_rtc projects
+
 ## [v1.2] - 2019/10/11
 
 The main change in this release is the switch from ZMP to DCM derivative term
