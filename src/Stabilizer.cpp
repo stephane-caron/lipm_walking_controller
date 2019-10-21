@@ -154,24 +154,24 @@ namespace lipm_walking
           dcmDerivGain_ = clamp(gains(2), 0., MAX_DCM_D_GAIN);
         }),
       ArrayInput(
-        "Pole assignment",
+        "Pole placement with lag",
         {"Pole1", "Pole2", "Pole3", "Lag freq. [Hz]"},
         [this]() -> Eigen::VectorXd
         {
-          return poleAssignment_;
+          return polePlacement_;
         },
-        [this](const Eigen::VectorXd & poleAssignment)
+        [this](const Eigen::VectorXd & polePlacement)
         {
-          double alpha = clamp(poleAssignment(0), -20., -0.1);
-          double beta = clamp(poleAssignment(1), -20., -0.1);
-          double gamma = clamp(poleAssignment(2), -20., -0.1);
-          double lagFreq = clamp(poleAssignment(3), 0.1, 20.);
+          double alpha = clamp(polePlacement(0), -20., -0.1);
+          double beta = clamp(polePlacement(1), -20., -0.1);
+          double gamma = clamp(polePlacement(2), -20., -0.1);
+          double lagFreq = clamp(polePlacement(3), 0.1, 20.);
           double omega = pendulum_.omega();
           double denom = omega * lagFreq;
           dcmDerivGain_ = -(alpha + beta + gamma + omega - lagFreq) / denom;
           dcmIntegralGain_ = -(alpha * beta * gamma) / denom;
           dcmPropGain_ = -(alpha * beta + beta * gamma + gamma * alpha + omega * lagFreq) / denom;
-          poleAssignment_ = {alpha, beta, gamma, lagFreq};
+          polePlacement_ = {alpha, beta, gamma, lagFreq};
         }),
       ArrayInput(
         "DCM filters",
