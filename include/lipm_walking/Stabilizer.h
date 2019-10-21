@@ -389,6 +389,7 @@ namespace lipm_walking
     Eigen::Vector3d zmpccCoMOffset_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d zmpccCoMVel_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d zmpccError_ = Eigen::Vector3d::Zero();
+    Eigen::Vector4d poleAssignment_ = {-1., -1., -1., 1.}; /**< Pole assignment with ZMP delay (Morisawa et al., 2014) */
     ExponentialMovingAverage dcmIntegrator_;
     FDQPWeights fdqpWeights_;
     LeakyIntegrator zmpccIntegrator_;
