@@ -170,7 +170,7 @@ namespace lipm_walking
           double denom = omega * lagFreq;
           dcmDerivGain_ = -(alpha + beta + gamma + omega - lagFreq) / denom;
           dcmIntegralGain_ = -(alpha * beta * gamma) / denom;
-          dcmPropGain_ = -(alpha * beta + beta * gamma + gamma * alpha + omega * lagFreq) / denom;
+          dcmPropGain_ = (alpha * beta + beta * gamma + gamma * alpha + omega * lagFreq) / denom;
           polePlacement_ = {alpha, beta, gamma, lagFreq};
         }),
       ArrayInput(
