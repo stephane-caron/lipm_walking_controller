@@ -63,9 +63,9 @@ namespace lipm_walking
     /* Maximum gains in standing static equilibrium. */
     static constexpr double MAX_COM_ADMITTANCE = 20;
     static constexpr double MAX_COP_ADMITTANCE = 0.1;
-    static constexpr double MAX_DCM_D_GAIN = 10.;
-    static constexpr double MAX_DCM_I_GAIN = 30.;
-    static constexpr double MAX_DCM_P_GAIN = 10.;
+    static constexpr double MAX_DCM_D_GAIN = 2.;
+    static constexpr double MAX_DCM_I_GAIN = 100.;
+    static constexpr double MAX_DCM_P_GAIN = 20.;
     static constexpr double MAX_DFZ_ADMITTANCE = 5e-4;
     static constexpr double MAX_DFZ_DAMPING = 10.;
 
@@ -389,7 +389,7 @@ namespace lipm_walking
     Eigen::Vector3d zmpccCoMOffset_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d zmpccCoMVel_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d zmpccError_ = Eigen::Vector3d::Zero();
-    Eigen::Vector4d polePlacement_ = {-1., -1., -1., 1.}; /**< Pole placement with ZMP delay (Morisawa et al., 2014) */
+    Eigen::Vector4d polePlacement_ = {-10., -5., -1., 10.}; /**< Pole placement with ZMP delay (Morisawa et al., 2014) */
     ExponentialMovingAverage dcmIntegrator_;
     FDQPWeights fdqpWeights_;
     LeakyIntegrator zmpccIntegrator_;
