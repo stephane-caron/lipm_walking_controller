@@ -165,13 +165,22 @@ namespace lipm_walking
           double alpha = clamp(polePlacement(0), -20., -0.1);
           double beta = clamp(polePlacement(1), -20., -0.1);
           double gamma = clamp(polePlacement(2), -20., -0.1);
-          double lagFreq = clamp(polePlacement(3), 0.1, 20.);
-          double omega = pendulum_.omega();
-          double denom = omega * lagFreq;
-          dcmDerivGain_ = -(alpha + beta + gamma + lagFreq - omega) / denom;
-          dcmIntegralGain_ = -(alpha * beta * gamma) / denom;
-          dcmPropGain_ = (alpha * beta + beta * gamma + gamma * alpha + omega * lagFreq) / denom;
+          double lagFreq = clamp(polePlacement(3), 1., 200.);
           polePlacement_ = {alpha, beta, gamma, lagFreq};
+
+          double omega = pendulum_.omega();
+          double denom = pendulum_.omega() * lagFreq;
+          double T_integ = dcmIntegrator_.timeConstant();
+
+          // Gains K_z for the ZMP feedback (Delta ZMP = -K_z * Delta DCM)
+          double zmpPropGain = (alpha * beta + beta * gamma + gamma * alpha + omega * lagFreq) / denom;
+          double zmpIntegralGain = -(alpha * beta * gamma) / denom;
+          double zmpDerivGain = -(alpha + beta + gamma + lagFreq - omega) / denom;
+
+          // Our gains K are for closed-loop DCM (Delta dot(DCM) = -K * Delta DCM)
+          dcmPropGain_ = omega * (1. + zmpPropGain);
+          dcmIntegralGain_ = omega * T_integ * zmpIntegralGain; // our integrator is an EMA
+          dcmDerivGain_ = omega * zmpDerivGain;
         }),
       ArrayInput(
         "DCM filters",
