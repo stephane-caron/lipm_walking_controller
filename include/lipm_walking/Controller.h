@@ -342,7 +342,7 @@ namespace lipm_walking
     NetWrenchObserver netWrenchObs_; /**< Observe the net contact wrench exerted on the robot */
     Pendulum pendulum_; /**< Holds the reference state (CoM position, velocity, ZMP, ...) from the walking pattern */
     Sole sole_; /**< Sole dimensions of the robot model */
-    Stabilizer stabilizer_; /**< Balance feedback control component */
+    Stabilizer stabilizer_; /**< Balance feedback control component that updates task targets */
     bool leftFootRatioJumped_ = false; /**< Flag used to avoid discontinuous CoM velocity updates */
     double ctlTime_ = 0.; /**< Controller time */
     double defaultTorsoPitch_ = 0.; /**< Default torso pitch angle, in [rad] */
