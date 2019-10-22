@@ -321,40 +321,40 @@ namespace lipm_walking
     }
 
   public: /* visible to FSM states */
-    FootstepPlan plan;
-    bool emergencyStop = false;
-    bool pauseWalking = false;
-    bool pauseWalkingRequested = false;
-    std::shared_ptr<Preview> preview;
-    std::shared_ptr<mc_tasks::OrientationTask> pelvisTask;
-    std::shared_ptr<mc_tasks::OrientationTask> torsoTask;
-    std::vector<std::vector<double>> halfSitPose;
+    FootstepPlan plan; /**< Current footstep plan */
+    bool emergencyStop = false; /**< Emergency flag: if on, the controller stops doing anything */
+    bool pauseWalking = false; /**< Is the pause-walking behavior engaged? */
+    bool pauseWalkingRequested = false; /**< Has user clicked on the "Pause walking" button? */
+    std::shared_ptr<Preview> preview; /**< Current solution trajectory from the walking pattern generator */
+    std::shared_ptr<mc_tasks::OrientationTask> pelvisTask; /**< Pelvis orientation task */
+    std::shared_ptr<mc_tasks::OrientationTask> torsoTask; /**< Torso orientation task */
+    std::vector<std::vector<double>> halfSitPose; /**< Half-sit joint-angle configuration stored when the controller starts. */
 
   private: /* hidden from FSM states */
-    Eigen::Matrix3d pelvisOrientation_ = Eigen::Matrix3d::Identity(); // keep pelvis upright
-    Eigen::Vector3d controlCom_;
-    Eigen::Vector3d controlComd_;
-    Eigen::Vector3d realCom_;
-    Eigen::Vector3d realComd_;
-    FloatingBaseObserver floatingBaseObs_;
-    LowPassVelocityFilter<Eigen::Vector3d> comVelFilter_;
-    ModelPredictiveControl mpc_;
-    NetWrenchObserver netWrenchObs_;
-    Pendulum pendulum_;
-    Sole sole_;
-    Stabilizer stabilizer_;
-    bool leftFootRatioJumped_ = false;
-    double ctlTime_ = 0.;
-    double defaultTorsoPitch_ = 0.; // [rad]
+    Eigen::Matrix3d pelvisOrientation_ = Eigen::Matrix3d::Identity(); /**< Pelvis orientation (upright by default) */
+    Eigen::Vector3d controlCom_; /** CoM position of the control robot (not the same as reference CoM position) */
+    Eigen::Vector3d controlComd_; /**< CoM velocity of the control robot (not the same as reference CoM velocity ) */
+    Eigen::Vector3d realCom_; /**< Estimated CoM position of the robot */
+    Eigen::Vector3d realComd_; /**< Estimated CoM velocity of the robot */
+    FloatingBaseObserver floatingBaseObs_; /**< Floating base observer */
+    LowPassVelocityFilter<Eigen::Vector3d> comVelFilter_; /**< Low-pass filter used to estimate the CoM velocity */
+    ModelPredictiveControl mpc_; /**< MPC problem solver used for walking pattern generation */
+    NetWrenchObserver netWrenchObs_; /**< Observe the net contact wrench exerted on the robot */
+    Pendulum pendulum_; /**< Holds the reference state (CoM position, velocity, ZMP, ...) from the walking pattern */
+    Sole sole_; /**< Sole dimensions of the robot model */
+    Stabilizer stabilizer_; /**< Balance feedback control component */
+    bool leftFootRatioJumped_ = false; /**< Flag used to avoid discontinuous CoM velocity updates */
+    double ctlTime_ = 0.; /**< Controller time */
+    double defaultTorsoPitch_ = 0.; /**< Default torso pitch angle, in [rad] */
     double doubleSupportDurationOverride_ = -1.; // [s]
-    double leftFootRatio_ = 0.5;
-    double maxCoMHeight_ = 2.;
-    double minCoMHeight_ = 0.;
-    double torsoPitch_;
-    mc_rtc::Configuration mpcConfig_;
-    mc_rtc::Configuration plans_;
-    std::string segmentName_ = "";
-    unsigned nbLogSegments_ = 100;
-    unsigned nbMPCFailures_ = 0;
+    double leftFootRatio_ = 0.5; /**< Weight distribution ratio (0: all weight on right foot, 1: all on left foot) */
+    double maxCoMHeight_ = 2.; /**< Maximum height for the center of mass (updated from configuration) */
+    double minCoMHeight_ = 0.; /**< Minimum height for the center of mass (updated from configuration) */
+    double torsoPitch_; /**< Torso pitch angle with respect to the pelvis body, in [rad] */
+    mc_rtc::Configuration mpcConfig_; /**< Configuration dictionary for the walking pattern generator */
+    mc_rtc::Configuration plans_; /**< Configuration dictionary for fixed footstep plans */
+    std::string segmentName_ = ""; /**< Name of current log segment (this is an mc_rtc specific) */
+    unsigned nbLogSegments_ = 100; /**< Index used to number log segments (this is an mc_rtc specific) */
+    unsigned nbMPCFailures_ = 0; /**< Number of times the walking pattern generator failed */
   };
 }
