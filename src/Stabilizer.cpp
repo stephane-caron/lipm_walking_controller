@@ -168,7 +168,7 @@ namespace lipm_walking
           double lagFreq = clamp(polePlacement(3), 0.1, 20.);
           double omega = pendulum_.omega();
           double denom = omega * lagFreq;
-          dcmDerivGain_ = -(alpha + beta + gamma + omega - lagFreq) / denom;
+          dcmDerivGain_ = -(alpha + beta + gamma + lagFreq - omega) / denom;
           dcmIntegralGain_ = -(alpha * beta * gamma) / denom;
           dcmPropGain_ = (alpha * beta + beta * gamma + gamma * alpha + omega * lagFreq) / denom;
           polePlacement_ = {alpha, beta, gamma, lagFreq};
