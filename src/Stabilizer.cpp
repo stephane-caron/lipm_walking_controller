@@ -172,13 +172,13 @@ namespace lipm_walking
           double denom = pendulum_.omega() * lagFreq;
           double T_integ = dcmIntegrator_.timeConstant();
 
-          // Gains K_z for the ZMP feedback (Delta ZMP = -K_z * Delta DCM)
+          // Gains K_z for the ZMP feedback (Delta ZMP = K_z * Delta DCM)
           double zmpPropGain = (alpha * beta + beta * gamma + gamma * alpha + omega * lagFreq) / denom;
           double zmpIntegralGain = -(alpha * beta * gamma) / denom;
           double zmpDerivGain = -(alpha + beta + gamma + lagFreq - omega) / denom;
 
           // Our gains K are for closed-loop DCM (Delta dot(DCM) = -K * Delta DCM)
-          dcmPropGain_ = omega * (1. + zmpPropGain);
+          dcmPropGain_ = omega * (zmpPropGain - 1.);
           dcmIntegralGain_ = omega * T_integ * zmpIntegralGain; // our integrator is an EMA
           dcmDerivGain_ = omega * zmpDerivGain;
         }),
