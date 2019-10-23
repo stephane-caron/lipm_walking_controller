@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- Stabilizer: alternative DCM gain tuning by pole placement under ZMP lag model
+
 ### Changed
 
 - Switch license to BSD 2-clause for compatibility with other mc\_rtc projects

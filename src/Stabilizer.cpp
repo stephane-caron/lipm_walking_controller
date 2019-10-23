@@ -106,7 +106,7 @@ namespace lipm_walking
   {
     using namespace mc_rtc::gui;
     gui->addElement(
-      {"Stabilizer", "DCM tracking"},
+      {"Stabilizer", "Main"},
       Button(
         "Disable stabilizer",
         [this]() { disable(); }),
@@ -129,7 +129,7 @@ namespace lipm_walking
           copAdmittance_.y() = clamp(a(1), 0., MAX_COP_ADMITTANCE);
         }),
       ArrayInput(
-        "Foot force diff. control",
+        "Foot force difference",
         {"Admittance", "Damping"},
         [this]() -> Eigen::Vector2d
         {
@@ -141,7 +141,7 @@ namespace lipm_walking
           dfzDamping_ = clamp(a(1), 0., MAX_DFZ_DAMPING);
         }),
       ArrayInput(
-        "DCM tracking",
+        "DCM gains",
         {"Prop.", "Integral", "Deriv."},
         [this]() -> Eigen::Vector3d
         {
@@ -154,8 +154,48 @@ namespace lipm_walking
           dcmDerivGain_ = clamp(gains(2), 0., MAX_DCM_D_GAIN);
         }),
       ArrayInput(
-        "Pole placement with lag",
-        {"Pole1", "Pole2", "Pole3", "Lag freq. [Hz]"},
+        "DCM filters",
+        {"Integrator T [s]", "Derivator T [s]"},
+        [this]() -> Eigen::Vector2d
+        {
+          return {dcmIntegrator_.timeConstant(), dcmDerivator_.timeConstant()};
+        },
+        [this](const Eigen::Vector2d & T)
+        {
+          dcmIntegrator_.timeConstant(T(0));
+          dcmDerivator_.timeConstant(T(1));
+        }));
+    gui->addElement(
+      {"Stabilizer", "Advanced"},
+      Button(
+        "Disable stabilizer",
+        [this]() { disable(); }),
+      Button(
+        "Reconfigure",
+        [this]() { reconfigure(); }),
+      Button(
+        "Reset CoM integrator",
+        [this]() { zmpccIntegrator_.setZero(); }),
+      ArrayInput(
+        "CoM admittance",
+        {"Ax", "Ay"},
+        [this]() { return comAdmittance_; },
+        [this](const Eigen::Vector2d & a)
+        {
+          comAdmittance_.x() = clamp(a.x(), 0., MAX_COM_ADMITTANCE);
+          comAdmittance_.y() = clamp(a.y(), 0., MAX_COM_ADMITTANCE);
+        }),
+      Checkbox(
+        "Apply CoM admittance only in double support?",
+        [this]() { return zmpccOnlyDS_; },
+        [this]() { zmpccOnlyDS_ = !zmpccOnlyDS_; }),
+      NumberInput(
+        "CoM integrator leak rate [Hz]",
+        [this]() { return zmpccIntegrator_.rate(); },
+        [this](double T) { zmpccIntegrator_.rate(T); }),
+      ArrayInput(
+        "DCM pole placement",
+        {"Pole1", "Pole2", "Pole3", "Lag [Hz]"},
         [this]() -> Eigen::VectorXd
         {
           return polePlacement_;
@@ -183,55 +223,7 @@ namespace lipm_walking
           dcmDerivGain_ = omega * zmpDerivGain;
         }),
       ArrayInput(
-        "DCM filters",
-        {"Integrator T [s]", "Derivator T [s]"},
-        [this]() -> Eigen::Vector2d
-        {
-          return {dcmIntegrator_.timeConstant(), dcmDerivator_.timeConstant()};
-        },
-        [this](const Eigen::Vector2d & T)
-        {
-          dcmIntegrator_.timeConstant(T(0));
-          dcmDerivator_.timeConstant(T(1));
-        }));
-    gui->addElement(
-      {"Stabilizer", "CoM admittance"},
-      Button(
-        "Disable stabilizer",
-        [this]() { disable(); }),
-      Button(
-        "Reconfigure",
-        [this]() { reconfigure(); }),
-      Button(
-        "Reset CoM integrator",
-        [this]() { zmpccIntegrator_.setZero(); }),
-      ArrayInput(
-        "CoM admittance",
-        {"Ax", "Ay"},
-        [this]() { return comAdmittance_; },
-        [this](const Eigen::Vector2d & a)
-        {
-          comAdmittance_.x() = clamp(a.x(), 0., MAX_COM_ADMITTANCE);
-          comAdmittance_.y() = clamp(a.y(), 0., MAX_COM_ADMITTANCE);
-        }),
-      Checkbox(
-        "Apply only in double support?",
-        [this]() { return zmpccOnlyDS_; },
-        [this]() { zmpccOnlyDS_ = !zmpccOnlyDS_; }),
-      NumberInput(
-        "Integrator leak rate [Hz]",
-        [this]() { return zmpccIntegrator_.rate(); },
-        [this](double T) { zmpccIntegrator_.rate(T); }));
-    gui->addElement(
-      {"Stabilizer", "Misc"},
-      Button(
-        "Disable stabilizer",
-        [this]() { disable(); }),
-      Button(
-        "Reconfigure",
-        [this]() { reconfigure(); }),
-      ArrayInput(
-        "Vertical drift control",
+        "Vertical drift compensation",
         {"frequency", "stiffness"},
         [this]() -> Eigen::Vector2d
         {
@@ -241,17 +233,25 @@ namespace lipm_walking
         {
           vdcFrequency_ = clamp(v(0), 0., 10.);
           vdcStiffness_ = clamp(v(1), 0., 1e4);
-        }),
+        }));
+    gui->addElement(
+      {"Stabilizer", "Debug"},
+      Button(
+        "Disable stabilizer",
+        [this]() { disable(); }),
+      Button(
+        "Reconfigure",
+        [this]() { reconfigure(); }),
       ArrayLabel("CoM offset [mm]",
         {"x", "y"},
         [this]() { return vecFromError(zmpccCoMOffset_); }),
-      ArrayLabel("DCM avg. error [mm]",
+      ArrayLabel("DCM average error [mm]",
         {"x", "y"},
         [this]() { return vecFromError(dcmAverageError_); }),
       ArrayLabel("DCM error [mm]",
         {"x", "y"},
         [this]() { return vecFromError(dcmError_); }),
-      ArrayLabel("DFZ error [mm]",
+      ArrayLabel("Foot force difference error [mm]",
         {"force", "height"},
         [this]()
         {
