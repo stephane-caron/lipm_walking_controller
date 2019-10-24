@@ -71,11 +71,7 @@
     {
       "admittance":
       {
-        // NB: in the paper and videos CoM admittances are reported at the
-        // acceleration level, but in the controller they are expressed at
-        // the velocity level (sorry for the discrepancy). Multiply the former
-        // by 0.005 to obtain the latter.
-        "com": [0.1, 0.5],
+        "com": [0.0, 0.0],
         "cop": [0.01, 0.01],
         "dfz": 0.0001,
         "dfz_damping": 0.0
@@ -719,8 +715,8 @@
       "type": "contact"
     },
     {
-      "type": "kinematics", // constraint type
-      "damper": [           // see Equation (3.6) in J. Vaillant's thesis
+      "type": "kinematics", // KinematicsConstraint, i.e. joint limits
+      "damper": [           // see equation (3.6) in Joris Vaillant's thesis
           0.1,              // interaction distance (d_i)
           0.01,             // safety distance (d_s)
           0.5],             // damper offset (xi_off)
@@ -750,9 +746,13 @@
   // Finite state machine
   // 
 
+  "Managed": false,
+  "StatesFiles": [],
+  "StatesLibraries": ["@MC_RTC_LIBDIR@/mc_controller/lipm_walking_controller/states"],
+  "StepByStep": false,
+  "configs": {},
   "init": "Initial",
   "states": {},
-  "configs": {},
   "transitions":
   [
     ["Initial", "Standing", "Standing"],
@@ -762,19 +762,7 @@
     ["SingleSupport", "DoubleSupport", "DoubleSupport"]
   ],
 
-  // When true, the FSM transitions are managed by an external tool
-  "Managed": false,
-
-  // When true and the FSM is self-managed, transitions should be triggered
-  "StepByStep": false,
-
-  // Where to look for state libraries
-  "StatesLibraries": ["@MC_RTC_LIBDIR@/mc_controller/lipm_walking_controller/states"],
-
-  // Where to look for state files
-  "StatesFiles": [],
-
-  // Write joint encoder readings to realRobot
+  // Set realRobot's joint configuration from encoder readings
   "RunObservers": ["Encoder"],
-  "UpdateObservers": ["Encoder"],
+  "UpdateObservers": ["Encoder"]
 }
