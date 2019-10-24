@@ -437,8 +437,7 @@ namespace lipm_walking
         },
         [this]()
         {
-          Eigen::Vector3d cop = this->robot().copW("LeftFootCenter");
-          return sva::PTransformd(this->robot().surface("LeftFootCenter").X_0_s(this->robot()).rotation(), cop);
+          return sva::PTransformd(this->robot().copW("LeftFootCenter"));
         }),
       Point3D(
         "Stabilizer_RightCoP",
@@ -453,8 +452,7 @@ namespace lipm_walking
         },
         [this]()
         {
-          Eigen::Vector3d cop = this->robot().copW("RightFootCenter");
-          return sva::PTransformd(this->robot().surface("RightFootCenter").X_0_s(this->robot()).rotation(), cop);
+          return sva::PTransformd(this->robot().copW("RightFootCenter"));
         }));
   }
 
