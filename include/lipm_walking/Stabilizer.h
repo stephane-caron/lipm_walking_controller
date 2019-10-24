@@ -259,14 +259,6 @@ namespace lipm_walking
       return computeZMP(distribWrench_);
     }
 
-    /** Difference between desired and measured ZMP.
-     *
-     */
-    const Eigen::Vector3d & zmpError()
-    {
-      return zmpError_;
-    }
-
   private:
     /** Weights for force distribution quadratic program (FDQP).
      *
@@ -374,9 +366,9 @@ namespace lipm_walking
   private:
     ContactState contactState_ = ContactState::DoubleSupport;
     Eigen::LSSOL_LS wrenchSolver_; /**< Least-squares solver for wrench distribution */
-    Eigen::Matrix<double, 16, 6> wrenchFaceMatrix_;
-    Eigen::Vector2d comAdmittance_ = Eigen::Vector2d::Zero();
-    Eigen::Vector2d copAdmittance_ = Eigen::Vector2d::Zero();
+    Eigen::Matrix<double, 16, 6> wrenchFaceMatrix_; /**< Matrix of single-contact wrench cone inequalities */
+    Eigen::Vector2d comAdmittance_ = Eigen::Vector2d::Zero(); /**< Admittance gains for CoM admittance control */
+    Eigen::Vector2d copAdmittance_ = Eigen::Vector2d::Zero(); /**< Admittance gains for foot damping control */
     Eigen::Vector3d comStiffness_ = {1000., 1000., 100.}; /**< Stiffness of CoM IK task */
     Eigen::Vector3d dcmAverageError_ = Eigen::Vector3d::Zero();
     Eigen::Vector3d dcmError_ = Eigen::Vector3d::Zero();
@@ -395,7 +387,7 @@ namespace lipm_walking
     LeakyIntegrator zmpccIntegrator_;
     StationaryOffsetFilter dcmDerivator_;
     bool inTheAir_ = false; /**< Is the robot in the air? */
-    bool zmpccOnlyDS_ = true;
+    bool zmpccOnlyDS_ = true; /**< Apply CoM admittance control only in double support? */
     const Pendulum & pendulum_; /**< Reference to desired reduced-model state */
     const mc_rbdyn::Robot & controlRobot_; /**< Control robot model (input to joint position controllers) */
     double comWeight_ = 1000.; /**< Weight of CoM IK task */
@@ -408,7 +400,7 @@ namespace lipm_walking
     double dfzForceError_ = 0.; /**< Force error in foot force difference control */
     double dfzHeightError_ = 0.; /**< Height error in foot force difference control */
     double dt_ = 0.005; /**< Controller cycle in [s] */
-    double leftFootRatio_ = 0.5;
+    double leftFootRatio_ = 0.5; /**< Weight distribution ratio (0: all weight on right foot, 1: all on left foot) */
     double mass_ = 38.; /**< Robot mass in [kg] */
     double runTime_ = 0.;
     double swingFootStiffness_ = 2000.; /**< Stiffness of swing foot IK task */

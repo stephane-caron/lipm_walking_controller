@@ -95,14 +95,6 @@ namespace lipm_walking
       leftFootRatio_ = ratio;
     }
 
-    /** Get floating-base pose in the world frame.
-     *
-     */
-    sva::PTransformd posW()
-    {
-      return {orientation_, position_};
-    }
-
   private:
     /** Update floating-base orientation based on new observed gravity vector.
      *

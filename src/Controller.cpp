@@ -130,10 +130,8 @@ namespace lipm_walking
     logger.addLogEntry("controlRobot_LeftFootCenter", [this]() { return controlRobot().surfacePose("LeftFootCenter"); });
     logger.addLogEntry("controlRobot_RightFoot", [this]() { return controlRobot().surfacePose("RightFoot"); });
     logger.addLogEntry("controlRobot_RightFootCenter", [this]() { return controlRobot().surfacePose("RightFootCenter"); });
-    logger.addLogEntry("controlRobot_com", [this]() { return controlCom_; });
-    logger.addLogEntry("controlRobot_comd", [this]() { return controlComd_; });
-    logger.addLogEntry("controlRobot_comd_norm", [this]() { return controlComd_.norm(); });
-    logger.addLogEntry("controlRobot_dcm", [this]() -> Eigen::Vector3d { return controlCom_ + controlComd_ / pendulum_.omega(); });
+    logger.addLogEntry("controlRobot_com", [this]() { return controlRobot().com(); });
+    logger.addLogEntry("controlRobot_comd", [this]() { return controlRobot().comVelocity(); });
     logger.addLogEntry("controlRobot_posW", [this]() { return controlRobot().posW(); });
     logger.addLogEntry("mpc_failures", [this]() { return nbMPCFailures_; });
     logger.addLogEntry("mpc_weights_jerk", [this]() { return mpc_.jerkWeight; });
@@ -484,16 +482,15 @@ namespace lipm_walking
     stabilizer_.reset(robots());
 
     // (4) reset controller attributes
-    controlCom_ = controlRobot().com();
-    controlComd_ = Eigen::Vector3d::Zero();
     leftFootRatioJumped_ = true;
     leftFootRatio_ = 0.5;
     nbMPCFailures_ = 0;
     pauseWalking = false;
     pauseWalkingRequested = false;
 
-    comVelFilter_.reset(controlCom_);
-    pendulum_.reset(controlCom_);
+    Eigen::Vector3d controlCoM = controlRobot().com();
+    comVelFilter_.reset(controlCoM);
+    pendulum_.reset(controlCoM);
 
     // (5) reset floating-base observers
     floatingBaseObs_.reset(controlRobot().posW());
@@ -534,8 +531,6 @@ namespace lipm_walking
       return mc_control::fsm::Controller::run();
     }
 
-    controlCom_ = controlRobot().com();
-    controlComd_ = controlRobot().comVelocity();
     ctlTime_ += timeStep;
 
     warnIfRobotIsInTheAir();

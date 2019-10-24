@@ -332,8 +332,6 @@ namespace lipm_walking
 
   private: /* hidden from FSM states */
     Eigen::Matrix3d pelvisOrientation_ = Eigen::Matrix3d::Identity(); /**< Pelvis orientation (upright by default) */
-    Eigen::Vector3d controlCom_; /** CoM position of the control robot (not the same as reference CoM position) */
-    Eigen::Vector3d controlComd_; /**< CoM velocity of the control robot (not the same as reference CoM velocity ) */
     Eigen::Vector3d realCom_; /**< Estimated CoM position of the robot */
     Eigen::Vector3d realComd_; /**< Estimated CoM velocity of the robot */
     FloatingBaseObserver floatingBaseObs_; /**< Floating base observer */
