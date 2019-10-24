@@ -340,17 +340,7 @@ namespace lipm_walking
     updateVelCost();
     updateZMPCost();
 
-    // Solve times over 200 samples:
-    // |---------------------------------|
-    // | QP solver     | Solve time [ms] |
-    // |---------------------------------|
-    // | LSSOL         | 0.23 ± 0.10     |
-    // | QLD           | 0.08 ± 0.02     |
-    // | QuadProgDense | 0.10 ± 0.03     |
-    // |---------------------------------|
-
     copra::LMPC lmpc(previewSystem_, solver_);
-
     lmpc.addConstraint(termDCMCons_);
     lmpc.addConstraint(termZMPCons_);
     lmpc.addConstraint(zmpCons_);
