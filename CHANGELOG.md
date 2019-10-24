@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Switch license to BSD 2-clause for compatibility with other mc\_rtc projects
+- Updated dependencies
 
 ## [v1.2] - 2019/10/11
 

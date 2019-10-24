@@ -472,9 +472,9 @@ namespace lipm_walking
     // (1) update floating-base transforms of both robot mbc's
     auto X_0_fb = supportContact().robotTransform(controlRobot());
     controlRobot().posW(X_0_fb);
-    controlRobot().setBaseLinkVelocity(Eigen::Vector6d::Zero());
+    controlRobot().velW(sva::MotionVecd::Zero());
     realRobot().posW(X_0_fb);
-    realRobot().setBaseLinkVelocity(Eigen::Vector6d::Zero());
+    realRobot().velW(sva::MotionVecd::Zero());
 
     // (2) update contact frames to coincide with surface ones
     loadFootstepPlan(plan.name);

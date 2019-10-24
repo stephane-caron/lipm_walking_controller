@@ -75,6 +75,16 @@ namespace lipm_walking
      */
     void updateRobot(mc_rbdyn::Robot & robot);
 
+    /** Get the orientation of the IMU with respect to the inertial frame.
+     *
+     * \note Although this estimation is currently stored in the body sensor of
+     * the control robot, it is an actual sensor reading.
+     */
+    const Eigen::Quaterniond & imuOrientation()
+    {
+      return controlRobot_.bodySensor().orientation();
+    }
+
     /** Set fraction of total weight sustained by the left foot.
      *
      * \note This field is used in anchor frame computations.
