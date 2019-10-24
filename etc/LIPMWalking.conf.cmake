@@ -774,9 +774,6 @@
   // Where to look for state files
   "StatesFiles": [],
 
-  // Controller has its own floating base estimator
-  "UpdateRealFromSensors": false,
-
   // Write joint encoder readings to realRobot
   "RunObservers": ["Encoder"],
   "UpdateObservers": ["Encoder"],
