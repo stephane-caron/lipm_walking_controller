@@ -774,9 +774,6 @@
   // Where to look for state files
   "StatesFiles": [],
 
-  // When true, state factory will be more verbose
-  "VerboseStateFactory": true,
-
   // Controller has its own floating base estimator
   "UpdateRealFromSensors": false,
 
