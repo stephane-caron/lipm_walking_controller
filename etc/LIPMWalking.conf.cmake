@@ -777,8 +777,4 @@
   // Write joint encoder readings to realRobot
   "RunObservers": ["Encoder"],
   "UpdateObservers": ["Encoder"],
-
-  // Controller is created in a sandbox, which in between a thread and a fork;
-  // try to keep it to false, as it can create weird conflicts with threads
-  "UseSandbox" : false
 }
