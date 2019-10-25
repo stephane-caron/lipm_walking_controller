@@ -9,5 +9,5 @@ This file lists dependency commits of a consistent build of the project:
 * [mc\_rbdyn\_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf): ``2b9f3e0e10ee6a40ef011592c519a9f26c423cc5``
 * [copra](https://github.com/vsamy/copra): ``22c9dfce60ab5c0017abf7f83fd992c34665cfe7``
 * [mc\_rtc\_ros\_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data): ``2d27fcc8eba13f65823788a0b538c70ea0a0dfdd``
-* [mc\_rtc\_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros): ``08a63ef85f336c9b6ac5127d607d61350cff43b6``
+* [mc\_rtc\_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros): ``9067b37ec8788567b06f6a8135704801a5556058``
 * [mc\_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc): ``01d322898e95d9cde24ee3b83c4296b3e9da87bc``
