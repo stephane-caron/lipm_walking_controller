@@ -38,14 +38,14 @@ To avoid a ``sudo`` at ``catkin_make install`` you can change ownership or permi
 
 ## Usage
 
-Launch RViz for the HRP-4 model by:
+Launch RViz for the JVRC-1 model by:
 ```sh
-roslaunch lipm_walking_controller display.launch robot:=hrp4
+roslaunch lipm_walking_controller display.launch robot:=jvrc-1
 ```
 Enable the controller in your mc\_rtc configuration:
 ```sh
 {
-  "MainRobot": "HRP4",
+  "MainRobot": "JVRC-1",
   "Enabled": ["LIPMWalking"]
 }
 ```
