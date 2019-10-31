@@ -60,7 +60,6 @@
     },
     "torso":
     {
-      "pitch": 0.1,
       "stiffness": 10.0,
       "weight": 100.0
     }
@@ -104,7 +103,11 @@
         "half_width": 0.065,
         "friction": 0.7
       },
-      "torso": "torso"
+      "torso":
+      {
+        "name": "torso",
+        "pitch": 0.1
+      }
     },
     "hrp2_drc":
     {
@@ -143,7 +146,55 @@
         "half_width": 0.07,
         "friction": 0.7
       },
-      "torso": "CHEST_LINK1"
+      "torso":
+      {
+        "name": "CHEST_LINK1",
+        "pitch": 0.0
+      }
+    },
+    "jvrc1":
+    {
+      "admittance":
+      {
+        "com": [0.0, 0.0],
+        "cop": [0.01, 0.01],
+        "dfz": 0.0001,
+        "dfz_damping": 0.0
+      },
+      "com":
+      {
+        "active_joints": [
+          "Root",
+          "R_HIP_Y", "R_HIP_R", "R_HIP_P", "R_KNEE_P", "R_ANKLE_P", "R_ANKLE_R",
+          "L_HIP_Y", "L_HIP_R", "L_HIP_P", "L_KNEE_P", "L_ANKLE_P", "L_ANKLE_R"
+        ],
+        "height": 0.88,
+        "max_height": 0.95,
+        "min_height": 0.65
+      },
+      "dcm_tracking":
+      {
+        "gains":
+        {
+          "prop": 5.0,
+          "integral": 10.0,
+          "deriv": 0.0
+        },
+        "derivator_time_constant": 1.0,
+        "integrator_time_constant": 10.0
+      },
+      "sole":
+      {
+        "half_length": 0.112,
+        "half_width": 0.065,
+        "friction": 0.7
+      },
+      "torso":
+      {
+        "name": "WAIST_R_S",
+        "pitch": 0.0
+      }
+>>>>>>> Stashed changes
     }
   },
   "plans":
