@@ -72,10 +72,10 @@ namespace lipm_walking
     postureTask->stiffness(postureStiffness);
     postureTask->weight(postureWeight);
 
-    std::string torsoName = robotConfig("torso");
+    std::string torsoName = robotConfig("torso")("name");
+    robotConfig("torso")("pitch", defaultTorsoPitch_);
     double torsoStiffness = config("tasks")("torso")("stiffness");
     double torsoWeight = config("tasks")("torso")("weight");
-    config("tasks")("torso")("pitch", defaultTorsoPitch_);
     torsoPitch_ = defaultTorsoPitch_;
     torsoTask = std::make_shared<mc_tasks::OrientationTask>(torsoName, robots(), 0);
     torsoTask->orientation(mc_rbdyn::rpyToMat({0, torsoPitch_, 0}) * pelvisOrientation_);
