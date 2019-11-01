@@ -165,11 +165,11 @@
       {
         "active_joints": [
           "Root",
-          "R_HIP_Y", "R_HIP_R", "R_HIP_P", "R_KNEE_P", "R_ANKLE_P", "R_ANKLE_R",
-          "L_HIP_Y", "L_HIP_R", "L_HIP_P", "L_KNEE_P", "L_ANKLE_P", "L_ANKLE_R"
+          "R_HIP_Y", "R_HIP_R", "R_HIP_P", "R_KNEE", "R_ANKLE_P", "R_ANKLE_R",
+          "L_HIP_Y", "L_HIP_R", "L_HIP_P", "L_KNEE", "L_ANKLE_P", "L_ANKLE_R"
         ],
-        "height": 0.88,
-        "max_height": 0.95,
+        "height": 0.85,
+        "max_height": 0.90,
         "min_height": 0.65
       },
       "dcm_tracking":
