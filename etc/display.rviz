@@ -399,7 +399,7 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-      Name: HRP-4 control
+      Name: Control robot
       Robot Description: robot_description
       TF Prefix: /control
       Update Interval: 0
@@ -415,7 +415,7 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-      Name: HRP-4 real
+      Name: Real robot
       Robot Description: robot_description
       TF Prefix: /real
       Update Interval: 0
