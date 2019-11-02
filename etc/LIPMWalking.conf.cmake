@@ -837,6 +837,7 @@
       },
       "step_40cm_forward":
       {
+        "com_height": 0.83,
         "init_dsp_duration": 0.6,
         "double_support_duration": 0.1,
         "single_support_duration": 0.7,
