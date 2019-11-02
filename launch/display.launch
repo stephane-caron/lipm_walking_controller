@@ -1,8 +1,9 @@
 <launch>
-  <!-- Robot model model -->
-  <!-- Call with `robot:=hrp4` for HRP-4 (default) -->
+  <!-- Robot model -->
   <!-- Call with `robot:=hrp2_drc` for HRP-2Kai -->
-  <arg name="robot" default="hrp4" />
+  <!-- Call with `robot:=hrp4` for HRP-4 -->
+  <!-- Call with `robot:=jvrc1` for JVRC-1 -->
+  <arg name="robot" default="jvrc1" />
   <include file="$(find mc_scenario)/robot/$(arg robot).xml" />
 
   <!-- RViz -->

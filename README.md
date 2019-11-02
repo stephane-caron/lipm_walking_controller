@@ -6,7 +6,7 @@ Source code of the walking and stair climbing controller used in the experiments
 
 ## Installation
 
-Compilation has been tested on Ubuntu 14.04 (gcc/clang) with ROS Indigo and Ubuntu 16.04 (gcc) with ROS Kinetic.
+The controller has been tested on Ubuntu 14.04 (gcc/clang) with ROS Indigo and Ubuntu 16.04 (gcc) with ROS Kinetic. See the [installation instructions](https://github.com/stephane-caron/lipm_walking_controller/wiki/Installation) on the wiki.
 
 ### Dependencies
 
@@ -40,12 +40,12 @@ To avoid a ``sudo`` at ``catkin_make install`` you can change ownership or permi
 
 Launch RViz for the JVRC-1 model by:
 ```sh
-roslaunch lipm_walking_controller display.launch robot:=jvrc-1
+roslaunch lipm_walking_controller display.launch robot:=jvrc1
 ```
 Enable the controller in your mc\_rtc configuration:
 ```sh
 {
-  "MainRobot": "JVRC-1",
+  "MainRobot": "JVRC1",
   "Enabled": ["LIPMWalking"]
 }
 ```
@@ -53,8 +53,8 @@ Finally, start the controller from your mc\_rtc interface. Here is the example
 of a local [Choreonoid](https://choreonoid.org/en/) simulation using the
 [mc\_udp](https://gite.lirmm.fr/multi-contact/mc_udp) interface:
 ```sh
-cd /usr/local/share/hrpsys/samples/HRP4LIRMM
-choreonoid --start-simulation HRP4LIRMM_udp.cnoid  # in one terminal
+cd /usr/local/share/hrpsys/samples/JVRC1
+choreonoid --start-simulation sim_mc_udp.cnoid  # in one terminal
 MCUDPControl -h localhost  # in another terminal
 ```
 You should end up with the following windows:
