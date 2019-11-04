@@ -33,6 +33,14 @@
 
 namespace lipm_walking
 {
+  // Repeat static constexpr declarations
+  // Fixes https://github.com/stephane-caron/lipm_walking_controller/issues/21
+  // See also https://stackoverflow.com/q/8016780
+  constexpr double ModelPredictiveControl::SAMPLING_PERIOD;
+  constexpr unsigned ModelPredictiveControl::INPUT_SIZE;
+  constexpr unsigned ModelPredictiveControl::NB_STEPS;
+  constexpr unsigned ModelPredictiveControl::STATE_SIZE;
+
   ModelPredictiveControl::ModelPredictiveControl()
   {
     velCostMat_.setZero();

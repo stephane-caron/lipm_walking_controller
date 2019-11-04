@@ -32,6 +32,23 @@
 
 namespace lipm_walking
 {
+  // Repeat static constexpr declarations
+  // Fixes https://github.com/stephane-caron/lipm_walking_controller/issues/21
+  // See also https://stackoverflow.com/q/8016780
+  constexpr double Stabilizer::MAX_AVERAGE_DCM_ERROR;
+  constexpr double Stabilizer::MAX_COM_ADMITTANCE;
+  constexpr double Stabilizer::MAX_COP_ADMITTANCE;
+  constexpr double Stabilizer::MAX_DCM_D_GAIN;
+  constexpr double Stabilizer::MAX_DCM_I_GAIN;
+  constexpr double Stabilizer::MAX_DCM_P_GAIN;
+  constexpr double Stabilizer::MAX_DFZ_ADMITTANCE;
+  constexpr double Stabilizer::MAX_DFZ_DAMPING;
+  constexpr double Stabilizer::MAX_FDC_RX_VEL;
+  constexpr double Stabilizer::MAX_FDC_RY_VEL;
+  constexpr double Stabilizer::MAX_FDC_RZ_VEL;
+  constexpr double Stabilizer::MAX_ZMPCC_COM_OFFSET;
+  constexpr double Stabilizer::MIN_DS_PRESSURE;
+
   namespace
   {
     inline Eigen::Vector2d vecFromError(const Eigen::Vector3d & error)
