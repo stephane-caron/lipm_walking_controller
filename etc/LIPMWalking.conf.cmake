@@ -801,6 +801,96 @@
           { "pose": { "translation": [0.0,  0.105, 0.0] }, "surface": "LeftFootCenter" }
         ]
       },
+      "comanoid_airbus_staircase": // 1st part of Sep 10, 2019 experiment video (on YouTube)
+      {
+        "com_height": 0.84,
+        "init_dsp_duration": 0.6,
+        "single_support_duration": 1.4,
+        "double_support_duration": 0.2,
+        "final_dsp_duration": 0.6,
+        "swing_height": 0.24,
+        "landing_duration": 0.1,
+        "takeoff_duration": 0.42,
+        "torso_pitch": 0.2,
+        "contacts":
+        [
+          {
+            "pose": { "translation": [-0.04,  0.09, 0.000] },
+            "surface": "LeftFootCenter"
+          },
+          {
+            "pose": { "translation": [-0.04, -0.09, 0.000] },
+            "surface": "RightFootCenter",
+            "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
+          },
+          {
+            "pose": { "translation": [0.24,   0.09, 0.185] },
+            "surface": "LeftFootCenter",
+            "swing": { "takeoff_offset": [-0.02, 0.0, 0.0] }
+          },
+          {
+            "pose": { "translation": [0.24,  -0.09, 0.185] },
+            "surface": "RightFootCenter",
+            "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
+          },
+          {
+            "pose": { "translation": [0.48,   0.09, 0.370] },
+            "surface": "LeftFootCenter",
+            "swing": { "takeoff_offset": [-0.02, 0.0, 0.0] }
+          },
+          {
+            "pose": { "translation": [0.48,  -0.09, 0.370] },
+            "surface": "RightFootCenter",
+            "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
+          },
+          {
+            "pose": { "translation": [0.72,   0.09, 0.555] },
+            "surface": "LeftFootCenter",
+            "swing": { "takeoff_offset": [-0.02, 0.0, 0.0] }
+          },
+          {
+            "pose": { "translation": [0.72,  -0.09, 0.555] },
+            "surface": "RightFootCenter",
+            "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
+          },
+          {
+            "pose": { "translation": [0.96,   0.09, 0.740] },
+            "surface": "LeftFootCenter",
+            "swing": { "height": 0.2, "takeoff_offset": [-0.02, 0.0, 0.0] }
+          },
+          {
+            "pose": { "translation": [0.96,  -0.09, 0.740] },
+            "surface": "RightFootCenter",
+            "swing": { "height": 0.2, "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
+          },
+          { "pose": { "translation": [1.20,   0.09, 0.885] }, "surface": "LeftFootCenter"  },
+          { "pose": { "translation": [1.20,  -0.09, 0.885] }, "surface": "RightFootCenter" }
+        ],
+        "mpc":
+        {
+          "weights":
+          {
+            "jerk": 1.0,
+            "vel": [10.0, 300.0],
+            "zmp": 1000.0
+          }
+        }
+      },
+      "comanoid_walk_45cm":  // 2nd part of Sep 10, 2019 experiment video (on YouTube)
+      {
+        "double_support_duration": 0.1,
+        "single_support_duration": 0.7,
+        "swing_height": 0.04,
+        "contacts":
+        [
+          { "pose": { "translation": [0.0,  -0.09, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,   0.09, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter" },
+          { "pose": { "translation": [0.15, -0.09, 0.0] }, "ref_vel": [0.07, 0.0, 0.0], "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.3,   0.09, 0.0] }, "ref_vel": [0.15, 0.0, 0.0], "surface": "LeftFootCenter" },
+          { "pose": { "translation": [0.45, -0.09, 0.0] }, "ref_vel": [0.15, 0.0, 0.0], "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.45,  0.09, 0.0] }, "ref_vel": [0.07, 0.0, 0.0], "surface": "LeftFootCenter" }
+        ]
+      },
       "forward_15cm_steps":
       {
         "double_support_duration": 0.1,
