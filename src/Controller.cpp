@@ -82,17 +82,6 @@ namespace lipm_walking
     torsoTask->stiffness(torsoStiffness);
     torsoTask->weight(torsoWeight);
 
-    // Set half-sitting pose for posture task
-    const auto & halfSit = robotModule->stance();
-    const auto & refJointOrder = robot().refJointOrder();
-    for (unsigned i = 0; i < refJointOrder.size(); ++i)
-    {
-      if (robot().hasJoint(refJointOrder[i]))
-      {
-        halfSitPose[robot().jointIndexByName(refJointOrder[i])] = halfSit.at(refJointOrder[i]);
-      }
-    }
-
     // Read settings from configuration file
     plans_ = planConfig;
     mpcConfig_ = config("mpc");
@@ -457,6 +446,30 @@ namespace lipm_walking
   void Controller::reset(const mc_control::ControllerResetData & data)
   {
     mc_control::fsm::Controller::reset(data);
+    halfSitPose = robot().mbc().q;
+    // Set half-sitting pose for posture task
+    const auto & halfSit = robot().module().stance();
+    const auto & refJointOrder = robot().refJointOrder();
+    std::vector<std::string> gripperJoints = {};
+    for(const auto & g : grippers)
+    {
+      for(const auto & jn : g.second->names)
+      {
+        gripperJoints.push_back(jn);
+      }
+    }
+    for (unsigned i = 0; i < refJointOrder.size(); ++i)
+    {
+      if(std::find(gripperJoints.begin(), gripperJoints.end(), refJointOrder[i]) != gripperJoints.end())
+      {
+        continue;
+      }
+      if (robot().hasJoint(refJointOrder[i]))
+      {
+        halfSitPose[robot().jointIndexByName(refJointOrder[i])] = halfSit.at(refJointOrder[i]);
+      }
+    }
+
     if (gui_)
     {
       gui_->removeCategory({"Contacts"});
