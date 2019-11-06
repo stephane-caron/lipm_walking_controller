@@ -32,19 +32,62 @@
 
 namespace lipm_walking
 {
-  /** Solution to a model predictive control problem.
+  /** Solution of a model predictive control problem.
+   *
+   * \note A Preview is mostly an integrator. Its implementation is coupled
+   * with the formulation of state and input trajectories in the
+   * ModelPredictiveControl class.
    *
    */
   struct Preview
   {
-    /** Integrate preview on a given inverted pendulum state.
+    /** Initialize with zero state and input trajectories.
      *
-     * \param pendulum Inverted pendulum model.
+     */
+    Preview();
+
+    /** Initialize solution from trajectories.
+     *
+     * \param stateTraj State trajectory.
+     *
+     * \param inputTraj Input trajectory.
+     *
+     */
+    Preview(const Eigen::VectorXd & stateTraj, const Eigen::VectorXd & inputTraj);
+
+    /** Integrate playback on reference.
+     *
+     * \param state State to integrate.
      *
      * \param dt Duration.
      *
      */
-    virtual void integrate(Pendulum & state, double dt) = 0;
+    void integrate(Pendulum & state, double dt);
+
+    /** Playback integration of state reference.
+     *
+     * \param state State to integrate.
+     *
+     * \param dt Duration.
+     *
+     */
+    void integratePlayback(Pendulum & state, double dt);
+
+    /** Post-playback integration of state reference.
+     *
+     * \param state State to integrate.
+     *
+     * \param dt Duration.
+     *
+     */
+    void integratePostPlayback(Pendulum & state, double dt);
+
+    /** Fill solution with zeros, except for initial state.
+     *
+     * \param initState Initial state.
+     *
+     */
+    void zeroFrom(const Eigen::VectorXd & initState);
 
     /** Get current playback step.
      *
@@ -62,7 +105,9 @@ namespace lipm_walking
       return playbackTime_;
     }
 
-  protected:
+  private:
+    Eigen::VectorXd inputTraj_; /**< Stacked vector of input trajectory */
+    Eigen::VectorXd stateTraj_; /**< Stacked vector of state trajectory */
     double playbackTime_ = 0.; /**< Current time in the preview window */
     unsigned playbackStep_ = 0; /**< Current step index in the preview window */
   };

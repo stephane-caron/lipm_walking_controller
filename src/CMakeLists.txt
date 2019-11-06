@@ -30,6 +30,7 @@ set(CONTROLLER_SRC
     ModelPredictiveControl.cpp
     NetWrenchObserver.cpp
     Pendulum.cpp
+    Preview.cpp
     Stabilizer.cpp
     SwingFoot.cpp)
 

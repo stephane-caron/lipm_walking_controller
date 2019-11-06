@@ -39,82 +39,6 @@
 
 namespace lipm_walking
 {
-  /** Solution to a model predictive control problem.
-   *
-   */
-  struct ModelPredictiveControlSolution : Preview
-  {
-    /** Initialize a zero solution with a given initial state.
-     *
-     * \param initState Initial state.
-     *
-     */
-    ModelPredictiveControlSolution(const Eigen::VectorXd & initState);
-
-    /** Initialize solution from trajectories.
-     *
-     * \param stateTraj State trajectory.
-     *
-     * \param jerkTraj CoM jerk trajectory.
-     *
-     */
-    ModelPredictiveControlSolution(const Eigen::VectorXd & stateTraj, const Eigen::VectorXd & jerkTraj);
-
-    /** Integrate playback on reference.
-     *
-     * \param state CoM state to integrate upon.
-     *
-     * \param dt Duration.
-     *
-     */
-    void integrate(Pendulum & state, double dt);
-
-    /** Playback integration of CoM state reference.
-     *
-     * \param state CoM state to integrate upon.
-     *
-     * \param dt Duration.
-     *
-     */
-    void integratePlayback(Pendulum & state, double dt);
-
-    /** Post-playback integration of CoM state reference.
-     *
-     * \param state CoM state to integrate upon.
-     *
-     * \param dt Duration.
-     *
-     */
-    void integratePostPlayback(Pendulum & state, double dt);
-
-    /** Fill solution with zeros, except for initial state.
-     *
-     * \param initState Initial state.
-     *
-     */
-    void zeroFrom(const Eigen::VectorXd & initState);
-
-    /** Get the CoM jerk (input) trajectory.
-     *
-     */
-    const Eigen::VectorXd & jerkTraj() const
-    {
-      return jerkTraj_;
-    }
-
-    /** Get the CoM state trajectory.
-     *
-     */
-    const Eigen::VectorXd & stateTraj() const
-    {
-      return stateTraj_;
-    }
-
-  private:
-    Eigen::VectorXd jerkTraj_; /**< Stacked vector of CoM jerk trajectory */
-    Eigen::VectorXd stateTraj_; /**< Stacked vector of CoM state trajectory */
-  };
-
   /** Model predictive control problem.
    *
    * This implementation is based on "Trajectory free linear model predictive
@@ -337,7 +261,7 @@ namespace lipm_walking
     double buildAndSolveTime_ = 0.; // [s]
     double solveTime_ = 0.; // [s]
     double zeta_;
-    std::shared_ptr<ModelPredictiveControlSolution> solution_ = nullptr;
+    std::shared_ptr<Preview> solution_ = nullptr;
     std::shared_ptr<copra::ControlCost> jerkCost_;
     std::shared_ptr<copra::PreviewSystem> previewSystem_;
     std::shared_ptr<copra::TrajectoryConstraint> termDCMCons_;

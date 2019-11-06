@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Moved torso pitch setting to "torso" dictionary of robot config
+- Renamed ModelPredictiveControlSolution to Preview
 - Switch license to BSD 2-clause for compatibility with other mc\_rtc projects
 - Updated dependencies
 

@@ -359,84 +359,17 @@ namespace lipm_walking
     bool solutionFound = lmpc.solve();
     if (solutionFound)
     {
-      solution_.reset(new ModelPredictiveControlSolution(lmpc.trajectory(), lmpc.control()));
+      solution_.reset(new Preview(lmpc.trajectory(), lmpc.control()));
     }
     else
     {
       LOG_ERROR("Model predictive control problem has no solution");
-      solution_.reset(new ModelPredictiveControlSolution(initState_));
+      solution_.reset(new Preview());
     }
 
     auto endTime = high_resolution_clock::now();
     buildAndSolveTime_ = 1000. * duration_cast<duration<double>>(endTime - startTime).count();
     solveTime_ = 1000. * lmpc.solveTime();
     return solutionFound;
-  }
-
-  namespace
-  {
-    constexpr double SAMPLING_PERIOD = ModelPredictiveControl::SAMPLING_PERIOD;
-    constexpr unsigned INPUT_SIZE = ModelPredictiveControl::INPUT_SIZE;
-    constexpr unsigned NB_STEPS = ModelPredictiveControl::NB_STEPS;
-    constexpr unsigned STATE_SIZE = ModelPredictiveControl::STATE_SIZE;
-  }
-
-  ModelPredictiveControlSolution::ModelPredictiveControlSolution(const Eigen::VectorXd & initState)
-  {
-    jerkTraj_ = Eigen::VectorXd::Zero(NB_STEPS * INPUT_SIZE);
-    stateTraj_ = Eigen::VectorXd::Zero((NB_STEPS + 1) * STATE_SIZE);
-    stateTraj_.head<STATE_SIZE>() = initState;
-  }
-
-  ModelPredictiveControlSolution::ModelPredictiveControlSolution(const Eigen::VectorXd & stateTraj, const Eigen::VectorXd & jerkTraj)
-  {
-    if (stateTraj.size() / STATE_SIZE != 1 + jerkTraj.size() / INPUT_SIZE)
-    {
-      LOG_ERROR("Invalid state/input sizes, respectively " << stateTraj.size() << " and " << jerkTraj.size());
-    }
-    jerkTraj_ = jerkTraj;
-    stateTraj_ = stateTraj;
-  }
-
-  void ModelPredictiveControlSolution::integrate(Pendulum & pendulum, double dt)
-  {
-    if (playbackStep_ < NB_STEPS)
-    {
-      integratePlayback(pendulum, dt);
-    }
-    else // (playbackStep_ >= NB_STEPS)
-    {
-      integratePostPlayback(pendulum, dt);
-    }
-  }
-
-  void ModelPredictiveControlSolution::integratePlayback(Pendulum & pendulum, double dt)
-  {
-    Eigen::Vector3d comddd;
-    comddd.head<INPUT_SIZE>() = jerkTraj_.segment<INPUT_SIZE>(INPUT_SIZE * playbackStep_);
-    comddd.z() = 0.;
-    playbackTime_ += dt;
-    if (playbackTime_ >= (playbackStep_ + 1) * SAMPLING_PERIOD)
-    {
-      playbackStep_++;
-    }
-    pendulum.integrateCoMJerk(comddd, dt);
-  }
-
-  void ModelPredictiveControlSolution::integratePostPlayback(Pendulum & pendulum, double dt)
-  {
-    Eigen::Vector3d comddd;
-    Eigen::VectorXd lastState = stateTraj_.segment<STATE_SIZE>(STATE_SIZE * NB_STEPS);
-    Eigen::Vector2d comd_f = lastState.segment<2>(2);
-    Eigen::Vector2d comdd_f = lastState.segment<2>(4);
-    if (std::abs(comd_f.x() * comdd_f.y() - comd_f.y() * comdd_f.x()) > 1e-4)
-    {
-      LOG_WARNING("MPC terminal condition is not properly fulfilled");
-    }
-    double omega_f = -comd_f.dot(comdd_f) / comd_f.dot(comd_f);
-    double lambda_f = std::pow(omega_f, 2);
-    comddd = -omega_f * pendulum.comdd() - lambda_f * pendulum.comd();
-    comddd.z() = 0.;
-    pendulum.integrateCoMJerk(comddd, dt);
   }
 }
