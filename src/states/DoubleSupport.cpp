@@ -33,12 +33,21 @@ namespace lipm_walking
   {
     auto & ctl = controller();
 
-    duration_ = ctl.doubleSupportDuration();
+    double phaseDuration = ctl.doubleSupportDuration(); // careful! side effect here
+
+    duration_ = phaseDuration;
     initLeftFootRatio_ = ctl.leftFootRatio();
-    remTime_ = duration_;
+    remTime_ = (phaseDuration > ctl.timeStep) ? phaseDuration : -ctl.timeStep;
     stateTime_ = 0.;
     stopDuringThisDSP_ = ctl.pauseWalking;
-    timeSinceLastPreviewUpdate_ = 2 * PREVIEW_UPDATE_PERIOD; // update at transition
+    if (phaseDuration > ctl.timeStep)
+    {
+      timeSinceLastPreviewUpdate_ = 2 * PREVIEW_UPDATE_PERIOD; // update at transition...
+    }
+    else // ... unless DSP duration is zero
+    {
+      timeSinceLastPreviewUpdate_ = 0.;
+    }
 
     const std::string & targetSurfaceName = ctl.targetContact().surfaceName;
     auto actualTargetPose = ctl.controlRobot().surfacePose(targetSurfaceName);
