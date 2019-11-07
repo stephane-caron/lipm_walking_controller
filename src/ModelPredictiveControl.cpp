@@ -63,8 +63,8 @@ namespace lipm_walking
       0, S,
       T, 0,
       0, T;
-    Eigen::VectorXd biasVector = Eigen::VectorXd::Zero(6);
-    initState_ = Eigen::VectorXd::Zero(6);
+    Eigen::VectorXd biasVector = Eigen::VectorXd::Zero(STATE_SIZE);
+    initState_ = Eigen::VectorXd::Zero(STATE_SIZE);
     previewSystem_ = std::make_shared<copra::PreviewSystem>(
         stateMatrix, inputMatrix, biasVector, initState_, NB_STEPS);
     LOG_SUCCESS("Initialized new ModelPredictiveControl solver");

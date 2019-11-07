@@ -81,13 +81,6 @@ namespace lipm_walking
      */
     void integratePostPlayback(Pendulum & state, double dt);
 
-    /** Fill solution with zeros, except for initial state.
-     *
-     * \param initState Initial state.
-     *
-     */
-    void zeroFrom(const Eigen::VectorXd & initState);
-
     /** Get current playback step.
      *
      */

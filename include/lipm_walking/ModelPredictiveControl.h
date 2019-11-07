@@ -147,7 +147,7 @@ namespace lipm_walking
      */
     void initState(const Pendulum & pendulum)
     {
-      initState_ = Eigen::VectorXd(6);
+      initState_ = Eigen::VectorXd(STATE_SIZE);
       initState_ << 
         pendulum.com().head<2>(), 
         pendulum.comd().head<2>(),
@@ -218,11 +218,6 @@ namespace lipm_walking
     const RefVec & velRef() const
     {
       return velRef_;
-    }
-
-    double zeta() const
-    {
-      return zeta_;
     }
 
     const RefVec & zmpRef() const
