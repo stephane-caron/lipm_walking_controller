@@ -130,6 +130,8 @@ namespace lipm_walking
      *
      * \param targetContact Contact used during double-support phases.
      *
+     * \param nextContact Contact coming after targetContact in the plan.
+     *
      */
     void contacts(Contact initContact, Contact targetContact, Contact nextContact)
     {

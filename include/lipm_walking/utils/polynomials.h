@@ -445,9 +445,8 @@ namespace utils
     T targetAccel_;
   };
   
-  /** Polynomial whose argument s \in [0, 1] is retimed to t \in [0, T] by
-   *
-   *  s(t) = t / T
+  /** Polynomial whose argument \f$s \in [0, 1]\f$ is retimed to \f$t \in [0,
+   * T]\f$ by \f$ s(t) = t / T \f$.
    *
    */
   template <template <class> class Polynomial, typename T>
@@ -463,9 +462,9 @@ namespace utils
   
     /** Constructor.
      *
-     * \param poly Polynomial whose argument s \in [0, 1].
+     * \param poly Polynomial whose argument \f$s \in [0, 1]\f$.
      *
-     * \param duration New duration T of the retiming t \in [0, T].
+     * \param duration New duration T of the retiming \f$t \in [0, T]\f$.
      *
      */
     RetimedPolynomial(Polynomial<T> poly, double duration)
@@ -540,7 +539,7 @@ namespace utils
       poly_.reset(initPos, duration * initVel, duration2 * initAccel, targetPos, duration * targetVel, duration2 * targetAccel);
     }
   
-    /** Mapping from t \in [0, T] to s(t) \in [0, 1].
+    /** Mapping from \f$t \in [0, T]\f$ to \f$s(t) \in [0, 1]\f$.
      *
      */
     double s(double t) const
@@ -548,7 +547,8 @@ namespace utils
       return (t < 0.) ? 0. : (t > duration_) ? 1. : t / duration_;
     }
   
-    /** Mapping from t \in [0, T] to sd(t) = d(s(t)) / dt.
+    /** Mapping from \f$t \in [0, T]\f$ to 
+     * \f$\dot{s}(t) = \frac{{\rm d}(s(t))}{{\rm d}t}\f$.
      *
      */
     double sd(double t) const
@@ -558,7 +558,7 @@ namespace utils
   
     /** Position along the retimed trajectory.
      *
-     * \param t Time t \in [0, T].
+     * \param t Time \f$t \in [0, T]\f$.
      *
      */
     T pos(double t) const
@@ -568,7 +568,7 @@ namespace utils
   
     /** Velocity along the retimed trajectory.
      *
-     * \param t Time t \in [0, T].
+     * \param t Time t \f$\in [0, T]\f$.
      *
      */
     T vel(double t) const
@@ -578,7 +578,7 @@ namespace utils
   
     /** Acceleration along the retimed trajectory.
      *
-     * \param t Time t \in [0, T].
+     * \param t Time \f$t \in [0, T]\f$.
      *
      */
     T accel(double t) const
