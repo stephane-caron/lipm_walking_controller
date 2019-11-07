@@ -252,13 +252,13 @@ namespace lipm_walking
     Contact initContact_;
     Contact nextContact_;
     Contact targetContact_;
-    Eigen::HrepXd hreps_[4]; /**< ZMP inequality constraints (H-rep) */
     Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1> velRef_;
     Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1> zmpRef_;
     Eigen::Matrix<double, 2 * (NB_STEPS + 1), STATE_SIZE * (NB_STEPS + 1)> velCostMat_;
     Eigen::Matrix<double, 2, STATE_SIZE> dcmFromState_;
     Eigen::Matrix<double, 2, STATE_SIZE> zmpFromState_;
     Eigen::VectorXd initState_;
+    HrepXd hreps_[4]; /**< ZMP inequality constraints (H-rep) */
     copra::SolverFlag solver_ = copra::SolverFlag::QLD;
     double buildAndSolveTime_ = 0.; // [s]
     double solveTime_ = 0.; // [s]

@@ -36,16 +36,10 @@
 
 #include <lipm_walking/utils/world.h>
 
-/** Eigen namespace, only used to define Eigen::HrepXd.
- * 
- */
-namespace Eigen
-{
-  using HrepXd = std::pair<Eigen::MatrixXd, Eigen::VectorXd>;
-}
-
 namespace lipm_walking
 {
+  using HrepXd = std::pair<Eigen::MatrixXd, Eigen::VectorXd>;
+
   /** Contact state: set of feet in contact.
    *
    */
@@ -273,7 +267,7 @@ namespace lipm_walking
     /** Halfspace representation of contact area in world frame.
      *
      */
-    Eigen::HrepXd hrep() const
+    HrepXd hrep() const
     {
       Eigen::Matrix<double, 4, 2> localHrepMat, worldHrepMat;
       Eigen::Matrix<double, 4, 1> localHrepVec, worldHrepVec;
@@ -294,7 +288,7 @@ namespace lipm_walking
       const sva::PTransformd & X_0_c = pose;
       worldHrepMat = localHrepMat * X_0_c.rotation().topLeftCorner<2, 2>();
       worldHrepVec = worldHrepMat * X_0_c.translation().head<2>() + localHrepVec;
-      return Eigen::HrepXd(worldHrepMat, worldHrepVec);
+      return HrepXd(worldHrepMat, worldHrepVec);
     }
 
     /** Move contact by a given magnitude in a random direction.
