@@ -171,7 +171,7 @@ namespace lipm_walking
      */
     void finalDSPDuration(double duration)
     {
-      finalDSPDuration_ = clamp(duration, 0., 1.6);
+      finalDSPDuration_ = clamp(duration, 0.1, 1.6);
     }
 
     /** Get initial double support phase duration.
@@ -187,7 +187,7 @@ namespace lipm_walking
      */
     void initDSPDuration(double duration)
     {
-      initDSPDuration_ = clamp(duration, 0., 1.6);
+      initDSPDuration_ = clamp(duration, 0.1, 1.6);
     }
 
     /** Get swing foot landing ratio.
