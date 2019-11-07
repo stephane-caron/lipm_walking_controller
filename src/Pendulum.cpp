@@ -26,6 +26,7 @@
  */
 
 #include <lipm_walking/Pendulum.h>
+#include <lipm_walking/utils/world.h>
 
 namespace lipm_walking
 {

@@ -26,6 +26,7 @@
  */
 
 #include <lipm_walking/utils/clamp.h>
+#include <lipm_walking/utils/world.h>
 
 #include "Standing.h"
 

@@ -34,7 +34,7 @@
 #include <mc_rtc/logging.h>
 #include <mc_rbdyn/Robot.h>
 
-#include <lipm_walking/defs.h>
+#include <lipm_walking/utils/world.h>
 
 namespace Eigen
 {
@@ -319,7 +319,7 @@ namespace lipm_walking
         halfLength,
         halfWidth,
         halfWidth;
-      if ((normal() - world::e_z).norm() > 1e-3)
+      if ((normal() - world::vertical).norm() > 1e-3)
       {
         LOG_WARNING("Contact is not horizontal");
       }

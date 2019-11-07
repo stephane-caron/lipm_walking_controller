@@ -48,7 +48,6 @@
 #include <lipm_walking/Pendulum.h>
 #include <lipm_walking/Sole.h>
 #include <lipm_walking/Stabilizer.h>
-#include <lipm_walking/defs.h>
 #include <lipm_walking/utils/LowPassVelocityFilter.h>
 
 namespace lipm_walking

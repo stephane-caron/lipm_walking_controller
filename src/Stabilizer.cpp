@@ -29,6 +29,12 @@
 
 #include <lipm_walking/Stabilizer.h>
 #include <lipm_walking/utils/clamp.h>
+#include <lipm_walking/utils/world.h>
+
+namespace
+{
+  const Eigen::Vector3d e_z = {0., 0., 1.};
+}
 
 namespace lipm_walking
 {

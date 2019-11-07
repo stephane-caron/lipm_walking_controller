@@ -47,14 +47,14 @@ set(CONTROLLER_HDR
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/Stabilizer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/State.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/SwingFoot.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/defs.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/ExponentialMovingAverage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/LeakyIntegrator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/LowPassVelocityFilter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/StationaryOffsetFilter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/clamp.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/polynomials.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/slerp.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/slerp.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/utils/world.h)
 
 set(CONTROLLER_NAME "${PROJET_NAME}_controller")
 

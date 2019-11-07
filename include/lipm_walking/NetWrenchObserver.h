@@ -31,7 +31,6 @@
 
 #include <lipm_walking/Pendulum.h>
 #include <lipm_walking/Contact.h>
-#include <lipm_walking/defs.h>
 
 namespace lipm_walking
 {

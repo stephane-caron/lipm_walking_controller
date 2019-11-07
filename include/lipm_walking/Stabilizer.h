@@ -34,7 +34,6 @@
 #include <lipm_walking/Contact.h>
 #include <lipm_walking/Pendulum.h>
 #include <lipm_walking/Sole.h>
-#include <lipm_walking/defs.h>
 #include <lipm_walking/utils/ExponentialMovingAverage.h>
 #include <lipm_walking/utils/LeakyIntegrator.h>
 #include <lipm_walking/utils/StationaryOffsetFilter.h>

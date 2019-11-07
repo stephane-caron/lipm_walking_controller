@@ -30,7 +30,6 @@
 #include <mc_tasks/CoMTask.h>
 
 #include <lipm_walking/Contact.h>
-#include <lipm_walking/defs.h>
 
 namespace lipm_walking
 {
