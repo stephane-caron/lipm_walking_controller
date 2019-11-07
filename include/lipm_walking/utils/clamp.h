@@ -29,6 +29,9 @@
 
 #include <mc_rtc/logging.h>
 
+/** Utility functions and classes.
+ *
+ */
 namespace utils
 {
   /** Clamp a value in a given interval.

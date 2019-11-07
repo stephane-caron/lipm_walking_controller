@@ -29,6 +29,9 @@
 
 #include <Eigen/Dense>
 
+/** Gravity and world vertical contants.
+ *
+ */
 namespace world
 {
   constexpr double GRAVITY = 9.80665; // ISO 80000-3

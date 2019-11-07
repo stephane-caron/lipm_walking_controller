@@ -40,6 +40,9 @@ namespace lipm_walking
   };
 }
 
+/** Framework namespace, only used to add a configuration loader.
+ *
+ */
 namespace mc_rtc
 {
   template<>

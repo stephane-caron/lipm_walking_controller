@@ -35,13 +35,16 @@
 
 namespace lipm_walking
 {
-  /** Initial state.
-   *
-   * Check that contacts match foot positions.
+  /** States of the controller's finite state machine.
    *
    */
   namespace states
   {
+    /** Initial state.
+     *
+     * Check that contacts match foot positions.
+     *
+     */
     struct Initial : State
     {
       /** Start state.

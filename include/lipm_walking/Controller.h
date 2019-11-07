@@ -50,6 +50,9 @@
 #include <lipm_walking/Stabilizer.h>
 #include <lipm_walking/utils/LowPassVelocityFilter.h>
 
+/** Main controller namespace.
+ *
+ */
 namespace lipm_walking
 {
   /** Preview update period, same as MPC sampling period.

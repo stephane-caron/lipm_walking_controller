@@ -36,6 +36,9 @@
 
 #include <lipm_walking/utils/world.h>
 
+/** Eigen namespace, only used to define Eigen::HrepXd.
+ * 
+ */
 namespace Eigen
 {
   using HrepXd = std::pair<Eigen::MatrixXd, Eigen::VectorXd>;
@@ -58,9 +61,9 @@ namespace lipm_walking
    */
   struct Contact
   {
-    /** Empty constructor.
+    /** Empty constructor. 
      *
-     * Plücker transform is left uninitialized.
+     * Leaves the contact's Plücker transform uninitialized.
      *
      */
     Contact()
@@ -358,13 +361,13 @@ namespace lipm_walking
     }
 
   public:
-    Eigen::Vector3d refVel;
-    double halfLength;
-    double halfWidth;
-    mc_rtc::Configuration swingConfig;
-    std::string surfaceName;
-    sva::PTransformd pose;
-    unsigned id;
+    Eigen::Vector3d refVel; /**< Desired CoM velocity when the robot is supporting itself on this contact. */
+    double halfLength; /**< Half-length of the contact rectangle in [m]. */
+    double halfWidth; /**< Half-width of the contact rectangle in [m]. */
+    mc_rtc::Configuration swingConfig; /**< Additional configuration for swing foot trajectories that originate from this contact. */
+    std::string surfaceName; /**< Name of the contact surface in robot model. */
+    sva::PTransformd pose; /**< Plücker transform of the contact in the inertial frame. */
+    unsigned id; /**< Index of contact in footstep plan. */
   };
 
   /** Apply Plucker transform to contact frame.
