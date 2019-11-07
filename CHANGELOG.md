@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - Configuration for the [JVRC-1](https://github.com/jvrc/model/) robot model
 - Doxygen [API documentation](https://scaron.info/doc/lipm_walking_controller/)
+- ModelPredictiveControl: log ZMP and CoM velocity references
 - Stabilizer: alternative DCM gain tuning by pole placement under ZMP lag model
 
 ### Changed
