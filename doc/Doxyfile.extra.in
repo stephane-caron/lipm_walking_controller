@@ -1,1 +1,3 @@
-FILE_PATTERNS = *.h
+FILE_PATTERNS = *.dox *.h
+INPUT = @PROJECT_SOURCE_DIR@/doc @PROJECT_SOURCE_DIR@/include @PROJECT_SOURCE_DIR@/src/states
+ALIASES += controllerversion=1.3.0
