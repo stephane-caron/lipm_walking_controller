@@ -27,97 +27,102 @@
 
 #pragma once
 
-/** Leaky integrator.
- *
- * The output satisfies the differential equation:
- *
- *     yd(t) = x(t) - leakRate * y(t)
- *
- * A leaky integrator is implemented exactly as an exponential moving average,
- * but it is homogeneous to the integral of the input signal (rather than the
- * signal itself). See <https://en.wikipedia.org/wiki/Leaky_integrator>.
- *
- */
-struct LeakyIntegrator
+namespace utils
 {
-  /** Add constant input for a fixed duration.
+  /** Leaky integrator.
    *
-   * \param value Constant input.
+   * The output satisfies the differential equation:
    *
-   * \param dt Fixed duration.
+   *     yd(t) = x(t) - leakRate * y(t)
+   *
+   * A leaky integrator is implemented exactly as an exponential moving average,
+   * but it is homogeneous to the integral of the input signal (rather than the
+   * signal itself). See <https://en.wikipedia.org/wiki/Leaky_integrator>.
    *
    */
-  inline void add(const Eigen::Vector3d & value, double dt)
+  struct LeakyIntegrator
   {
-    integral_ = (1. - rate_ * dt) * integral_ + dt * value;
-    if (saturation_ > 0.)
+    /** Add constant input for a fixed duration.
+     *
+     * \param value Constant input.
+     *
+     * \param dt Fixed duration.
+     *
+     */
+    inline void add(const Eigen::Vector3d & value, double dt)
     {
-      saturate();
-    }
-  }
-
-  /** Evaluate the output of the integrator.
-   *
-   */
-  inline const Eigen::Vector3d & eval() const
-  {
-    return integral_;
-  }
-
-  /** Get leak rate.
-   *
-   */
-  inline double rate() const
-  {
-    return rate_;
-  }
-
-  /** Set the leak rate of the integrator.
-   *
-   * \param rate New leak rate.
-   *
-   */
-  inline void rate(double rate)
-  {
-    rate_ = rate;
-  }
-
-  /** Set output saturation. Disable by providing a negative value.
-   *
-   * \param s Output will saturate between -s and +s.
-   *
-   */
-  inline void saturation(double s)
-  {
-    saturation_ = s;
-  }
-
-  /** Reset integral to zero.
-   *
-   */
-  inline void setZero()
-  {
-    integral_.setZero();
-  }
-
-private:
-  inline void saturate()
-  {
-    for (unsigned i = 0; i < 3; i++)
-    {
-      if (integral_(i) < -saturation_)
+      integral_ = (1. - rate_ * dt) * integral_ + dt * value;
+      if (saturation_ > 0.)
       {
-        integral_(i) = -saturation_;
-      }
-      else if (integral_(i) > saturation_)
-      {
-        integral_(i) = saturation_;
+        saturate();
       }
     }
-  }
+  
+    /** Evaluate the output of the integrator.
+     *
+     */
+    inline const Eigen::Vector3d & eval() const
+    {
+      return integral_;
+    }
+  
+    /** Get leak rate.
+     *
+     */
+    inline double rate() const
+    {
+      return rate_;
+    }
+  
+    /** Set the leak rate of the integrator.
+     *
+     * \param rate New leak rate.
+     *
+     */
+    inline void rate(double rate)
+    {
+      rate_ = rate;
+    }
+  
+    /** Set output saturation. Disable by providing a negative value.
+     *
+     * \param s Output will saturate between -s and +s.
+     *
+     */
+    inline void saturation(double s)
+    {
+      saturation_ = s;
+    }
+  
+    /** Reset integral to zero.
+     *
+     */
+    inline void setZero()
+    {
+      integral_.setZero();
+    }
+  
+  private:
+    inline void saturate()
+    {
+      for (unsigned i = 0; i < 3; i++)
+      {
+        if (integral_(i) < -saturation_)
+        {
+          integral_(i) = -saturation_;
+        }
+        else if (integral_(i) > saturation_)
+        {
+          integral_(i) = saturation_;
+        }
+      }
+    }
+  
+  private:
+    Eigen::Vector3d integral_ = Eigen::Vector3d::Zero();
+    double rate_ = 0.1;
+    double saturation_ = -1.;
+  };
+}
 
-private:
-  Eigen::Vector3d integral_ = Eigen::Vector3d::Zero();
-  double rate_ = 0.1;
-  double saturation_ = -1.;
-};
+using utils::LeakyIntegrator;

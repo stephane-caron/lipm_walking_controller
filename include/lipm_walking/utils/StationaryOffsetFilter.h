@@ -29,86 +29,91 @@
 
 #include "ExponentialMovingAverage.h"
 
-/** Remove stationary offset from an input signal.
- *
- */
-struct StationaryOffsetFilter
+namespace utils
 {
-  /** Constructor.
-   *
-   * \param dt Time in [s] between two readings.
-   *
-   * \param timeConstant Length of recent-past window used to evaluate the
-   * stationary offset.
-   *
-   * \param initValue Initial value of the input signal.
+  /** Remove stationary offset from an input signal.
    *
    */
-  StationaryOffsetFilter(double dt, double timeConstant, const Eigen::Vector3d & initValue = Eigen::Vector3d::Zero())
-    : average_(dt, timeConstant, initValue)
+  struct StationaryOffsetFilter
   {
-    filteredValue_ = initValue;
-    rawValue_ = initValue;
-  }
+    /** Constructor.
+     *
+     * \param dt Time in [s] between two readings.
+     *
+     * \param timeConstant Length of recent-past window used to evaluate the
+     * stationary offset.
+     *
+     * \param initValue Initial value of the input signal.
+     *
+     */
+    StationaryOffsetFilter(double dt, double timeConstant, const Eigen::Vector3d & initValue = Eigen::Vector3d::Zero())
+      : average_(dt, timeConstant, initValue)
+    {
+      filteredValue_ = initValue;
+      rawValue_ = initValue;
+    }
+  
+    /** Update input signal value.
+     *
+     * \param value New value.
+     *
+     */
+    void update(const Eigen::Vector3d & value)
+    {
+      average_.append(value);
+      filteredValue_ = value - average_.eval();
+      rawValue_ = value;
+    }
+  
+    /** Get output value where the stationary offset has been filtered.
+     *
+     */
+    const Eigen::Vector3d & eval() const
+    {
+      return filteredValue_;
+    }
+  
+    /** Get raw value of input signal.
+     *
+     */
+    const Eigen::Vector3d & raw() const
+    {
+      return rawValue_;
+    }
+  
+    /** Reset everything to zero.
+     *
+     */
+    void setZero()
+    {
+      average_.setZero();
+      filteredValue_.setZero();
+      rawValue_.setZero();
+    }
+  
+    /** Get time constant of the filter.
+     *
+     */
+    double timeConstant() const
+    {
+      return average_.timeConstant();
+    }
+  
+    /** Update time constant.
+     *
+     * \param T New time constant of the filter.
+     *
+     */
+    void timeConstant(double T)
+    {
+      average_.timeConstant(T);
+    }
+  
+  private:
+    Eigen::Vector3d filteredValue_;
+    Eigen::Vector3d rawValue_;
+    ExponentialMovingAverage average_;
+  };
+}
 
-  /** Update input signal value.
-   *
-   * \param value New value.
-   *
-   */
-  void update(const Eigen::Vector3d & value)
-  {
-    average_.append(value);
-    filteredValue_ = value - average_.eval();
-    rawValue_ = value;
-  }
-
-  /** Get output value where the stationary offset has been filtered.
-   *
-   */
-  const Eigen::Vector3d & eval() const
-  {
-    return filteredValue_;
-  }
-
-  /** Get raw value of input signal.
-   *
-   */
-  const Eigen::Vector3d & raw() const
-  {
-    return rawValue_;
-  }
-
-  /** Reset everything to zero.
-   *
-   */
-  void setZero()
-  {
-    average_.setZero();
-    filteredValue_.setZero();
-    rawValue_.setZero();
-  }
-
-  /** Get time constant of the filter.
-   *
-   */
-  double timeConstant() const
-  {
-    return average_.timeConstant();
-  }
-
-  /** Update time constant.
-   *
-   * \param T New time constant of the filter.
-   *
-   */
-  void timeConstant(double T)
-  {
-    average_.timeConstant(T);
-  }
-
-private:
-  Eigen::Vector3d filteredValue_;
-  Eigen::Vector3d rawValue_;
-  ExponentialMovingAverage average_;
-};
+using utils::StationaryOffsetFilter;

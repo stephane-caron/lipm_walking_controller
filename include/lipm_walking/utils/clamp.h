@@ -29,102 +29,108 @@
 
 #include <mc_rtc/logging.h>
 
-/** Clamp a value in a given interval.
- *
- * \param v Value.
- *
- * \param vMin Lower bound.
- *
- * \param vMax Upper bound.
- *
- */
-inline double clamp(double v, double vMin, double vMax)
+namespace utils
 {
-  if (v > vMax)
+  /** Clamp a value in a given interval.
+   *
+   * \param v Value.
+   *
+   * \param vMin Lower bound.
+   *
+   * \param vMax Upper bound.
+   *
+   */
+  inline double clamp(double v, double vMin, double vMax)
   {
-    return vMax;
+    if (v > vMax)
+    {
+      return vMax;
+    }
+    else if (v < vMin)
+    {
+      return vMin;
+    }
+    else
+    {
+      return v;
+    }
   }
-  else if (v < vMin)
+  
+  /** Clamp a value in a given interval.
+   *
+   * \param v Reference to value.
+   *
+   * \param vMin Lower bound.
+   *
+   * \param vMax Upper bound.
+   *
+   */
+  inline void clampInPlace(double & v, double vMin, double vMax)
   {
-    return vMin;
+    if (v > vMax)
+    {
+      v = vMax;
+    }
+    else if (v < vMin)
+    {
+      v = vMin;
+    }
   }
-  else
+  
+  /** Clamp a value in a given interval, issuing a warning when bounds are hit.
+   *
+   * \param v Value.
+   *
+   * \param vMin Lower bound.
+   *
+   * \param vMax Upper bound.
+   *
+   * \param label Name of clamped value.
+   *
+   */
+  inline double clamp(double v, double vMin, double vMax, const char * label)
   {
-    return v;
+    if (v > vMax)
+    {
+      LOG_WARNING(label << " clamped to " << vMax);
+      return vMax;
+    }
+    else if (v < vMin)
+    {
+      LOG_WARNING(label << " clamped to " << vMin);
+      return vMin;
+    }
+    else
+    {
+      return v;
+    }
+  }
+  
+  /** Clamp a value in a given interval, issuing a warning when bounds are hit.
+   *
+   * \param v Reference to value.
+   *
+   * \param vMin Lower bound.
+   *
+   * \param vMax Upper bound.
+   *
+   * \param label Name of clamped value.
+   *
+   */
+  inline void clampInPlace(double & v, double vMin, double vMax, const char * label)
+  {
+    if (v > vMax)
+    {
+      LOG_WARNING(label << " clamped to " << vMax);
+      v = vMax;
+    }
+    else if (v < vMin)
+    {
+      LOG_WARNING(label << " clamped to " << vMin);
+      v = vMin;
+    }
   }
 }
 
-/** Clamp a value in a given interval.
- *
- * \param v Reference to value.
- *
- * \param vMin Lower bound.
- *
- * \param vMax Upper bound.
- *
- */
-inline void clampInPlace(double & v, double vMin, double vMax)
-{
-  if (v > vMax)
-  {
-    v = vMax;
-  }
-  else if (v < vMin)
-  {
-    v = vMin;
-  }
-}
-
-/** Clamp a value in a given interval, issuing a warning when bounds are hit.
- *
- * \param v Value.
- *
- * \param vMin Lower bound.
- *
- * \param vMax Upper bound.
- *
- * \param label Name of clamped value.
- *
- */
-inline double clamp(double v, double vMin, double vMax, const char * label)
-{
-  if (v > vMax)
-  {
-    LOG_WARNING(label << " clamped to " << vMax);
-    return vMax;
-  }
-  else if (v < vMin)
-  {
-    LOG_WARNING(label << " clamped to " << vMin);
-    return vMin;
-  }
-  else
-  {
-    return v;
-  }
-}
-
-/** Clamp a value in a given interval, issuing a warning when bounds are hit.
- *
- * \param v Reference to value.
- *
- * \param vMin Lower bound.
- *
- * \param vMax Upper bound.
- *
- * \param label Name of clamped value.
- *
- */
-inline void clampInPlace(double & v, double vMin, double vMax, const char * label)
-{
-  if (v > vMax)
-  {
-    LOG_WARNING(label << " clamped to " << vMax);
-    v = vMax;
-  }
-  else if (v < vMin)
-  {
-    LOG_WARNING(label << " clamped to " << vMin);
-    v = vMin;
-  }
-}
+using utils::clamp;
+using utils::clampInPlace;
