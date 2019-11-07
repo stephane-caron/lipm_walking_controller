@@ -232,8 +232,8 @@ namespace lipm_walking
       return;
     }
     leftFootRatio = clamp(leftFootRatio, 0., 1., "Standing target");
-    sva::PTransformd X_0_mid = sva::interpolate(rightFootContact_.anklePose(), leftFootContact_.anklePose(), leftFootRatio);
-    copTarget_ = X_0_mid.translation();
+    sva::PTransformd X_0_lfr = sva::interpolate(rightFootContact_.anklePose(), leftFootContact_.anklePose(), leftFootRatio);
+    copTarget_ = X_0_lfr.translation();
     leftFootRatio_ = leftFootRatio;
   }
 

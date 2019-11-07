@@ -11,6 +11,10 @@ All notable changes to this project will be documented in this file.
 - ModelPredictiveControl: log ZMP and CoM velocity references
 - Stabilizer: alternative DCM gain tuning by pole placement under ZMP lag model
 
+### Fixed
+
+- Handle corner case where the DSP duration is zero
+
 ### Changed
 
 - Contact: removed ``t()``, ``b()`` and ``n()`` shorthands

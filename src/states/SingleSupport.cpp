@@ -35,7 +35,6 @@ namespace lipm_walking
     auto & supportContact = ctl.supportContact();
     auto & targetContact = ctl.targetContact();
 
-    earlyDoubleSupportDuration_ = 0.;
     duration_ = ctl.singleSupportDuration();
     hasUpdatedMPCOnce_ = false;
     remTime_ = ctl.singleSupportDuration();
@@ -157,7 +156,6 @@ namespace lipm_walking
       {
         stabilizer().contactState(ContactState::DoubleSupport);
         stabilizer().setContact(swingFootTask, targetContact);
-        earlyDoubleSupportDuration_ = remTime_;
       }
     }
   }

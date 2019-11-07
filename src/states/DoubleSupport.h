@@ -68,13 +68,13 @@ namespace lipm_walking
       void updatePreview();
 
     private:
-      bool stopDuringThisDSP_;
-      double duration_;
-      double initLeftFootRatio_;
-      double remTime_;
-      double stateTime_;
-      double targetLeftFootRatio_;
-      double timeSinceLastPreviewUpdate_;
+      bool stopDuringThisDSP_; /**< Stop walking during this DSP */
+      double duration_; /**< Total duration of the DSP in [s] */
+      double initLeftFootRatio_; /**< Left foot ratio at the beginning of DSP */
+      double remTime_; /**< Time remaining until the end of the phase */
+      double stateTime_; /**< Time since the beginning of the DSP */
+      double targetLeftFootRatio_; /**< Left foot ratio at the end of DSP */
+      double timeSinceLastPreviewUpdate_; /**< Time count used to schedule MPC updates, in [s] */
     };
   }
 }

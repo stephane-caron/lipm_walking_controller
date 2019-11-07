@@ -76,10 +76,10 @@ namespace lipm_walking
       void hideStartStandingButton();
 
     private:
-      bool postureTaskIsActive_;
-      bool postureTaskWasActive_;
-      bool startStandingButton_;
-      bool startStanding_;
+      bool postureTaskIsActive_; /**< Is the posture task active? */
+      bool postureTaskWasActive_; /**< Was the posture task active at previous run()? */
+      bool startStandingButton_; /**< Is the "Start standing" button displayed in the GUI? */
+      bool startStanding_; /**< Has the user clicked on "Start standing"? */
     };
   }
 }

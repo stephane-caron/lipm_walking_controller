@@ -125,16 +125,14 @@ namespace lipm_walking
       void startWalking();
 
     private:
-      Contact leftFootContact_;
-      Contact rightFootContact_;
-      Eigen::Vector3d copTarget_;
-      bool goToZeroStep_;
-      bool isMakingFootContact_;
-      bool startWalking_;
-      double freeFootGain_;
-      double leftFootRatio_;
-      double releaseHeight_;
-      unsigned nbDistribFail_;
+      Contact leftFootContact_; /**< Current left foot contact handle in plan */
+      Contact rightFootContact_; /**< Current right foot contact handle in plan */
+      Eigen::Vector3d copTarget_; /**< CoP target computed from GUI input */
+      bool isMakingFootContact_; /**< Is the robot going back to double support? */
+      bool startWalking_; /**< Has the user clicked on "Start walking"? */
+      double freeFootGain_; /**< Foot task gain when lifting one foot in the air */
+      double leftFootRatio_; /**< Left foot ratio from GUI input */
+      double releaseHeight_; /**< Desired height when lifting one foot in the air */
     };
   }
 }
