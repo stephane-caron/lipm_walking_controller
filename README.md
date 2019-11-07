@@ -4,9 +4,15 @@
 
 Source code of the walking and stair climbing controller used in the experiments of [Stair Climbing Stabilization of the HRP-4 Humanoid Robot using Whole-body Admittance Control](https://hal.archives-ouvertes.fr/hal-01875387/document), as well as in an industrial demonstrator at the [Airbus Saint-Nazaire factory](https://cordis.europa.eu/project/rcn/194280/brief/en?WT.mc_id=exp).
 
+## Getting started
+
+- [Installation instruction](https://github.com/stephane-caron/lipm_walking_controller/wiki/Installation-instructions)
+- [Wiki](https://github.com/stephane-caron/lipm_walking_controller/wiki)
+- [API documentation](https://scaron.info/doc/lipm_walking_controller/)
+
 ## Installation
 
-The controller has been tested on Ubuntu 14.04 (gcc/clang) with ROS Indigo and Ubuntu 16.04 (gcc) with ROS Kinetic. See the [installation instructions](https://github.com/stephane-caron/lipm_walking_controller/wiki/Installation) on the wiki.
+The controller has been tested on Ubuntu 14.04 (gcc/clang) with ROS Indigo and Ubuntu 16.04 (gcc) with ROS Kinetic. See the [installation instructions](https://github.com/stephane-caron/lipm_walking_controller/wiki/Installation-instructions) on the wiki.
 
 ### Dependencies
 
@@ -27,14 +33,6 @@ The following dependencies are not publicly released but available upon request 
 * [mc\_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc): robot controller library (includes mc\_control, mc\_rbdyn, mc\_solver and mc\_tasks)
 * [mc\_rtc\_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros): ROS tools for mc\_rtc
 * [mc\_rtc\_ros\_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data): ROS environment and object descriptions for mc\_rtc
-
-### Building from source on Linux
-
-Link `lipm_walking_controller` from the source folder of your catkin workspace, then follow the standard catkin workflow:
-```sh
-catkin_make -DCMAKE_BUILD_TYPE=RelWithDebInfo && catkin_make install
-```
-To avoid a ``sudo`` at ``catkin_make install`` you can change ownership or permissions of the ``/usr/local/lib/mc_controller`` folder.
 
 ## Usage
 
