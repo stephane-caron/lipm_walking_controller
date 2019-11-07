@@ -48,6 +48,8 @@ namespace lipm_walking
     double comHeight = robotConfig("com")("height");
     maxCoMHeight_ = robotConfig("com")("max_height");
     minCoMHeight_ = robotConfig("com")("min_height");
+    maxTorsoPitch_ = robotConfig("torso")("max_pitch");
+    minTorsoPitch_ = robotConfig("torso")("min_pitch");
     for (const auto & p : plans)
     {
       auto plan = planConfig(p);
@@ -233,7 +235,7 @@ namespace lipm_walking
         [this]() { return torsoPitch_; },
         [this](double pitch)
         {
-          pitch = clamp(pitch, MIN_CHEST_P, MAX_CHEST_P);
+          pitch = clamp(pitch, minTorsoPitch_, maxTorsoPitch_);
           defaultTorsoPitch_ = pitch;
           torsoPitch_ = pitch;
         }));

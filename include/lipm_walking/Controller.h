@@ -60,16 +60,12 @@ namespace lipm_walking
    */
   constexpr double PREVIEW_UPDATE_PERIOD = ModelPredictiveControl::SAMPLING_PERIOD;
 
-  // The following constants depend on the robot model (here HRP-4)
-  constexpr double MAX_CHEST_P = +0.4; // [rad], DOF limit is +0.5 [rad]
-  constexpr double MIN_CHEST_P = -0.1; // [rad], DOF limit is -0.2 [rad]
-
-  /** Walking controller.
+  /** Main controller class.
    *
    */
   struct MC_CONTROL_DLLAPI Controller : public mc_control::fsm::Controller
   {
-    /** Initialization of the controller. 
+    /** Initialize the controller.
      *
      * \param robot Robot model.
      *
@@ -349,7 +345,9 @@ namespace lipm_walking
     double doubleSupportDurationOverride_ = -1.; // [s]
     double leftFootRatio_ = 0.5; /**< Weight distribution ratio (0: all weight on right foot, 1: all on left foot) */
     double maxCoMHeight_ = 2.; /**< Maximum height for the center of mass (updated from configuration) */
+    double maxTorsoPitch_ = -0.2; /**< Joint angle upper bound for torso pitch joint, in [rad] */
     double minCoMHeight_ = 0.; /**< Minimum height for the center of mass (updated from configuration) */
+    double minTorsoPitch_ = -0.2; /**< Joint angle lower bound for torso pitch joint, in [rad] */
     double torsoPitch_; /**< Torso pitch angle with respect to the pelvis body, in [rad] */
     mc_rtc::Configuration mpcConfig_; /**< Configuration dictionary for the walking pattern generator */
     mc_rtc::Configuration plans_; /**< Configuration dictionary for fixed footstep plans */

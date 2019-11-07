@@ -105,6 +105,8 @@
       },
       "torso":
       {
+        "max_pitch": 0.4,
+        "min_pitch": -0.1,
         "name": "torso",
         "pitch": 0.1
       }
@@ -148,6 +150,8 @@
       },
       "torso":
       {
+        "max_pitch": 0.4,
+        "min_pitch": -0.1,
         "name": "CHEST_LINK1",
         "pitch": 0.0
       }
@@ -191,6 +195,8 @@
       },
       "torso":
       {
+        "max_pitch": 0.4,
+        "min_pitch": -0.1,
         "name": "WAIST_R_S",
         "pitch": 0.0
       }
