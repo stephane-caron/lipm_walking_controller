@@ -585,13 +585,14 @@ namespace utils
     {
       return std::pow(sd(t), 2) * poly_.accel(s(t));
     }
-  
+
   private:
     double duration_;
     Polynomial<T> poly_;
   };
 }
 
+using utils::CubicHermitePolynomial;
 using utils::CubicPolynomial;
 using utils::QuinticHermitePolynomial;
 using utils::QuinticPolynomial;
