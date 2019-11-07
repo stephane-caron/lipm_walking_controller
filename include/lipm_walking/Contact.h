@@ -123,30 +123,6 @@ namespace lipm_walking
       return pose.translation();
     }
 
-    /** Shorthand for lateral vector.
-     *
-     */
-    Eigen::Vector3d b() const
-    {
-      return lateral();
-    }
-
-    /** Shorthand for normal vector.
-     *
-     */
-    Eigen::Vector3d n() const
-    {
-      return normal();
-    }
-
-    /** Shorthand for sagittal vector.
-     *
-     */
-    Eigen::Vector3d t() const
-    {
-      return sagittal();
-    }
-
     /** Shorthand for position.
      *
      */
@@ -162,11 +138,11 @@ namespace lipm_walking
     {
       if (surfaceName == "LeftFootCenter")
       {
-        return p() - 0.015 * t() - 0.01 * b();
+        return p() - 0.015 * sagittal() - 0.01 * lateral();
       }
       else if (surfaceName == "RightFootCenter")
       {
-        return p() - 0.015 * t() + 0.01 * b();
+        return p() - 0.015 * sagittal() + 0.01 * lateral();
       }
       else
       {
@@ -212,7 +188,7 @@ namespace lipm_walking
      */
     Eigen::Vector3d vertex0() const
     {
-      return position() + halfLength * t() + halfWidth * b();
+      return position() + halfLength * sagittal() + halfWidth * lateral();
     }
 
     /** Corner vertex of the contact area.
@@ -220,7 +196,7 @@ namespace lipm_walking
      */
     Eigen::Vector3d vertex1() const
     {
-      return position() + halfLength * t() - halfWidth * b();
+      return position() + halfLength * sagittal() - halfWidth * lateral();
     }
 
     /** Corner vertex of the contact area.
@@ -228,7 +204,7 @@ namespace lipm_walking
      */
     Eigen::Vector3d vertex2() const
     {
-      return position() - halfLength * t() - halfWidth * b();
+      return position() - halfLength * sagittal() - halfWidth * lateral();
     }
 
     /** Corner vertex of the contact area.
@@ -236,7 +212,7 @@ namespace lipm_walking
      */
     Eigen::Vector3d vertex3() const
     {
-      return position() - halfLength * t() + halfWidth * b();
+      return position() - halfLength * sagittal() + halfWidth * lateral();
     }
 
     /** Minimum coordinate for vertices of the contact area.

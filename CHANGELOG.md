@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Contact: removed ``t()``, ``b()`` and ``n()`` shorthands
 - Moved torso pitch setting to "torso" dictionary of robot config
 - Moved world definitions to ``utils/world.h``
 - Renamed ModelPredictiveControlSolution to Preview

@@ -65,7 +65,7 @@ namespace lipm_walking
     Eigen::Vector3d moment_p = moment_0 - contact.p().cross(force);
     if (force.dot(force) > 42.) // force norm is more than 5 [N]
     {
-      netZMP_ = contact.p() + contact.n().cross(moment_p) / contact.n().dot(force);
+      netZMP_ = contact.p() + contact.normal().cross(moment_p) / contact.normal().dot(force);
     }
   }
 }
