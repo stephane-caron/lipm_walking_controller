@@ -50,7 +50,7 @@ namespace utils
       : C0_(C0), C1_(C1), C2_(C2), C3_(C3)
     {
     }
-  
+
     /** Get the value of the polynomial at time t.
      *
      * \param t Value of the polynomial argument.
@@ -60,7 +60,7 @@ namespace utils
     {
       return C0_ + t * (C1_ + t * (C2_ + t * C3_));
     }
-  
+
     /** Get the value of the first-order derivative (velocity) at time t.
      *
      * \param t Value of the polynomial argument.
@@ -70,7 +70,7 @@ namespace utils
     {
       return C1_ + t * (2 * C2_ + 3 * t * C3_);
     }
-  
+
     /** Get the value of the second-order derivative (acceleration) at time t.
      *
      * \param t Value of the polynomial argument.
@@ -80,14 +80,14 @@ namespace utils
     {
       return 2 * C2_ + 6 * t * C3_;
     }
-  
+
   protected:
     T C0_;
     T C1_;
     T C2_;
     T C3_;
   };
-  
+
   template <typename T>
   struct CubicPolynomial : CubicPolynomialBase<T>
   {
@@ -98,7 +98,7 @@ namespace utils
     {
       return T::Zero();
     }
-  
+
     /** Empty constructor.
      *
      */
@@ -107,7 +107,7 @@ namespace utils
     {
     }
   };
-  
+
   template <>
   struct CubicPolynomial<double> : CubicPolynomialBase<double>
   {
@@ -118,7 +118,7 @@ namespace utils
     {
       return 0.;
     }
-  
+
     /** Empty constructor.
      *
      */
@@ -127,7 +127,7 @@ namespace utils
     {
     }
   };
-  
+
   /** Cubic Hermite polynomial.
    *
    */
@@ -141,7 +141,7 @@ namespace utils
     {
       CubicHermitePolynomial(this->zero(), this->zero(), this->zero(), this->zero());
     }
-  
+
     /** Build a new cubic Hermite polynomial.
      *
      * \param initPos Position at t=0.
@@ -157,7 +157,7 @@ namespace utils
     {
       reset(initPos, initVel, targetPos, targetVel);
     }
-  
+
     /** Reset boundaries.
      *
      * \param initPos Initial position.
@@ -177,7 +177,7 @@ namespace utils
       targetVel_ = targetVel;
       reset();
     }
-  
+
     /** Reset boundaries with zero tangents.
      *
      * \param initPos Position at t=0.
@@ -193,7 +193,7 @@ namespace utils
       targetVel_ = this->zero();
       reset();
     }
-  
+
     /** Reset underlying cubic polynomial coefficients.
      *
      */
@@ -204,14 +204,14 @@ namespace utils
       this->C2_ = 3. * (targetPos_ - initPos_) - 2. * initVel_ - targetVel_;
       this->C3_ = -2. * (targetPos_ - initPos_) + initVel_ + targetVel_;
     }
-  
+
   private:
     T initPos_;
     T initVel_;
     T targetPos_;
     T targetVel_;
   };
-  
+
   /** Quintic polynomial.
    *
    */
@@ -237,7 +237,7 @@ namespace utils
       : C0_(C0), C1_(C1), C2_(C2), C3_(C3), C4_(C4), C5_(C5)
     {
     }
-  
+
     /** Get the value of the polynomial at time t.
      *
      * \param t Value of the polynomial argument.
@@ -247,7 +247,7 @@ namespace utils
     {
       return C0_ + t * (C1_ + t * (C2_ + t * (C3_ + t * (C4_ + t * C5_))));
     }
-  
+
     /** Get the value of the first-order derivative (velocity) at time t.
      *
      * \param t Value of the polynomial argument.
@@ -257,7 +257,7 @@ namespace utils
     {
       return C1_ + t * (2 * C2_ + t * (3 * C3_ + t * (4 * C4_ + t * 5 * C5_)));
     }
-  
+
     /** Get the value of the second-order derivative (acceleration) at time t.
      *
      * \param t Value of the polynomial argument.
@@ -267,7 +267,7 @@ namespace utils
     {
       return 2 * C2_ + t * (6 * C3_ + t * (12 * C4_ + t * 20 * C5_));
     }
-  
+
   protected:
     T C0_;
     T C1_;
@@ -276,7 +276,7 @@ namespace utils
     T C4_;
     T C5_;
   };
-  
+
   /** Quintic polynomial over vectors.
    *
    */
@@ -290,7 +290,7 @@ namespace utils
     {
       return T::Zero();
     }
-  
+
     /** Empty constructor.
      *
      */
@@ -299,7 +299,7 @@ namespace utils
     {
     }
   };
-  
+
   /** Quintic polynomial over floating-point numbers.
    *
    */
@@ -313,7 +313,7 @@ namespace utils
     {
       return 0.;
     }
-  
+
     /** Empty constructor.
      *
      */
@@ -322,7 +322,7 @@ namespace utils
     {
     }
   };
-  
+
   /** Quintic polynomial with zero velocity and zero acceleration at 0 and 1.
    *
    */
@@ -336,7 +336,7 @@ namespace utils
     {
       QuinticHermitePolynomial(this->zero(), this->zero(), this->zero(), this->zero());
     }
-  
+
     /** Build a new cubic Hermite polynomial.
      *
      * \param initPos Position at t=0.
@@ -352,7 +352,7 @@ namespace utils
     {
       reset(initPos, initVel, targetPos, targetVel);
     }
-  
+
     /** Reset boundary values.
      *
      * \param initPos Position at t=0.
@@ -378,7 +378,7 @@ namespace utils
       targetAccel_ = targetAccel;
       reset();
     }
-  
+
     /** Reset boundaries with zero boundary velocities.
      *
      * \param initPos Position at t=0.
@@ -400,7 +400,7 @@ namespace utils
       targetAccel_ = this->zero();
       reset();
     }
-  
+
     /** Reset boundaries with zero tangents.
      *
      * \param initPos Position at t=0.
@@ -418,7 +418,7 @@ namespace utils
       targetAccel_ = this->zero();
       reset();
     }
-  
+
     /** Reset underlying cubic polynomial coefficients.
      *
      */
@@ -435,7 +435,7 @@ namespace utils
       this->C4_ = -15 * Delta + 7 * Sigma - 2 * Gamma + kappa;
       this->C5_ = 6 * Delta - 3 * Sigma + Gamma;
     }
-  
+
   private:
     T initPos_;
     T initVel_;
@@ -444,7 +444,7 @@ namespace utils
     T targetVel_;
     T targetAccel_;
   };
-  
+
   /** Polynomial whose argument \f$s \in [0, 1]\f$ is retimed to \f$t \in [0,
    * T]\f$ by \f$ s(t) = t / T \f$.
    *
@@ -459,7 +459,7 @@ namespace utils
       : duration_(0.)
     {
     }
-  
+
     /** Constructor.
      *
      * \param poly Polynomial whose argument \f$s \in [0, 1]\f$.
@@ -472,7 +472,7 @@ namespace utils
         duration_(duration)
     {
     }
-  
+
     /** Get trajectory duration.
      *
      */
@@ -480,7 +480,7 @@ namespace utils
     {
       return duration_;
     }
-  
+
     /** Reset duration and boundary positions.
      *
      * \param initPos Initial position.
@@ -495,7 +495,7 @@ namespace utils
       duration_ = duration;
       poly_.reset(initPos, targetPos);
     }
-  
+
     /** Reset duration and boundary positions and velocities.
      *
      * \param initPos Initial position.
@@ -514,7 +514,7 @@ namespace utils
       duration_ = duration;
       poly_.reset(initPos, duration * initVel, targetPos, duration * targetVel);
     }
-  
+
     /** Reset duration and boundary positions, velocities and accelerations.
      *
      * \param initPos Initial position.
@@ -538,7 +538,7 @@ namespace utils
       double duration2 = duration * duration;
       poly_.reset(initPos, duration * initVel, duration2 * initAccel, targetPos, duration * targetVel, duration2 * targetAccel);
     }
-  
+
     /** Mapping from \f$t \in [0, T]\f$ to \f$s(t) \in [0, 1]\f$.
      *
      */
@@ -546,8 +546,8 @@ namespace utils
     {
       return (t < 0.) ? 0. : (t > duration_) ? 1. : t / duration_;
     }
-  
-    /** Mapping from \f$t \in [0, T]\f$ to 
+
+    /** Mapping from \f$t \in [0, T]\f$ to
      * \f$\dot{s}(t) = \frac{{\rm d}(s(t))}{{\rm d}t}\f$.
      *
      */
@@ -555,7 +555,7 @@ namespace utils
     {
       return (t < 0.) ? 0. : (t > duration_) ? 0. : 1. / duration_;
     }
-  
+
     /** Position along the retimed trajectory.
      *
      * \param t Time \f$t \in [0, T]\f$.
@@ -565,7 +565,7 @@ namespace utils
     {
       return poly_.pos(s(t));
     }
-  
+
     /** Velocity along the retimed trajectory.
      *
      * \param t Time t \f$\in [0, T]\f$.
@@ -575,7 +575,7 @@ namespace utils
     {
       return sd(t) * poly_.vel(s(t));
     }
-  
+
     /** Acceleration along the retimed trajectory.
      *
      * \param t Time \f$t \in [0, T]\f$.
