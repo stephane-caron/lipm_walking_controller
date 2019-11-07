@@ -61,33 +61,22 @@ namespace lipm_walking
    */
   struct Contact
   {
-    /** Empty constructor. 
+    /** Empty constructor.
      *
      * Leaves the contact's Plücker transform uninitialized.
      *
      */
     Contact()
-      : refVel({0., 0., 0.}),
-        halfLength(0.),
-        halfWidth(0.),
-        surfaceName(""),
-        pose(),
-        id(0)
     {
     }
 
-    /** Constructor from Plücker transform.
+    /** Define from Plücker transform.
      *
      * \param pose Plücker transform from inertial to contact frame.
      *
      */
     Contact(const sva::PTransformd & pose)
-      : refVel({0., 0., 0.}),
-        halfLength(0.),
-        halfWidth(0.),
-        surfaceName(""),
-        pose(pose),
-        id(0)
+      : pose(pose)
     {
     }
 
@@ -337,13 +326,13 @@ namespace lipm_walking
     }
 
   public:
-    Eigen::Vector3d refVel; /**< Desired CoM velocity when the robot is supporting itself on this contact. */
-    double halfLength; /**< Half-length of the contact rectangle in [m]. */
-    double halfWidth; /**< Half-width of the contact rectangle in [m]. */
+    Eigen::Vector3d refVel = Eigen::Vector3d::Zero(); /**< Desired CoM velocity when the robot is supporting itself on this contact. */
+    double halfLength = 0.; /**< Half-length of the contact rectangle in [m]. */
+    double halfWidth = 0.; /**< Half-width of the contact rectangle in [m]. */
     mc_rtc::Configuration swingConfig; /**< Additional configuration for swing foot trajectories that originate from this contact. */
-    std::string surfaceName; /**< Name of the contact surface in robot model. */
+    std::string surfaceName = ""; /**< Name of the contact surface in robot model. */
     sva::PTransformd pose; /**< Plücker transform of the contact in the inertial frame. */
-    unsigned id; /**< Index of contact in footstep plan. */
+    unsigned id = 0; /**< Index of contact in footstep plan. */
   };
 
   /** Apply Plucker transform to contact frame.
