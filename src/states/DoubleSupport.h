@@ -37,7 +37,7 @@ namespace lipm_walking
 {
   namespace states
   {
-    /** Double support phase.
+    /** Double support phase while walking.
      *
      */
     struct DoubleSupport : State

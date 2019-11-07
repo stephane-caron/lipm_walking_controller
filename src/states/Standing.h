@@ -37,13 +37,15 @@ namespace lipm_walking
 {
   namespace states
   {
-    /** Standing phase.
+    /** Enable stabilizer and keep CoM at a reference position.
      *
      * Applies a simple CoM set-point task:
      *
-     *    comdd = stiffness * (comTarget - com) - damping * comd
+     * \f[
+     *   \ddot{c} = K (c^d - c) - B \dot{c}
+     * \f]
      *
-     * with critical damping = 2 * sqrt(stiffness).
+     * with critical damping \f$B = 2 \sqrt{K}\f$.
      *
      */
     struct Standing : State

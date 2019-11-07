@@ -38,7 +38,7 @@ namespace lipm_walking
 {
   namespace states
   {
-    /** Single support phase.
+    /** Single support phase while walking.
      *
      */
     struct SingleSupport : State

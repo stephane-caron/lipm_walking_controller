@@ -40,9 +40,7 @@ namespace lipm_walking
    */
   namespace states
   {
-    /** Initial state.
-     *
-     * Check that contacts match foot positions.
+    /** Hold posture and check contacts.
      *
      */
     struct Initial : State

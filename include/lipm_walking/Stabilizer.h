@@ -46,7 +46,9 @@ namespace lipm_walking
    * pendulum state reference (feedforward controls) and feedback read from
    * state estimation. In our case, feedback is done on the DCM of the LIPM:
    *
-   *    \f$\dot{\xi} = \dot{\xi}^{d} + k_p (\xi^d - \xi) + k_i \int (\xi^d - \xi)\f$
+   * \f[
+   *   \dot{\xi} = \dot{\xi}^{d} + k_p (\xi^d - \xi) + k_i \int (\xi^d - \xi)
+   * \f]
    *
    * Which boils down into corresponding formulas for the CoP and CoM
    * acceleration targets.
