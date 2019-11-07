@@ -139,6 +139,9 @@ namespace lipm_walking
 
   void ModelPredictiveControl::addLogEntries(mc_rtc::Logger & logger)
   {
+    logger.addLogEntry("mpc_weights_jerk", [this]() { return jerkWeight; });
+    logger.addLogEntry("mpc_weights_vel", [this]() { return velWeights; });
+    logger.addLogEntry("mpc_weights_zmp", [this]() { return zmpWeight; });
     logger.addLogEntry("perf_MPCBuildAndSolve", [this]() { return buildAndSolveTime_; });
     logger.addLogEntry("perf_MPCSolve", [this]() { return solveTime_; });
   }
