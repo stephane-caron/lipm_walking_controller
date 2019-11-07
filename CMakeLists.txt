@@ -39,6 +39,15 @@ set(PROJECT_VERSION 1.3.0)
 
 project(${PROJECT_NAME})  # because setup_project() is not called
 
+set(BUILD_DOCUMENTATION ON)
+if(BUILD_DOCUMENTATION)
+  set(CMAKE_INSTALL_DATAROOTDIR "share" CACHE PATH "read-only architecture-independent data root (share)")
+  set(CMAKE_INSTALL_DOCDIR "" CACHE PATH "documentation root (DATAROOTDIR/doc/PROJECT_NAME)")
+  set(CMAKE_INSTALL_DOCDIR "${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME}")
+  set(DOXYGEN_USE_MATHJAX "YES")
+  _setup_project_documentation()
+endif(BUILD_DOCUMENTATION)
+
 find_package(catkin REQUIRED COMPONENTS roscpp)
 find_package(copra REQUIRED)
 find_package(mc_rtc REQUIRED)
@@ -49,3 +58,7 @@ include_directories(include ${catkin_INCLUDE_DIRS} $ENV{HOME}/.local/include)
 link_directories(${catkin_LIBRARY_DIRS} $ENV{HOME}/.local/lib)
 
 add_subdirectory(src)
+
+if(BUILD_DOCUMENTATION)
+  _setup_project_documentation_finalize()
+endif(BUILD_DOCUMENTATION)
