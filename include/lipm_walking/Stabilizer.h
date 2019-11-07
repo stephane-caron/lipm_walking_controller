@@ -54,26 +54,19 @@ namespace lipm_walking
    */
   struct Stabilizer
   {
-    /* Maximum angular velocities for foot damping control. */
-    static constexpr double MAX_FDC_RX_VEL = 0.2; // [rad] / [s]
-    static constexpr double MAX_FDC_RY_VEL = 0.2; // [rad] / [s]
-    static constexpr double MAX_FDC_RZ_VEL = 0.2; // [rad] / [s]
-
-    /* Maximum gains in standing static equilibrium. */
-    static constexpr double MAX_COM_ADMITTANCE = 20;
-    static constexpr double MAX_COP_ADMITTANCE = 0.1;
-    static constexpr double MAX_DCM_D_GAIN = 2.;
-    static constexpr double MAX_DCM_I_GAIN = 100.;
-    static constexpr double MAX_DCM_P_GAIN = 20.;
-    static constexpr double MAX_DFZ_ADMITTANCE = 5e-4;
-    static constexpr double MAX_DFZ_DAMPING = 10.;
-
-    /* Avoid low-pressure targets too close to contact switches */
-    static constexpr double MIN_DS_PRESSURE = 15.; // [N]
-
-    /* Saturate integrator in case of windup */
-    static constexpr double MAX_AVERAGE_DCM_ERROR = 0.05; // [m]
-    static constexpr double MAX_ZMPCC_COM_OFFSET = 0.05; // [m]
+    static constexpr double MAX_AVERAGE_DCM_ERROR = 0.05; /**< Maximum average (integral) DCM error in [m] */
+    static constexpr double MAX_COM_ADMITTANCE = 20; /**< Maximum admittance for CoM admittance control */
+    static constexpr double MAX_COP_ADMITTANCE = 0.1; /**< Maximum CoP admittance for foot damping control */
+    static constexpr double MAX_DCM_D_GAIN = 2.; /**< Maximum DCM derivative gain (no unit) */
+    static constexpr double MAX_DCM_I_GAIN = 100.; /**< Maximum DCM average integral gain in [Hz] */
+    static constexpr double MAX_DCM_P_GAIN = 20.; /**< Maximum DCM proportional gain in [Hz] */
+    static constexpr double MAX_DFZ_ADMITTANCE = 5e-4; /**< Maximum admittance in [s] / [kg] for foot force difference control */
+    static constexpr double MAX_DFZ_DAMPING = 10.; /**< Maximum normalized damping in [Hz] for foot force difference control */
+    static constexpr double MAX_FDC_RX_VEL = 0.2; /**< Maximum x-axis angular velocity in [rad] / [s] for foot damping control. */
+    static constexpr double MAX_FDC_RY_VEL = 0.2; /**< Maximum y-axis angular velocity in [rad] / [s] for foot damping control. */
+    static constexpr double MAX_FDC_RZ_VEL = 0.2; /**< Maximum z-axis angular velocity in [rad] / [s] for foot damping control. */
+    static constexpr double MAX_ZMPCC_COM_OFFSET = 0.05; /**< Maximum CoM offset due to admittance control in [m] */
+    static constexpr double MIN_DS_PRESSURE = 15.; /**< Minimum normal contact force in DSP, used to avoid low-pressure targets when close to contact switches. */
 
     /** Initialize stabilizer.
      *
