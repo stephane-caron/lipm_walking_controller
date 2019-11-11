@@ -351,11 +351,11 @@ namespace lipm_walking
     }
 
   public:
-    Contact leftFootContact;
-    Contact rightFootContact;
-    std::shared_ptr<mc_tasks::CoMTask> comTask;
-    std::shared_ptr<mc_tasks::force::CoPTask> leftFootTask;
-    std::shared_ptr<mc_tasks::force::CoPTask> rightFootTask;
+    Contact leftFootContact; /**< Current left foot contact */
+    Contact rightFootContact; /**< Current right foot contact */
+    std::shared_ptr<mc_tasks::CoMTask> comTask; /**< CoM position task */
+    std::shared_ptr<mc_tasks::force::CoPTask> leftFootTask; /**< Left foot hybrid position/force control task */
+    std::shared_ptr<mc_tasks::force::CoPTask> rightFootTask; /**< Right foot hybrid position/force control task */
 
   private:
     ContactState contactState_ = ContactState::DoubleSupport;
