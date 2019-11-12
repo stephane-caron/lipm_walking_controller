@@ -4,29 +4,29 @@ namespace lipm_walking {
 
 <img src="https://scaron.info/images/stair-climbing-doxygen.jpg" align="left">
 <div style="clear: both"></div>
- 
+
 This is the API documentation for the [lipm_walking_controller](https://github.com/stephane-caron/lipm_walking_controller) version \controllerversion.
- 
+
 \section installation Installation
- 
+
 See the [installation instructions](https://github.com/stephane-caron/lipm_walking_controller/wiki/Installation-instructions) on the wiki.
- 
+
 \section getting_started Getting started
- 
+
 The LIPM walking controller is built with the [mc_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc) framework. In mc\_rtc, the role of a controller is to initialize and update a set of *tasks* for whole-body control. These tasks are in turn used to formulate and solve an inverse-kinematics or inverse-dynamics quadratic program (QP) using the [Tasks](https://github.com/jrl-umi3218/Tasks/) library. Solving the QP provides joint torques that are sent directly to torque-controlled robots, or joint accelerations that are integrated into positions and sent to position-controlled robots. All of this is done automatically by the framework, so that the only task of a controller is to update... tasks.
 
 There are two main functions in the controller:
-  
+
 - ``Controller::Controller`` initializes tasks and internal objects such as, in this controller, the stabilizer ``Stabilizer`` and walking pattern generator ``ModelPredictiveControl``
 - ``Controller::run`` is the main function which is called at every control cycle. When this function returns, all tasks should have been updated properly.
- 
+
 \subsection main_components Main components
 
 The ``Controller`` class has some main attributes that you will see everywhere in the code:
 
 - ``Controller::controlRobot()``: robot state output by the QP-based whole-body controller
 - ``Controller::mpc()``: model-predictive-control problem solver used for walking pattern generation
-- ``Controller::pendulum()``: holds the reference state (CoM position, velocity, ZMP, ...) from the walking pattern 
+- ``Controller::pendulum()``: holds the reference state (CoM position, velocity, ZMP, ...) from the walking pattern
 - ``Controller::preview``: current solution trajectory from the walking pattern generator
 - ``Controller::plan``: current footstep plan
 - ``Controller::realRobot()``: estimated robot state

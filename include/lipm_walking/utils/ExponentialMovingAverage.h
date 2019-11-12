@@ -33,16 +33,21 @@ namespace utils
    *
    * This filter can be seen as an integrator:
    *
-   *    y(t) = 1/T int_{u=0}^t x(u) e^{(u - t) / T} d{u}
+   * \f[
+   *    y(t) = \frac{1}{T} \int_{\tau=0}^t x(\tau) e^{(\tau - t) / T} {\rm
+   *    d}{\tau}
+   * \f]
    *
-   * with T > 0 a reset period acting as anti-windup. It can also (informally) be
-   * interpreted as the average value of the input signal x(t) over the last T
-   * seconds. Formally, it represents the amount of time for the smoothed
-   * response of a unit input to reach 1-1/e (~63%) of the original signal.
+   * with \f$T > 0\f$ a reset period acting as anti-windup. It can also
+   * (informally) be interpreted as the average value of the input signal
+   * \f$x(t)\f$ over the last \f$T\f$ seconds. Formally, it represents the
+   * amount of time for the smoothed response of a unit input to reach \f$1-1/e
+   * \ (\approx 63\%)\f$ of the original signal.
    *
-   * See <https://en.wikipedia.org/wiki/Exponential_smoothing>. It is equivalent
-   * to a low-pass filter <https://en.wikipedia.org/wiki/Low-pass_filter> applied
-   * to the integral of the input signal.
+   * See <https://en.wikipedia.org/wiki/Exponential_smoothing>. It is
+   * equivalent to a [low-pass
+   * filter](https://en.wikipedia.org/wiki/Low-pass_filter) applied to the
+   * integral of the input signal.
    *
    */
   struct ExponentialMovingAverage

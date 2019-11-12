@@ -1,0 +1,108 @@
+namespace lipm_walking {
+
+/** \page stabilizer Tuning the stabilizer
+
+The stabilizer performs feedback control to make the robot track the desired walking pattern. The stabilizer of this controller is based on [linear inverted pendulum tracking](https://doi.org/10.1109/IROS.2010.5651082). It is documented in the following [paper](https://hal.archives-ouvertes.fr/hal-01875387/document), [slides](https://scaron.info/slides/jpl-2019.pdf) and [poster](https://scaron.info/files/icra-2019/poster.pdf). We will now discuss the process of tuning its gains.
+
+\section gains Feedback gains
+
+There are two sets of gain to tune in the stabilizer: _admittance gains_ (force control) and _DCM tracking gains_ (floating base control). We cannot achieve perfect position and force control at the same time due to delays and modelling errors; what we are aiming for is a compromise between the two, for a given task (usually walking).
+
+As a first approximation, we can imagine that these gains tune the compliance/stiffness of the floating base of the robot (recall that we don't control the DCM _per se_ but [because it is the best way to control the floating base](https://scaron.info/slides/jpl-2019.pdf#page=28)). Larger admittances make the floating base more compliant, improving force control in the short term but degrading position tracking in the long term. Meanwhile, larger DCM tracking gains make the floating base stiffer, improving position tracking in the short term but yielding oscillations for high values. The threshold at which these oscillations appear depends on admittances (larger admittances lower the threshold).
+
+Here is the list of main gains to configure and their rule-of-thumb effect:
+
+\subsection dcm DCM Tracking
+
+<table>
+<tr><td><b>Gain</b></td><td><b>Effect of increasing</b></td></tr>
+<tr><td><i>Proportional</i></td><td>Stiffens position control</td></tr>
+<tr><td><i>Integral</i></td><td>Reduces steady-state error, stiffens position controller</td></tr>
+<tr><td><i>ZMP</i></td><td>Damps oscillations (allows higher proportional gain) but increases position compliance</td></tr>
+</table>
+
+\subsection admittance Admittance control
+
+<table>
+<tr><td><b>Gain</b></td><td><b>Effect of increasing</b></td></tr>
+<tr><td>Foot: <i>CoPx</i></td><td>Improves CoP control but increases sagittal position compliance</td></tr>
+<tr><td>Foot: <i>CoPy</i></td><td>Improves CoP control but increases lateral position compliance</td></tr>
+<tr><td>Legs: <i>DFz</i></td><td>Improves foot pressure tracking in double support, can yield vertical 
+oscillations</td></tr>
+<tr><td>Legs: <i>DFz damping</i></td><td>Damps potential oscillations in double support</td></tr>
+<tr><td>CoM: <i>Ax</i></td><td>Improves ZMP control but increases sagittal position compliance</td></tr>
+<tr><td>CoM: <i>Ay</i></td><td>Improves ZMP control but increases lateral position compliance</td></tr>
+</table>
+
+You can debug them with the ``Tracking DCM X/Y`` and ``Tracking DCM-ZMP X/Y`` plots, except for the foot *DFz* admittance which is better checked in ``Foot pressure both``.
+
+\section tests Standard tests
+
+\subsection standing Standing
+
+Standing tests evaluate the performance of disturbance rejection when you push the robot at the trunk. They are useful to debug 
+
+- Put the robot on the ground in standing posture
+- Push the robot sagitally or laterally until the measured ZMP at ground level is halfway (or all the way) between its rest position and the boundary of the support area
+- Stop pushing
+- Observe how the DCM returns to equilibrium
+
+Here is an example from a Choreonoid simulation of the HRP-4 robot model:
+
+<img src="https://raw.githubusercontent.com/wiki/stephane-caron/lipm_walking_controller/img/sim_dcm_pi_1_10.png" width="49%" align="left">
+<img src="https://raw.githubusercontent.com/wiki/stephane-caron/lipm_walking_controller/img/sim_dcm_pi_2_5.png" width="49%" align="left">
+<div style="clear: both"></div>
+
+In the left plot, DCM proportional and integral gains were set to ``P=1`` and ``I=10``, and we see that the DCM is overdamped. In the right plot, gains were set to ``P=2`` and ``I=5``, yielding a better performance (the DCM is only slightly underdamped). Note that the choice of PID gains for DCM tracking is affected by admittances: larger admittances tend to increase overshoot, but also decrease return time. To address this, [Kajita et al.](https://doi.org/10.1109/IROS.2010.5651082) chose to collectively model the performance of force control by a first order lag (whose time constant depends on all admittance gains).
+
+\subsection ahisubmi Walking in place
+
+Walking in place evaluates the lateral walking performance and is cheap to reproduce. It corresponds to the _ashibumi_ plan in the controller (from Japanese 足踏み which means "walking in place"; it has the benefit of beginning with an 'a' so that the plan appears first in the list). Use it to evaluate the effect of different feedback gains on lateral DCM tracking performance over several walking cycles. Let us consider two examples.
+
+### Increasing foot CoP admittance
+
+Here are two plots ran on the HRP-4 hardware where we increased the ankle CoP admittance from ``0.01`` to ``0.02``:
+
+<img src="https://raw.githubusercontent.com/wiki/stephane-caron/lipm_walking_controller/img/hrp4_increase_cop_adm_01.png" width="49%" align="left">
+<img src="https://raw.githubusercontent.com/wiki/stephane-caron/lipm_walking_controller/img/hrp4_increase_cop_adm_02.png" width="49%" align="left">
+<div style="clear: both"></div>
+
+You can see that the force tracking is improved (green ``realRobot_zmp_y`` curve is closer to its violet ``stabilizer_zmp_y`` target), however DCM tracking degrades, and as a consequence the stabilizer ZMP target shifts further away from the blue reference ``pendulum_zmp_y`` from the motion plan. Since our ultimate goal is to control the DCM, the first setting is better than the second one.
+
+### Increasing DCM gain
+
+Here are two plots ran on the HRP-4 hardware where we increased the proportional gain of DCM tracking from ``1`` to ``2``:
+
+<img src="https://raw.githubusercontent.com/wiki/stephane-caron/lipm_walking_controller/img/hrp4_increase_dcm_k_1.png" width="49%" align="left">
+<img src="https://raw.githubusercontent.com/wiki/stephane-caron/lipm_walking_controller/img/hrp4_increase_dcm_k_2.png" width="49%" align="left">
+<div style="clear: both"></div>
+
+Although DCM tracking is improved at the beginning of the first step, we can see that the performance is _degraded_ in the long run for the higher DCM gain. After a couple of steps, DCM tracking performance is roughly the same, at the cost of much larger ZMP targets (``stabilizer_zmp_y`` violet curve). We see also in the spikes in measured ZMP (``realRobot_zmp_y`` green curve) that the second setting yields larger touchdown impacts.
+
+\subsection forward Walking forward
+
+...
+
+\section optional Optional tunings
+
+\subsection integrator DCM integrator
+
+The integrator used to evaluate the average DCM over time is an [exponential moving average](https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average) (EMA) over the last \f$T_i\f$ seconds (see utils::ExponentialMovingAverage). The nominal value for HRP-4 is \f$T_i = 10~\text{s}\f$, which works well in all cases we tested so far.
+
+If you observe slow oscillations during standing after walking, your integrator time constant may be too large. We observed this behavior on HRP-2Kai while experimenting with \f$T_i = 15~\text{s}\f$. In this case, you may want to reduce your integrator time constant or increase your DCM P gain. Smaller time constants reduce the cutoff period of the EMA and thus make the DCM integral term closer to a proportional one. This is not the intended behavior, so if possible you should increase your DCM P gain instead. Look at your average DCM error variations (``error_dcm_average`` log entry) to decide on a course of action.
+
+\subsection vdc Vertical drift control
+
+Additionally, there are two gains for vertical drift control:
+
+<table>
+<tr><td><b>Gain</b></td><td><b>Effect of increasing</b></td></tr>
+<tr><td><i>frequency</i></td><td>Faster foot height averaging in double support</td></tr>
+<tr><td><i>stiffness</i></td><td>Faster foot height drift correction in single support</td></tr>
+</table>
+
+These gains are not critical, their purpose is to avoid long-term drift after several steps. Use the ``Swing foot Z`` plot to debug them.
+
+*/
+
+}
