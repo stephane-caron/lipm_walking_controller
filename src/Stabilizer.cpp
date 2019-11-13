@@ -105,12 +105,12 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_admittance_dfz", [this]() { return dfzAdmittance_; });
     logger.addLogEntry("stabilizer_dcmDerivator_raw", [this]() { return dcmDerivator_.raw(); });
     logger.addLogEntry("stabilizer_dcmDerivator_timeConstant", [this]() { return dcmDerivator_.timeConstant(); });
-    logger.addLogEntry("stabilizer_dcmDerivator_value", [this]() { return dcmDerivator_.eval(); });
+    logger.addLogEntry("stabilizer_dcmDerivator", [this]() { return dcmDerivator_.eval(); });
     logger.addLogEntry("stabilizer_dcmGains_derivative", [this]() { return dcmDerivGain_; });
     logger.addLogEntry("stabilizer_dcmGains_integral", [this]() { return dcmIntegralGain_; });
     logger.addLogEntry("stabilizer_dcmGains_proportional", [this]() { return dcmPropGain_; });
     logger.addLogEntry("stabilizer_dcmIntegrator_timeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
-    logger.addLogEntry("stabilizer_dcmIntegrator_value", [this]() { return dcmIntegrator_.eval(); });
+    logger.addLogEntry("stabilizer_dcmIntegrator", [this]() { return dcmIntegrator_.eval(); });
     logger.addLogEntry("stabilizer_dfz_damping", [this]() { return dfzDamping_; });
     logger.addLogEntry("stabilizer_fdqp_weights_ankleTorque", [this]() { return std::pow(fdqpWeights_.ankleTorqueSqrt, 2); });
     logger.addLogEntry("stabilizer_fdqp_weights_netWrench", [this]() { return std::pow(fdqpWeights_.netWrenchSqrt, 2); });
