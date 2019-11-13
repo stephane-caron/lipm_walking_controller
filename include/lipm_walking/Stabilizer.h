@@ -56,6 +56,8 @@ namespace lipm_walking
    */
   struct Stabilizer
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     static constexpr double MAX_AVERAGE_DCM_ERROR = 0.05; /**< Maximum average (integral) DCM error in [m] */
     static constexpr double MAX_COM_ADMITTANCE = 20; /**< Maximum admittance for CoM admittance control */
     static constexpr double MAX_COP_ADMITTANCE = 0.1; /**< Maximum CoP admittance for foot damping control */

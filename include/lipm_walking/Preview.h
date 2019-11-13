@@ -40,6 +40,8 @@ namespace lipm_walking
    */
   struct Preview
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Initialize with zero state and input trajectories.
      *
      */

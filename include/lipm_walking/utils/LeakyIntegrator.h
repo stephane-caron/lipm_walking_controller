@@ -42,6 +42,8 @@ namespace utils
    */
   struct LeakyIntegrator
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Add constant input for a fixed duration.
      *
      * \param value Constant input.

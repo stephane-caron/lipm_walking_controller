@@ -55,6 +55,8 @@ namespace lipm_walking
    */
   struct Contact
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Empty constructor.
      *
      * Leaves the contact's Plücker transform uninitialized.

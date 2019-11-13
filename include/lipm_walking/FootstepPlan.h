@@ -40,6 +40,8 @@ namespace lipm_walking
    */
   struct FootstepPlan
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Complete contacts from sole parameters.
      *
      * \param sole Sole parameters.

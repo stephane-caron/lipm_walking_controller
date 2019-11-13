@@ -36,6 +36,8 @@ namespace lipm_walking
    */
   struct State : mc_control::fsm::State
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** No configuration by default.
      *
      */

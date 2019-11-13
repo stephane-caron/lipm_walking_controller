@@ -38,6 +38,8 @@ namespace lipm_walking
    */
   struct Pendulum
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Initialize state.
      *
      * \param com Initial CoM position.

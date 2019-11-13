@@ -35,6 +35,8 @@ namespace utils
   template <typename T>
   struct CubicPolynomialBase
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Build a new curve from its monomial vector coefficients.
      *
      * \param C0 Zero-order coefficient.
@@ -91,6 +93,8 @@ namespace utils
   template <typename T>
   struct CubicPolynomial : CubicPolynomialBase<T>
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Return T's zero.
      *
      */
@@ -111,6 +115,8 @@ namespace utils
   template <>
   struct CubicPolynomial<double> : CubicPolynomialBase<double>
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Zero function used for double specialization.
      *
      */
@@ -134,6 +140,8 @@ namespace utils
   template <typename T>
   struct CubicHermitePolynomial : public CubicPolynomial<T>
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Empty constructor.
      *
      */
@@ -218,6 +226,8 @@ namespace utils
   template <typename T>
   struct QuinticPolynomialBase
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Build a new curve from its monomial vector coefficients.
      *
      * \param C0 Zero-order coefficient.
@@ -283,6 +293,8 @@ namespace utils
   template <typename T>
   struct QuinticPolynomial : QuinticPolynomialBase<T>
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Return T's zero.
      *
      */
@@ -306,6 +318,8 @@ namespace utils
   template <>
   struct QuinticPolynomial<double> : QuinticPolynomialBase<double>
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Zero function used for double specialization.
      *
      */
@@ -329,6 +343,8 @@ namespace utils
   template <typename T>
   struct QuinticHermitePolynomial : public QuinticPolynomial<T>
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Empty constructor.
      *
      */
@@ -452,6 +468,8 @@ namespace utils
   template <template <class> class Polynomial, typename T>
   struct RetimedPolynomial
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Empty constructor.
      *
      */

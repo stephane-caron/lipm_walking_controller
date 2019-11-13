@@ -65,6 +65,8 @@ namespace lipm_walking
    */
   struct MC_CONTROL_DLLAPI Controller : public mc_control::fsm::Controller
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Initialize the controller.
      *
      * \param robot Robot model.

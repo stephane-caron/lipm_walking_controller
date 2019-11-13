@@ -39,6 +39,8 @@ namespace lipm_walking
    */
   struct NetWrenchObserver
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Empty constructor.
      *
      */

@@ -36,6 +36,8 @@ namespace utils
    */
   struct StationaryOffsetFilter
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Constructor.
      *
      * \param dt Time in [s] between two readings.

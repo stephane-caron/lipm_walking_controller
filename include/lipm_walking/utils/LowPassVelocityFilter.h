@@ -36,6 +36,8 @@ namespace utils
   template <typename T>
   struct LowPassVelocityFilter
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Constructor.
      *
      * \param dt Sampling period.

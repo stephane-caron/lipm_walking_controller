@@ -40,6 +40,8 @@ namespace lipm_walking
    */
   struct FloatingBaseObserver
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** Initialize floating base observer.
      *
      * \param controlRobot Robot reference.
