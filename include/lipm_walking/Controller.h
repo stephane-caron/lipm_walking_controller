@@ -332,8 +332,8 @@ namespace lipm_walking
 
   private: /* hidden from FSM states */
     Eigen::Matrix3d pelvisOrientation_ = Eigen::Matrix3d::Identity(); /**< Pelvis orientation (upright by default) */
-    Eigen::Vector3d realCom_; /**< Estimated CoM position of the robot */
-    Eigen::Vector3d realComd_; /**< Estimated CoM velocity of the robot */
+    Eigen::Vector3d realCom_ = Eigen::Vector3d::Zero(); /**< Estimated CoM position of the robot */
+    Eigen::Vector3d realComd_ = Eigen::Vector3d::Zero(); /**< Estimated CoM velocity of the robot */
     FloatingBaseObserver floatingBaseObs_; /**< Floating base observer */
     LowPassVelocityFilter<Eigen::Vector3d> comVelFilter_; /**< Low-pass filter used to estimate the CoM velocity */
     ModelPredictiveControl mpc_; /**< MPC problem solver used for walking pattern generation */
