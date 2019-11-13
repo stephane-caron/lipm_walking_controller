@@ -67,7 +67,7 @@ namespace utils
       average_ = initValue;
       this->timeConstant(timeConstant);
     }
-  
+
     /** Append a new reading to the series.
      *
      * \param value New value.
@@ -81,7 +81,7 @@ namespace utils
         saturate_();
       }
     }
-  
+
     /** Evaluate the smoothed statistic.
      *
      */
@@ -89,7 +89,7 @@ namespace utils
     {
       return average_;
     }
-  
+
     /** Set output saturation; disable by providing a negative value.
      *
      * \param limit Output will saturate between -limit and +limit.
@@ -99,7 +99,7 @@ namespace utils
     {
       saturation_ = limit;
     }
-  
+
     /** Reset average to zero.
      *
      */
@@ -107,7 +107,7 @@ namespace utils
     {
       average_.setZero();
     }
-  
+
     /** Get time constant of the filter.
      *
      */
@@ -115,7 +115,7 @@ namespace utils
     {
       return timeConstant_;
     }
-  
+
     /** Update time constant.
      *
      * \param T New time constant of the filter.
@@ -127,7 +127,7 @@ namespace utils
       alpha_ = 1. - std::exp(-dt_ / T);
       timeConstant_ = T;
     }
-  
+
   private:
     /** Saturate averaged values.
      *
@@ -146,7 +146,7 @@ namespace utils
         }
       }
     }
-  
+
   protected:
     Eigen::Vector3d average_ = Eigen::Vector3d::Zero();
     double alpha_;

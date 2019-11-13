@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2018-2019, CNRS-UM LIRMM
  * All rights reserved.
  *
@@ -116,7 +116,7 @@ namespace lipm_walking
     {
       zeta_ = height / world::GRAVITY;
       double omegaInv = std::sqrt(zeta_);
-      dcmFromState_ << 
+      dcmFromState_ <<
         1, 0, omegaInv, 0, 0, 0,
         0, 1, 0, omegaInv, 0, 0;
       zmpFromState_ <<
@@ -148,8 +148,8 @@ namespace lipm_walking
     void initState(const Pendulum & pendulum)
     {
       initState_ = Eigen::VectorXd(STATE_SIZE);
-      initState_ << 
-        pendulum.com().head<2>(), 
+      initState_ <<
+        pendulum.com().head<2>(),
         pendulum.comd().head<2>(),
         pendulum.comdd().head<2>();
     }

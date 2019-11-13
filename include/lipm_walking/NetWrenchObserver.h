@@ -54,7 +54,7 @@ namespace lipm_walking
     /** Update estimates based on the sensed net contact wrench.
      *
      * \param robot Robot state.
-     * 
+     *
      * \param contact Support contact frame.
      *
      */

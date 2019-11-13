@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2018-2019, CNRS-UM LIRMM
  * All rights reserved.
  *
@@ -57,7 +57,7 @@ namespace utils
         saturate();
       }
     }
-  
+
     /** Evaluate the output of the integrator.
      *
      */
@@ -65,7 +65,7 @@ namespace utils
     {
       return integral_;
     }
-  
+
     /** Get leak rate.
      *
      */
@@ -73,7 +73,7 @@ namespace utils
     {
       return rate_;
     }
-  
+
     /** Set the leak rate of the integrator.
      *
      * \param rate New leak rate.
@@ -83,7 +83,7 @@ namespace utils
     {
       rate_ = rate;
     }
-  
+
     /** Set output saturation. Disable by providing a negative value.
      *
      * \param s Output will saturate between -s and +s.
@@ -93,7 +93,7 @@ namespace utils
     {
       saturation_ = s;
     }
-  
+
     /** Reset integral to zero.
      *
      */
@@ -101,7 +101,7 @@ namespace utils
     {
       integral_.setZero();
     }
-  
+
   private:
     inline void saturate()
     {
@@ -117,7 +117,7 @@ namespace utils
         }
       }
     }
-  
+
   private:
     Eigen::Vector3d integral_ = Eigen::Vector3d::Zero();
     double rate_ = 0.1;

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2018-2019, CNRS-UM LIRMM
  * All rights reserved.
  *
@@ -46,7 +46,7 @@ namespace utils
     {
       reset(T::Zero());
     }
-  
+
     /** Constructor with cutoff period.
      *
      * \param dt Sampling period.
@@ -60,7 +60,7 @@ namespace utils
       reset(T::Zero());
       cutoffPeriod(period);
     }
-  
+
     /** Get cutoff period.
      *
      */
@@ -68,7 +68,7 @@ namespace utils
     {
       return cutoffPeriod_;
     }
-  
+
     /** Set cutoff period.
      *
      * \param period New cutoff period.
@@ -79,7 +79,7 @@ namespace utils
       period = std::max(period, 2 * dt_);
       cutoffPeriod_ = period;
     }
-  
+
     /** Reset position to an initial rest value.
      *
      * \param pos New position.
@@ -90,7 +90,7 @@ namespace utils
       pos_ = pos;
       vel_ = T::Zero();
     }
-  
+
     /** Update velocity estimate from new position value.
      *
      * \param newPos New observed position.
@@ -104,7 +104,7 @@ namespace utils
       pos_ = newPos;
       vel_ = newVel;
     }
-  
+
     /** Update position only.
      *
      */
@@ -112,7 +112,7 @@ namespace utils
     {
       pos_ = newPos;
     }
-  
+
     /** Get filtered velocity.
      *
      */
@@ -120,7 +120,7 @@ namespace utils
     {
       return vel_;
     }
-  
+
   private:
     T pos_;
     T vel_;

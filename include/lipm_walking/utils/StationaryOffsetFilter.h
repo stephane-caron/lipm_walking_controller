@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2018-2019, CNRS-UM LIRMM
  * All rights reserved.
  *
@@ -52,7 +52,7 @@ namespace utils
       filteredValue_ = initValue;
       rawValue_ = initValue;
     }
-  
+
     /** Update input signal value.
      *
      * \param value New value.
@@ -64,7 +64,7 @@ namespace utils
       filteredValue_ = value - average_.eval();
       rawValue_ = value;
     }
-  
+
     /** Get output value where the stationary offset has been filtered.
      *
      */
@@ -72,7 +72,7 @@ namespace utils
     {
       return filteredValue_;
     }
-  
+
     /** Get raw value of input signal.
      *
      */
@@ -80,7 +80,7 @@ namespace utils
     {
       return rawValue_;
     }
-  
+
     /** Reset everything to zero.
      *
      */
@@ -90,7 +90,7 @@ namespace utils
       filteredValue_.setZero();
       rawValue_.setZero();
     }
-  
+
     /** Get time constant of the filter.
      *
      */
@@ -98,7 +98,7 @@ namespace utils
     {
       return average_.timeConstant();
     }
-  
+
     /** Update time constant.
      *
      * \param T New time constant of the filter.
@@ -108,7 +108,7 @@ namespace utils
     {
       average_.timeConstant(T);
     }
-  
+
   private:
     Eigen::Vector3d filteredValue_;
     Eigen::Vector3d rawValue_;

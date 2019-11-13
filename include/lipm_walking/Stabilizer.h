@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2018-2019, CNRS-UM LIRMM
  * All rights reserved.
  *
@@ -168,7 +168,7 @@ namespace lipm_walking
     /** Configure foot task for contact at a given location.
      *
      * \param footTask One of leftFootTask or rightFootTask.
-     * 
+     *
      * \param contact Target contact location.
      *
      */
