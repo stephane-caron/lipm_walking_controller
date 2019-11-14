@@ -614,7 +614,12 @@ namespace lipm_walking
     desiredCoMAccel += omega * dcmIntegralGain_ * dcmAverageError_;
     desiredCoMAccel += omega * dcmDerivGain_ * dcmVelError_;
     auto desiredForce = mass_ * (desiredCoMAccel - world::gravity);
-    return {pendulum_.com().cross(desiredForce), desiredForce};
+
+    // Previous implementation (up to v1.3):
+    // return {pendulum_.com().cross(desiredForce), desiredForce};
+    // See https://github.com/stephane-caron/lipm_walking_controller/issues/28
+
+    return {measuredCoM_.cross(desiredForce), desiredForce};
   }
 
   void Stabilizer::distributeWrench(const sva::ForceVecd & desiredWrench)
