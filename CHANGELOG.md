@@ -2,18 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [v1.3] - 2019/11/14
 
 ### Added
 
-- Configuration for the [JVRC-1](https://github.com/jvrc/model/) robot model
+- [JVRC-1](https://github.com/jvrc/model/) robot model configuration
 - Doxygen [API documentation](https://scaron.info/doc/lipm_walking_controller/)
 - ModelPredictiveControl: log ZMP and CoM velocity references
 - Stabilizer: alternative DCM gain tuning by pole placement under ZMP lag model
 
 ### Fixed
 
+- Add ``EIGEN_MAKE_ALIGNED_OPERATOR_NEW`` to all structs
+- Anti-aliasing condition for EMA and LPF filters
 - Handle corner case where the DSP duration is zero
+- Initialization of realCom and realComd
 
 ### Changed
 
