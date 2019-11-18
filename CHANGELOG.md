@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.4] - 2019/11/18
+
+### Fixed
+
+- Stabilizer: distribute wrenches w.r.t. [measured rather than reference
+  CoM](https://github.com/stephane-caron/lipm_walking_controller/issues/28)
+
 ## [v1.3] - 2019/11/14
 
 ### Added

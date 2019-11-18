@@ -35,7 +35,7 @@ include(cmake/boost.cmake)
 set(PROJECT_NAME lipm_walking_controller)
 set(PROJECT_DESCRIPTION "Walking controller based on linear inverted pendulum tracking")
 set(PROJECT_URL https://github.com/stephane-caron/lipm_walking_controller/)
-set(PROJECT_VERSION 1.3.0)
+set(PROJECT_VERSION 1.4.0)
 
 project(${PROJECT_NAME})  # because setup_project() is not called
 
