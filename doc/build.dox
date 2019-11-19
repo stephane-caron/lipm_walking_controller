@@ -2,8 +2,6 @@ namespace lipm_walking {
 
 /** \page build Building from source
 
-\section ubuntu Instructions for Ubuntu 16.04
-
 In what follows, we assume we are starting from a fresh and up-to-date Ubuntu 16.04 system:
 
 @code
@@ -12,7 +10,7 @@ $ sudo apt-get -y upgrade
 $ sudo apt-get -y install cmake curl cython doxygen g++ git gfortran libboost1.58-all-dev libeigen3-dev libgeos++-dev libnanomsg-dev libtinyxml2-dev python-coverage python-nose python-numpy python-pip python-setuptools ros-kinetic-eigenpy sudo
 @endcode
 
-\subsection jrl JRL dependencies
+\section jrl JRL dependencies
 
 Suppose our username is ``ayumi`` and we keep source software repositories in ``~/Software``. We install dependencies from [jrl-umi3218](https://github.com/jrl-umi3218/) repositories following the standard CMake process, starting with [Eigen3ToPython](https://github.com/jrl-umi3218/Eigen3ToPython):
 
@@ -23,9 +21,9 @@ ayumi:~/Software/Eigen3ToPython/build$ make -j4
 ayumi:~/Software/Eigen3ToPython/build$ sudo make install
 @endcode
 
-Apply the same process to all dependencies in the following order:
+Apply this process to all dependencies in the following order:
 
-- [Eigen3ToPython](https://github.com/jrl-umi3218/Eigen3ToPython) (we just did it)
+- [Eigen3ToPython](https://github.com/jrl-umi3218/Eigen3ToPython)
 - [SpaceVecAlg](https://github.com/jrl-umi3218/SpaceVecAlg)
 - [RBDyn](https://github.com/jrl-umi3218/RBDyn/)
 - [eigen-lssol](https://gite.lirmm.fr/multi-contact/eigen-lssol)
@@ -38,7 +36,7 @@ Apply the same process to all dependencies in the following order:
 - [copra](https://github.com/vsamy/copra)
 - [hpp-spline](https://github.com/humanoid-path-planner/hpp-spline.git)
 
-\subsection ros ROS dependencies
+\section ros ROS dependencies
 
 The walking controller depends on ROS for its GUI. Make sure you install ROS Kinetic following the [official instructions](https://wiki.ros.org/kinetic/Installation/Ubuntu):
 
@@ -80,7 +78,7 @@ From this state, we are ready to build mc_rtc. Make sure you source catkin devel
 ayumi:~$ echo "source ~/Software/catkin_ws/devel/setup.bash" >> ~/.bashrc
 @endcode
 
-\subsection rtc Building mc_rtc
+\section rtc Building mc_rtc
 
 Once ROS data packages have been built, apply the CMake process to our last dependency:
 
@@ -93,7 +91,7 @@ ayumi:~/Software/mc_rtc/build$ make -j4
 ayumi:~/Software/mc_rtc/build$ sudo make install
 @endcode
 
-\subsection controller Building the controller itself
+\section controller Building the controller
 
 Now that all dependencies are installed, link the controller in your catkin workspace and follow the standard catkin workflow:
 
@@ -109,16 +107,6 @@ To avoid a sudo at catkin_make install you can change ownership or permissions o
 ayumi:~/$ sudo chown -R ayumi:ayumi /usr/local/lib/mc_controller
 ayumi:~/Software/catkin_ws/$ catkin_make install
 @endcode
-
-\section troubleshooting Troubleshooting
-
-### Robot falls disarticulated when starting the simulation
-
-This is likely due to Choreonoid failing to load the PDcontroller RTC. Open the
-"Message" view and check for error messages.
-
-If you see ``A file of RTC "PDcontroller" does not exist``, it is likely that
-you don't have ``/usr/local/lib/choreonoid-1.7/rtc/PDcontroller.so``. If you have ``/usr/local/lib/PDcontroller.so``, link this file to ``/usr/local/lib/choreonoid-1.7/rtc/`` and try again.
 
 */
 
