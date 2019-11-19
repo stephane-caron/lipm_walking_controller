@@ -23,7 +23,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-LOCALDIR  = ~/Software/catkin_ws/install/share/doc/lipm_walking_controller
+BUILDDIR  = ~/Software/catkin_ws/build/lipm_walking_controller
 ONLINEDIR = scaron.info:public_html/doc/lipm_walking_controller
 
 .PHONY: help
@@ -33,4 +33,5 @@ help:
 
 .PHONY: upload
 upload:
-	rsync -auvz --delete-after $(LOCALDIR)/doxygen-html/ $(ONLINEDIR)/
+	cd $(BUILDDIR) && $(MAKE) doc
+	rsync -auvz --delete-after $(BUILDDIR)/doc/doxygen-html/ $(ONLINEDIR)/

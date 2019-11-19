@@ -1,0 +1,61 @@
+namespace lipm_walking {
+
+/** \page build Building from source
+
+\section ubuntu Instructions for Ubuntu 16.04
+
+In what follows, we assume we are starting from a fresh and up-to-date Ubuntu 16.04 system:
+
+@code
+$ sudo apt-get update
+$ sudo apt-get -y upgrade
+$ sudo apt-get -y install cmake cython doxygen g++ git libboost1.58-all-dev libeigen3-dev python-coverage python-nose python-numpy python-pip python-setuptools sudo
+@endcode
+
+Suppose our username is ``ayumi`` and we keep source software repositories in ``~/Software``. We install dependencies from [jrl-umi3218](https://github.com/jrl-umi3218/) repositories following the standard CMake process, starting with [Eigen3ToPython](https://github.com/jrl-umi3218/Eigen3ToPython):
+
+@code
+ayumi:~/Software$ git clone --recursive https://github.com/jrl-umi3218/Eigen3ToPython
+ayumi:~/Software/Eigen3ToPython/build$ cmake .. -DCMAKE_BUILD_TYPE=Release
+ayumi:~/Software/Eigen3ToPython/build$ make -j4
+ayumi:~/Software/Eigen3ToPython/build$ sudo make install
+@endcode
+
+Apply the same process to all dependencies in the following order:
+
+- [Eigen3ToPython](https://github.com/jrl-umi3218/Eigen3ToPython) (we just did it)
+- [SpaceVecAlg](https://github.com/jrl-umi3218/SpaceVecAlg)
+- [RBDyn](https://github.com/jrl-umi3218/RBDyn/)
+- [eigen-lssol](https://gite.lirmm.fr/multi-contact/eigen-lssol)
+- [eigen-qld](https://github.com/jrl-umi3218/eigen-qld)
+- [sch-core](https://github.com/jrl-umi3218/sch-core)
+- [Tasks](https://github.com/jrl-umi3218/Tasks/)
+- [mc_rbdyn_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf)
+- [copra](https://github.com/vsamy/copra)
+- [mc_rtc_ros_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data)
+- [mc_rtc_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros)
+- [mc_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc)
+
+...
+
+Link lipm_walking_controller from the source folder of your catkin workspace, then follow the standard catkin workflow:
+
+@code
+$ catkin_make -DCMAKE_BUILD_TYPE=RelWithDebInfo && catkin_make install
+@endcode
+
+To avoid a sudo at catkin_make install you can change ownership or permissions of the ``/usr/local/lib/mc_controller`` folder.
+
+\section troubleshooting Troubleshooting
+
+### Robot falls disarticulated when starting the simulation
+
+This is likely due to Choreonoid failing to load the PDcontroller RTC. Open the
+"Message" view and check for error messages.
+
+If you see ``A file of RTC "PDcontroller" does not exist``, it is likely that
+you don't have ``/usr/local/lib/choreonoid-1.7/rtc/PDcontroller.so``. If you have ``/usr/local/lib/PDcontroller.so``, link this file to ``/usr/local/lib/choreonoid-1.7/rtc/`` and try again.
+
+*/
+
+}
