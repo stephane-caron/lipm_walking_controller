@@ -9,8 +9,10 @@ In what follows, we assume we are starting from a fresh and up-to-date Ubuntu 16
 @code
 $ sudo apt-get update
 $ sudo apt-get -y upgrade
-$ sudo apt-get -y install cmake cython doxygen g++ git libboost1.58-all-dev libeigen3-dev python-coverage python-nose python-numpy python-pip python-setuptools sudo
+$ sudo apt-get -y install cmake curl cython doxygen g++ git gfortran libboost1.58-all-dev libeigen3-dev libgeos++-dev libnanomsg-dev libtinyxml2-dev python-coverage python-nose python-numpy python-pip python-setuptools ros-kinetic-eigenpy sudo
 @endcode
+
+\subsection jrl JRL dependencies
 
 Suppose our username is ``ayumi`` and we keep source software repositories in ``~/Software``. We install dependencies from [jrl-umi3218](https://github.com/jrl-umi3218/) repositories following the standard CMake process, starting with [Eigen3ToPython](https://github.com/jrl-umi3218/Eigen3ToPython):
 
@@ -28,23 +30,85 @@ Apply the same process to all dependencies in the following order:
 - [RBDyn](https://github.com/jrl-umi3218/RBDyn/)
 - [eigen-lssol](https://gite.lirmm.fr/multi-contact/eigen-lssol)
 - [eigen-qld](https://github.com/jrl-umi3218/eigen-qld)
+- [eigen-quadprog](https://github.com/jrl-umi3218/eigen-quadprog)
 - [sch-core](https://github.com/jrl-umi3218/sch-core)
+- [sch-core-python](https://github.com/jrl-umi3218/sch-core-python)
 - [Tasks](https://github.com/jrl-umi3218/Tasks/)
 - [mc_rbdyn_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf)
 - [copra](https://github.com/vsamy/copra)
-- [mc_rtc_ros_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data)
-- [mc_rtc_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros)
-- [mc_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc)
+- [hpp-spline](https://github.com/humanoid-path-planner/hpp-spline.git)
 
-...
+\subsection ros ROS dependencies
 
-Link lipm_walking_controller from the source folder of your catkin workspace, then follow the standard catkin workflow:
+The walking controller depends on ROS for its GUI. Make sure you install ROS Kinetic following the [official instructions](https://wiki.ros.org/kinetic/Installation/Ubuntu):
 
 @code
-$ catkin_make -DCMAKE_BUILD_TYPE=RelWithDebInfo && catkin_make install
+ayumi:~$ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+ayumi:~$ sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+ayumi:~$ sudo apt-get update
+ayumi:~$ sudo apt-get install -y ros-kinetic-desktop
+ayumi:~$ sudo rosdep init
+ayumi:~$ rosdep update
+ayumi:~$ echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
+ayumi:~$ source ~/.bashrc
 @endcode
 
-To avoid a sudo at catkin_make install you can change ownership or permissions of the ``/usr/local/lib/mc_controller`` folder.
+Create your catkin workspace:
+
+@code
+ayumi:~$ mkdir -p ~/Software/catkin_ws/src
+ayumi:~/Software/catkin_ws/$ catkin_make
+@endcode
+
+There are two ROS projects for mc_rtc:
+
+- [mc_rtc_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros)
+- [mc_rtc_ros_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data)
+
+The installation is a bit broken here: you will need to link the second one and build once before linking the first one.
+
+@code
+ayumi:~/Software/catkin_ws/src/$ ln -s ~/Software/mc_rtc_ros_data
+ayumi:~/Software/catkin_ws/$ catkin_make -DCMAKE_BUILD_TYPE=Release
+ayumi:~/Software/catkin_ws/$ catkin_make install
+ayumi:~/Software/catkin_ws/src/$ ln -s ~/Software/mc_rtc_ros
+@endcode
+
+From this state, we are ready to build mc_rtc. Make sure you source catkin development files in your bash or zsh configuration as well:
+
+@code
+ayumi:~$ echo "source ~/Software/catkin_ws/devel/setup.bash" >> ~/.bashrc
+@endcode
+
+\subsection rtc Building mc_rtc
+
+Once ROS data packages have been built, apply the CMake process to our last dependency:
+
+- [mc_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc)
+
+@code
+ayumi:~/Software$ git clone --recursive git@gite.lirmm.fr:multi-contact/mc_rtc.git
+ayumi:~/Software/mc_rtc/build$ cmake .. -DCMAKE_BUILD_TYPE=Release
+ayumi:~/Software/mc_rtc/build$ make -j4
+ayumi:~/Software/mc_rtc/build$ sudo make install
+@endcode
+
+\subsection controller Building the controller itself
+
+Now that all dependencies are installed, link the controller in your catkin workspace and follow the standard catkin workflow:
+
+@code
+ayumi:~/Software/$ git clone --recursive https://github.com/stephane-caron/lipm_walking_controller/
+ayumi:~/Software/catkin_ws/src/$ ln -s ~/Software/lipm_walking_controller
+ayumi:~/Software/catkin_ws/$ catkin_make -DCMAKE_BUILD_TYPE=Release
+@endcode
+
+To avoid a sudo at catkin_make install you can change ownership or permissions of the ``/usr/local/lib/mc_controller`` folder:
+
+@code
+ayumi:~/$ sudo chown -R ayumi:ayumi /usr/local/lib/mc_controller
+ayumi:~/Software/catkin_ws/$ catkin_make install
+@endcode
 
 \section troubleshooting Troubleshooting
 
