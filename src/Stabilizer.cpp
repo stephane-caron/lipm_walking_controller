@@ -907,10 +907,8 @@ namespace lipm_walking
 
     const sva::PTransformd & X_0_c = footTask->targetPose();
 
-    Eigen::Matrix6d A = Eigen::Matrix6d::Identity();
-    Eigen::Vector6d b = desiredWrench.vector();
-    Eigen::MatrixXd Q = A.transpose() * A;
-    Eigen::VectorXd c = -A.transpose() * b;
+    Eigen::Matrix6d Q = Eigen::Matrix6d::Identity();
+    Eigen::Vector6d c = -desiredWrench.vector();
 
     Eigen::MatrixXd A_ineq = wrenchFaceMatrix_ * X_0_c.dualMatrix();
     Eigen::VectorXd b_ineq;
