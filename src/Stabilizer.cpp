@@ -104,7 +104,10 @@ namespace lipm_walking
     logger.addLogEntry("perf_Stabilizer", [this]() { return runTime_; });
     logger.addLogEntry("perf_StabilizerLSSOL", [this]() { return lssolTime_; });
     logger.addLogEntry("perf_StabilizerQuadProg", [this]() { return quadprogTime_; });
+    logger.addLogEntry("perf_StabilizerQuadProgNoQR", [this]() { return quadprogNoQRTime_; });
     logger.addLogEntry("qpError", [this]() { return qpError_; });
+    logger.addLogEntry("qpErrorNoQR", [this]() { return qpErrorNoQR_; });
+    logger.addLogEntry("qrDiff", [this]() { return qrDiff_; });
     logger.addLogEntry("stabilizer_admittance_com", [this]() { return comAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_cop", [this]() { return copAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_dfz", [this]() { return dfzAdmittance_; });
@@ -825,16 +828,22 @@ namespace lipm_walking
     b_eq.resize(0);
 
     auto startTime = std::chrono::high_resolution_clock::now();
-    //Eigen::MatrixXd Q = A.transpose() * A;
+    Eigen::MatrixXd Q = A.transpose() * A;
+    Eigen::VectorXd c = -A.transpose() * b;
+    bool solutionFound = qpSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ false);
+    Eigen::VectorXd x_noqr = qpSolver_.result();
+    auto endTime = std::chrono::high_resolution_clock::now();
+    quadprogNoQRTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
+
+    startTime = std::chrono::high_resolution_clock::now();
     householder_.compute(A);
     costRinv_.setIdentity();
     auto triangularView = householder_.matrixQR().topRightCorner<12, 12>().triangularView<Eigen::Upper>();
     triangularView.solveInPlace(costRinv_);
-    Eigen::VectorXd c = -A.transpose() * b;
 
     //bool solutionFound = qpSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ false);
-    bool solutionFound = qpSolver_.solve(costRinv_, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
-    auto endTime = std::chrono::high_resolution_clock::now();
+    solutionFound = qpSolver_.solve(costRinv_, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
+    endTime = std::chrono::high_resolution_clock::now();
     quadprogTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
     if (!solutionFound)
     {
@@ -843,7 +852,9 @@ namespace lipm_walking
     }
 
     Eigen::VectorXd x = qpSolver_.result();
+    qpErrorNoQR_ = (x_noqr - lssolGroundtruth_).norm();
     qpError_ = (x - lssolGroundtruth_).norm();
+    qrDiff_ = (x - x_noqr).norm();
     sva::ForceVecd w_l_0(x.segment<3>(0), x.segment<3>(3));
     sva::ForceVecd w_r_0(x.segment<3>(6), x.segment<3>(9));
     distribWrench_ = w_l_0 + w_r_0;
@@ -938,6 +949,7 @@ namespace lipm_walking
     bool solutionFound = qpSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
     auto endTime = std::chrono::high_resolution_clock::now();
     quadprogTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
+    quadprogNoQRTime_ = quadprogTime_;
     if (!solutionFound)
     {
       LOG_ERROR("SS force distribution QP: solver found no solution");
@@ -946,6 +958,8 @@ namespace lipm_walking
 
     Eigen::VectorXd x = qpSolver_.result();
     qpError_ = (x - lssolGroundtruth_).norm();
+    qpErrorNoQR_ = qpError_;
+    qrDiff_ = 0.;
     sva::ForceVecd w_0(x.head<3>(), x.tail<3>());
     sva::ForceVecd w_c = X_0_c.dualMul(w_0);
     Eigen::Vector2d cop = (e_z.cross(w_c.couple()) / w_c.force()(2)).head<2>();
