@@ -102,6 +102,8 @@ namespace lipm_walking
     logger.addLogEntry("error_vdc", [this]() { return vdcHeightError_; });
     logger.addLogEntry("error_zmp", [this]() { return zmpError_; });
     logger.addLogEntry("perf_Stabilizer", [this]() { return runTime_; });
+    logger.addLogEntry("perf_StabilizerLSSOL", [this]() { return lssolTime_; });
+    logger.addLogEntry("perf_StabilizerQuadProg", [this]() { return quadprogTime_; });
     logger.addLogEntry("qpError", [this]() { return qpError_; });
     logger.addLogEntry("stabilizer_admittance_com", [this]() { return comAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_cop", [this]() { return copAdmittance_; });
@@ -717,7 +719,10 @@ namespace lipm_walking
 
     //Eigen::MatrixXd A0 = A; // A is modified by solve()
     //Eigen::VectorXd b0 = b; // b is modified by solve()
+    auto startTime = std::chrono::high_resolution_clock::now();
     bool solutionFound = wrenchSolver_.solve(A, b, C, bl, bu);
+    auto endTime = std::chrono::high_resolution_clock::now();
+    lssolTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
     if (!solutionFound)
     {
       LOG_ERROR("DS force distribution QP failed to run");
@@ -819,6 +824,7 @@ namespace lipm_walking
     Eigen::VectorXd b_eq;
     b_eq.resize(0);
 
+    auto startTime = std::chrono::high_resolution_clock::now();
     //Eigen::MatrixXd Q = A.transpose() * A;
     householder_.compute(A);
     costRinv_.setIdentity();
@@ -828,6 +834,8 @@ namespace lipm_walking
 
     //bool solutionFound = wrenchQPSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ false);
     bool solutionFound = wrenchQPSolver_.solve(costRinv_, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
+    auto endTime = std::chrono::high_resolution_clock::now();
+    quadprogTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
     if (!solutionFound)
     {
       LOG_ERROR("DS force distribution QP: solver found no solution");
@@ -883,7 +891,10 @@ namespace lipm_walking
     bu.setConstant(NB_VAR + NB_CONS, +1e5);
     bu.tail<NB_CONS>().setZero();
 
+    auto startTime = std::chrono::high_resolution_clock::now();
     wrenchSolver_.solve(A, b, C, bl, bu); // A and b are modified by solve()
+    auto endTime = std::chrono::high_resolution_clock::now();
+    lssolTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
     if (wrenchSolver_.inform() != Eigen::lssol::eStatus::STRONG_MINIMUM)
     {
       LOG_ERROR("SS force distribution QP failed to run");
@@ -927,7 +938,10 @@ namespace lipm_walking
     Eigen::VectorXd b_eq;
     b_eq.resize(0);
 
+    auto startTime = std::chrono::high_resolution_clock::now();
     bool solutionFound = wrenchQPSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
+    auto endTime = std::chrono::high_resolution_clock::now();
+    quadprogTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
     if (!solutionFound)
     {
       LOG_ERROR("SS force distribution QP: solver found no solution");
