@@ -720,17 +720,17 @@ namespace lipm_walking
     //Eigen::MatrixXd A0 = A; // A is modified by solve()
     //Eigen::VectorXd b0 = b; // b is modified by solve()
     auto startTime = std::chrono::high_resolution_clock::now();
-    bool solutionFound = wrenchSolver_.solve(A, b, C, bl, bu);
+    bool solutionFound = lsSolver_.solve(A, b, C, bl, bu);
     auto endTime = std::chrono::high_resolution_clock::now();
     lssolTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
     if (!solutionFound)
     {
       LOG_ERROR("DS force distribution QP failed to run");
-      wrenchSolver_.print_inform();
+      lsSolver_.print_inform();
       return;
     }
 
-    Eigen::VectorXd x = wrenchSolver_.result();
+    Eigen::VectorXd x = lsSolver_.result();
     lssolGroundtruth_ = x;
   }
 
@@ -819,7 +819,7 @@ namespace lipm_walking
     A_ineq.block<1, 6>(33, 6) = -X_0_rc.dualMatrix().bottomRows<1>();
     b_ineq(33) = -MIN_DS_PRESSURE;
 
-    wrenchQPSolver_.problem(NB_VAR, 0, NB_CONS);
+    qpSolver_.problem(NB_VAR, 0, NB_CONS);
     Eigen::MatrixXd A_eq(0, 0);
     Eigen::VectorXd b_eq;
     b_eq.resize(0);
@@ -832,8 +832,8 @@ namespace lipm_walking
     triangularView.solveInPlace(costRinv_);
     Eigen::VectorXd c = -A.transpose() * b;
 
-    //bool solutionFound = wrenchQPSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ false);
-    bool solutionFound = wrenchQPSolver_.solve(costRinv_, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
+    //bool solutionFound = qpSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ false);
+    bool solutionFound = qpSolver_.solve(costRinv_, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
     auto endTime = std::chrono::high_resolution_clock::now();
     quadprogTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
     if (!solutionFound)
@@ -842,12 +842,8 @@ namespace lipm_walking
       return;
     }
 
-    Eigen::VectorXd x = wrenchQPSolver_.result();
+    Eigen::VectorXd x = qpSolver_.result();
     qpError_ = (x - lssolGroundtruth_).norm();
-    if (qpError_ > 1e-12)
-    {
-      LOG_ERROR("QP error = " << qpError_);
-    }
     sva::ForceVecd w_l_0(x.segment<3>(0), x.segment<3>(3));
     sva::ForceVecd w_r_0(x.segment<3>(6), x.segment<3>(9));
     distribWrench_ = w_l_0 + w_r_0;
@@ -892,17 +888,17 @@ namespace lipm_walking
     bu.tail<NB_CONS>().setZero();
 
     auto startTime = std::chrono::high_resolution_clock::now();
-    wrenchSolver_.solve(A, b, C, bl, bu); // A and b are modified by solve()
+    lsSolver_.solve(A, b, C, bl, bu); // A and b are modified by solve()
     auto endTime = std::chrono::high_resolution_clock::now();
     lssolTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
-    if (wrenchSolver_.inform() != Eigen::lssol::eStatus::STRONG_MINIMUM)
+    if (lsSolver_.inform() != Eigen::lssol::eStatus::STRONG_MINIMUM)
     {
       LOG_ERROR("SS force distribution QP failed to run");
-      wrenchSolver_.print_inform();
+      lsSolver_.print_inform();
       return;
     }
 
-    Eigen::VectorXd x = wrenchSolver_.result();
+    Eigen::VectorXd x = lsSolver_.result();
     lssolGroundtruth_ = x;
   }
 
@@ -933,13 +929,13 @@ namespace lipm_walking
     Eigen::VectorXd b_ineq;
     b_ineq.setZero(NB_CONS);
 
-    wrenchQPSolver_.problem(NB_VAR, 0, NB_CONS);
+    qpSolver_.problem(NB_VAR, 0, NB_CONS);
     Eigen::MatrixXd A_eq(0, 0);
     Eigen::VectorXd b_eq;
     b_eq.resize(0);
 
     auto startTime = std::chrono::high_resolution_clock::now();
-    bool solutionFound = wrenchQPSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
+    bool solutionFound = qpSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
     auto endTime = std::chrono::high_resolution_clock::now();
     quadprogTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
     if (!solutionFound)
@@ -948,12 +944,8 @@ namespace lipm_walking
       return;
     }
 
-    Eigen::VectorXd x = wrenchQPSolver_.result();
+    Eigen::VectorXd x = qpSolver_.result();
     qpError_ = (x - lssolGroundtruth_).norm();
-    if (qpError_ > 1e-12)
-    {
-      LOG_ERROR("QP error = " << qpError_);
-    }
     sva::ForceVecd w_0(x.head<3>(), x.tail<3>());
     sva::ForceVecd w_c = X_0_c.dualMul(w_0);
     Eigen::Vector2d cop = (e_z.cross(w_c.couple()) / w_c.force()(2)).head<2>();
