@@ -28,6 +28,7 @@
 #pragma once
 
 #include <eigen-lssol/LSSOL_LS.h>
+#include <eigen-quadprog/QuadProg.h>
 #include <mc_tasks/CoMTask.h>
 #include <mc_tasks/CoPTask.h>
 
@@ -303,6 +304,7 @@ namespace lipm_walking
      *
      */
     void distributeWrench(const sva::ForceVecd & desiredWrench);
+    void distributeWrenchQuadProg(const sva::ForceVecd & desiredWrench);
 
     /** Project desired wrench to single support foot.
      *
@@ -411,5 +413,8 @@ namespace lipm_walking
     sva::MotionVecd contactDamping_;
     sva::MotionVecd contactStiffness_;
     sva::PTransformd zmpFrame_;
+
+    Eigen::VectorXd lssolGroundtruth_;
+    Eigen::QuadProgDense wrenchQPSolver_; /**< Least-squares solver for wrench distribution */
   };
 }
