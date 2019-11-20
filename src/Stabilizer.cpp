@@ -71,7 +71,9 @@ namespace lipm_walking
       pendulum_(pendulum),
       controlRobot_(controlRobot),
       dt_(dt),
-      mass_(controlRobot.mass())
+      mass_(controlRobot.mass()),
+      householder_(19, 12),
+      costRinv_(12, 12)
   {
   }
 
@@ -100,17 +102,18 @@ namespace lipm_walking
     logger.addLogEntry("error_vdc", [this]() { return vdcHeightError_; });
     logger.addLogEntry("error_zmp", [this]() { return zmpError_; });
     logger.addLogEntry("perf_Stabilizer", [this]() { return runTime_; });
+    logger.addLogEntry("qpError", [this]() { return qpError_; });
     logger.addLogEntry("stabilizer_admittance_com", [this]() { return comAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_cop", [this]() { return copAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_dfz", [this]() { return dfzAdmittance_; });
+    logger.addLogEntry("stabilizer_dcmDerivator", [this]() { return dcmDerivator_.eval(); });
     logger.addLogEntry("stabilizer_dcmDerivator_raw", [this]() { return dcmDerivator_.raw(); });
     logger.addLogEntry("stabilizer_dcmDerivator_timeConstant", [this]() { return dcmDerivator_.timeConstant(); });
-    logger.addLogEntry("stabilizer_dcmDerivator", [this]() { return dcmDerivator_.eval(); });
     logger.addLogEntry("stabilizer_dcmGains_derivative", [this]() { return dcmDerivGain_; });
     logger.addLogEntry("stabilizer_dcmGains_integral", [this]() { return dcmIntegralGain_; });
     logger.addLogEntry("stabilizer_dcmGains_proportional", [this]() { return dcmPropGain_; });
-    logger.addLogEntry("stabilizer_dcmIntegrator_timeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
     logger.addLogEntry("stabilizer_dcmIntegrator", [this]() { return dcmIntegrator_.eval(); });
+    logger.addLogEntry("stabilizer_dcmIntegrator_timeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
     logger.addLogEntry("stabilizer_dfz_damping", [this]() { return dfzDamping_; });
     logger.addLogEntry("stabilizer_fdqp_weights_ankleTorque", [this]() { return std::pow(fdqpWeights_.ankleTorqueSqrt, 2); });
     logger.addLogEntry("stabilizer_fdqp_weights_netWrench", [this]() { return std::pow(fdqpWeights_.netWrenchSqrt, 2); });
@@ -693,7 +696,7 @@ namespace lipm_walking
     // b_pressure = 0
 
     constexpr unsigned NB_CONS = 16 + 16 + 2;
-    Eigen::Matrix<double, NB_CONS , NB_VAR> C;
+    Eigen::Matrix<double, NB_CONS, NB_VAR> C;
     Eigen::VectorXd bl, bu;
     C.setZero(NB_CONS, NB_VAR);
     bl.setConstant(NB_VAR + NB_CONS, -1e5);
@@ -794,9 +797,6 @@ namespace lipm_walking
     A_pressure *= fdqpWeights_.pressureSqrt;
     // b_pressure = 0
 
-    Eigen::MatrixXd Q = A.transpose() * A;
-    Eigen::VectorXd c = -A.transpose() * b;
-
     constexpr unsigned NB_CONS = 16 + 16 + 2;
     Eigen::Matrix<double, NB_CONS , NB_VAR> A_ineq;
     Eigen::VectorXd b_ineq;
@@ -819,7 +819,16 @@ namespace lipm_walking
     Eigen::MatrixXd A_eq(0, 0);
     Eigen::VectorXd b_eq;
     b_eq.resize(0);
-    bool solutionFound = wrenchQPSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq);
+
+    //Eigen::MatrixXd Q = A.transpose() * A;
+    householder_.compute(A);
+    costRinv_.setIdentity();
+    auto triangularView = householder_.matrixQR().topRightCorner<12, 12>().triangularView<Eigen::Upper>();
+    triangularView.solveInPlace(costRinv_);
+    Eigen::VectorXd c = -A.transpose() * b;
+
+    //bool solutionFound = wrenchQPSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ false);
+    bool solutionFound = wrenchQPSolver_.solve(costRinv_, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
     if (!solutionFound)
     {
       LOG_ERROR("DS force distribution QP: solver found no solution");
@@ -827,10 +836,10 @@ namespace lipm_walking
     }
 
     Eigen::VectorXd x = wrenchQPSolver_.result();
-    double qpError = (x - lssolGroundtruth_).norm();
-    if (qpError > 1e-6)
+    qpError_ = (x - lssolGroundtruth_).norm();
+    if (qpError_ > 1e-12)
     {
-      LOG_ERROR("QP error = " << qpError);
+      LOG_ERROR("QP error = " << qpError_);
     }
     sva::ForceVecd w_l_0(x.segment<3>(0), x.segment<3>(3));
     sva::ForceVecd w_r_0(x.segment<3>(6), x.segment<3>(9));
@@ -918,7 +927,8 @@ namespace lipm_walking
     Eigen::MatrixXd A_eq(0, 0);
     Eigen::VectorXd b_eq;
     b_eq.resize(0);
-    bool solutionFound = wrenchQPSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq);
+
+    bool solutionFound = wrenchQPSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
     if (!solutionFound)
     {
       LOG_ERROR("SS force distribution QP: solver found no solution");
@@ -926,10 +936,10 @@ namespace lipm_walking
     }
 
     Eigen::VectorXd x = wrenchQPSolver_.result();
-    double qpError = (x - lssolGroundtruth_).norm();
-    if (qpError > 1e-6)
+    qpError_ = (x - lssolGroundtruth_).norm();
+    if (qpError_ > 1e-12)
     {
-      LOG_ERROR("QP error = " << qpError);
+      LOG_ERROR("QP error = " << qpError_);
     }
     sva::ForceVecd w_0(x.head<3>(), x.tail<3>());
     sva::ForceVecd w_c = X_0_c.dualMul(w_0);
