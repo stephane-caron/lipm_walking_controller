@@ -559,6 +559,7 @@ namespace lipm_walking
     {
       case ContactState::DoubleSupport:
         distributeWrench(desiredWrench);
+        distributeWrenchQuadProg(desiredWrench);
         break;
       case ContactState::LeftFoot:
         saturateWrench(desiredWrench, leftFootTask);
@@ -712,15 +713,16 @@ namespace lipm_walking
 
     //Eigen::MatrixXd A0 = A; // A is modified by solve()
     //Eigen::VectorXd b0 = b; // b is modified by solve()
-    bool solverSuccess = wrenchSolver_.solve(A, b, C, bl, bu);
-    Eigen::VectorXd x = wrenchSolver_.result();
-    if (!solverSuccess)
+    bool solutionFound = wrenchSolver_.solve(A, b, C, bl, bu);
+    if (!solutionFound)
     {
       LOG_ERROR("DS force distribution QP failed to run");
       wrenchSolver_.print_inform();
       return;
     }
 
+    Eigen::VectorXd x = wrenchSolver_.result();
+    lssolGroundtruth_ = x;
     sva::ForceVecd w_l_0(x.segment<3>(0), x.segment<3>(3));
     sva::ForceVecd w_r_0(x.segment<3>(6), x.segment<3>(9));
     distribWrench_ = w_l_0 + w_r_0;
@@ -733,6 +735,113 @@ namespace lipm_walking
     leftFootTask->targetForce(w_l_lc.force());
     rightFootTask->targetCoP(rightCoP);
     rightFootTask->targetForce(w_r_rc.force());
+  }
+
+  void Stabilizer::distributeWrenchQuadProg(const sva::ForceVecd & desiredWrench)
+  {
+    // Variables
+    // ---------
+    // x = [w_l_0 w_r_0] where
+    // w_l_0: spatial force vector of left foot contact in inertial frame
+    // w_r_0: spatial force vector of right foot contact in inertial frame
+    //
+    // Objective
+    // ---------
+    // Weighted minimization of the following tasks:
+    // w_l_0 + w_r_0 == desiredWrench  -- realize desired contact wrench
+    // w_l_lankle == 0 -- minimize left foot ankle torque (anisotropic weight)
+    // w_r_rankle == 0 -- minimize right foot ankle torque (anisotropic weight)
+    // (1 - lfr) * w_l_lc.z() == lfr * w_r_rc.z()
+    //
+    // Constraints
+    // -----------
+    // CWC X_0_lc* w_l_0 <= 0  -- left foot wrench within contact wrench cone
+    // CWC X_0_rc* w_r_0 <= 0  -- right foot wrench within contact wrench cone
+    // (X_0_lc* w_l_0).z() > minPressure  -- minimum left foot contact pressure
+    // (X_0_rc* w_r_0).z() > minPressure  -- minimum right foot contact pressure
+
+    const sva::PTransformd & X_0_lc = leftFootContact.pose;
+    const sva::PTransformd & X_0_rc = rightFootContact.pose;
+    sva::PTransformd X_0_lankle = leftFootContact.anklePose();
+    sva::PTransformd X_0_rankle = rightFootContact.anklePose();
+
+    constexpr unsigned NB_VAR = 6 + 6;
+    constexpr unsigned COST_DIM = 6 + NB_VAR + 1;
+    Eigen::MatrixXd A;
+    Eigen::VectorXd b;
+    A.setZero(COST_DIM, NB_VAR);
+    b.setZero(COST_DIM);
+
+    // |w_l_0 + w_r_0 - desiredWrench|^2
+    auto A_net = A.block<6, 12>(0, 0);
+    auto b_net = b.segment<6>(0);
+    A_net.block<6, 6>(0, 0) = Eigen::Matrix6d::Identity();
+    A_net.block<6, 6>(0, 6) = Eigen::Matrix6d::Identity();
+    b_net = desiredWrench.vector();
+
+    // |ankle torques|^2
+    auto A_lankle = A.block<6, 6>(6, 0);
+    auto A_rankle = A.block<6, 6>(12, 6);
+    // anisotropic weights:  taux, tauy, tauz,   fx,   fy,   fz;
+    A_lankle.diagonal() <<     1.,   1., 1e-4, 1e-3, 1e-3, 1e-4;
+    A_rankle.diagonal() <<     1.,   1., 1e-4, 1e-3, 1e-3, 1e-4;
+    A_lankle *= X_0_lankle.dualMatrix();
+    A_rankle *= X_0_rankle.dualMatrix();
+
+    // |(1 - lfr) * w_l_lc.force().z() - lfr * w_r_rc.force().z()|^2
+    double lfr = leftFootRatio_;
+    auto A_pressure = A.block<1, 12>(18, 0);
+    A_pressure.block<1, 6>(0, 0) = (1 - lfr) * X_0_lc.dualMatrix().bottomRows<1>();
+    A_pressure.block<1, 6>(0, 6) = -lfr * X_0_rc.dualMatrix().bottomRows<1>();
+
+    // Apply weights
+    A_net *= fdqpWeights_.netWrenchSqrt;
+    b_net *= fdqpWeights_.netWrenchSqrt;
+    A_lankle *= fdqpWeights_.ankleTorqueSqrt;
+    A_rankle *= fdqpWeights_.ankleTorqueSqrt;
+    // b_lankle = 0
+    // b_rankle = 0
+    A_pressure *= fdqpWeights_.pressureSqrt;
+    // b_pressure = 0
+
+    Eigen::MatrixXd Q = A.transpose() * A;
+    Eigen::VectorXd c = -A.transpose() * b;
+
+    constexpr unsigned CONS_DIM = 16 + 16 + 2;
+    Eigen::Matrix<double, CONS_DIM , NB_VAR> A_ineq;
+    Eigen::VectorXd b_ineq;
+    A_ineq.setZero(CONS_DIM, NB_VAR);
+    b_ineq.setZero(CONS_DIM);
+    // CWC * w_l_lc <= 0
+    A_ineq.block<16, 6>(0, 0) = wrenchFaceMatrix_ * X_0_lc.dualMatrix();
+    // b_ineq.segment<16>(0) is already zero
+    // CWC * w_r_rc <= 0
+    A_ineq.block<16, 6>(16, 6) = wrenchFaceMatrix_ * X_0_rc.dualMatrix();
+    // b_ineq.segment<16>(16) is already zero
+    // w_l_lc.force().z() >= MIN_DS_PRESSURE
+    A_ineq.block<1, 6>(32, 0) = -X_0_lc.dualMatrix().bottomRows<1>();
+    b_ineq(32) = -MIN_DS_PRESSURE;
+    // w_r_rc.force().z() >= MIN_DS_PRESSURE
+    A_ineq.block<1, 6>(33, 6) = -X_0_rc.dualMatrix().bottomRows<1>();
+    b_ineq(33) = -MIN_DS_PRESSURE;
+
+    wrenchQPSolver_.problem(NB_VAR, 0, CONS_DIM);
+    Eigen::MatrixXd A_eq(0, 0);
+    Eigen::VectorXd b_eq;
+    b_eq.resize(0);
+    bool solutionFound = wrenchQPSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq);
+    if (!solutionFound)
+    {
+      LOG_ERROR("DS force distribution QP: solver found no solution");
+      return;
+    }
+
+    Eigen::VectorXd x = wrenchQPSolver_.result();
+    double qpError = (x - lssolGroundtruth_).norm();
+    if (qpError > 1e-7)
+    {
+      LOG_ERROR("QP error = " << qpError);
+    }
   }
 
   void Stabilizer::saturateWrench(const sva::ForceVecd & desiredWrench, std::shared_ptr<mc_tasks::force::CoPTask> & footTask)

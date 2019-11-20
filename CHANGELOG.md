@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- Documentation: build instructions
+
 ## [v1.4] - 2019/11/18
 
 ### Fixed
