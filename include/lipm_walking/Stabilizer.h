@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <Eigen/QR>
 #include <eigen-lssol/LSSOL_LS.h>
 #include <eigen-quadprog/QuadProg.h>
 #include <mc_tasks/CoMTask.h>
@@ -417,5 +418,9 @@ namespace lipm_walking
 
     Eigen::VectorXd lssolGroundtruth_;
     Eigen::QuadProgDense wrenchQPSolver_; /**< Least-squares solver for wrench distribution */
+    Eigen::HouseholderQR<Eigen::MatrixXd> householder_;
+    Eigen::MatrixXd costRinv_;
+
+    double qpError_;
   };
 }
