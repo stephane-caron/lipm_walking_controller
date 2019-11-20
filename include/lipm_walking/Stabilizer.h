@@ -421,6 +421,8 @@ namespace lipm_walking
     Eigen::HouseholderQR<Eigen::MatrixXd> householder_;
     Eigen::MatrixXd costRinv_;
 
-    double qpError_;
+    double qpError_ = 0.;
+    double lssolTime_ = 0.;
+    double quadprogTime_ = 0.;
   };
 }
