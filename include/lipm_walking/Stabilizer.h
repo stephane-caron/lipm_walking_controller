@@ -314,6 +314,7 @@ namespace lipm_walking
      *
      */
     void saturateWrench(const sva::ForceVecd & desiredWrench, std::shared_ptr<mc_tasks::force::CoPTask> & footTask);
+    void saturateWrenchQuadProg(const sva::ForceVecd & desiredWrench, std::shared_ptr<mc_tasks::force::CoPTask> & footTask);
 
     /** Reset admittance, damping and stiffness for every foot in contact.
      *
