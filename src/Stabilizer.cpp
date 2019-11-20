@@ -548,8 +548,7 @@ namespace lipm_walking
 
   void Stabilizer::run()
   {
-    using namespace std::chrono;
-    auto startTime = high_resolution_clock::now();
+    auto startTime = std::chrono::high_resolution_clock::now();
 
     checkGains();
     checkInTheAir();
@@ -580,8 +579,8 @@ namespace lipm_walking
 
     updateFootForceDifferenceControl();
 
-    auto endTime = high_resolution_clock::now();
-    runTime_ = 1000. * duration_cast<duration<double>>(endTime - startTime).count();
+    auto endTime = std::chrono::high_resolution_clock::now();
+    runTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
   }
 
   void Stabilizer::updateState(const Eigen::Vector3d & com, const Eigen::Vector3d & comd, const sva::ForceVecd & wrench, double leftFootRatio)
