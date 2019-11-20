@@ -725,18 +725,6 @@ namespace lipm_walking
 
     Eigen::VectorXd x = wrenchSolver_.result();
     lssolGroundtruth_ = x;
-    sva::ForceVecd w_l_0(x.segment<3>(0), x.segment<3>(3));
-    sva::ForceVecd w_r_0(x.segment<3>(6), x.segment<3>(9));
-    distribWrench_ = w_l_0 + w_r_0;
-
-    sva::ForceVecd w_l_lc = X_0_lc.dualMul(w_l_0);
-    sva::ForceVecd w_r_rc = X_0_rc.dualMul(w_r_0);
-    Eigen::Vector2d leftCoP = (e_z.cross(w_l_lc.couple()) / w_l_lc.force()(2)).head<2>();
-    Eigen::Vector2d rightCoP = (e_z.cross(w_r_rc.couple()) / w_r_rc.force()(2)).head<2>();
-    leftFootTask->targetCoP(leftCoP);
-    leftFootTask->targetForce(w_l_lc.force());
-    rightFootTask->targetCoP(rightCoP);
-    rightFootTask->targetForce(w_r_rc.force());
   }
 
   void Stabilizer::distributeWrenchQuadProg(const sva::ForceVecd & desiredWrench)
@@ -844,6 +832,18 @@ namespace lipm_walking
     {
       LOG_ERROR("QP error = " << qpError);
     }
+    sva::ForceVecd w_l_0(x.segment<3>(0), x.segment<3>(3));
+    sva::ForceVecd w_r_0(x.segment<3>(6), x.segment<3>(9));
+    distribWrench_ = w_l_0 + w_r_0;
+
+    sva::ForceVecd w_l_lc = X_0_lc.dualMul(w_l_0);
+    sva::ForceVecd w_r_rc = X_0_rc.dualMul(w_r_0);
+    Eigen::Vector2d leftCoP = (e_z.cross(w_l_lc.couple()) / w_l_lc.force()(2)).head<2>();
+    Eigen::Vector2d rightCoP = (e_z.cross(w_r_rc.couple()) / w_r_rc.force()(2)).head<2>();
+    leftFootTask->targetCoP(leftCoP);
+    leftFootTask->targetForce(w_l_lc.force());
+    rightFootTask->targetCoP(rightCoP);
+    rightFootTask->targetForce(w_r_rc.force());
   }
 
   void Stabilizer::saturateWrench(const sva::ForceVecd & desiredWrench, std::shared_ptr<mc_tasks::force::CoPTask> & footTask)
@@ -885,12 +885,6 @@ namespace lipm_walking
 
     Eigen::VectorXd x = wrenchSolver_.result();
     lssolGroundtruth_ = x;
-    sva::ForceVecd w_0(x.head<3>(), x.tail<3>());
-    sva::ForceVecd w_c = X_0_c.dualMul(w_0);
-    Eigen::Vector2d cop = (e_z.cross(w_c.couple()) / w_c.force()(2)).head<2>();
-    footTask->targetCoP(cop);
-    footTask->targetForce(w_c.force());
-    distribWrench_ = w_0;
   }
 
   void Stabilizer::saturateWrenchQuadProg(const sva::ForceVecd & desiredWrench, std::shared_ptr<mc_tasks::force::CoPTask> & footTask)
@@ -939,6 +933,12 @@ namespace lipm_walking
     {
       LOG_ERROR("QP error = " << qpError);
     }
+    sva::ForceVecd w_0(x.head<3>(), x.tail<3>());
+    sva::ForceVecd w_c = X_0_c.dualMul(w_0);
+    Eigen::Vector2d cop = (e_z.cross(w_c.couple()) / w_c.force()(2)).head<2>();
+    footTask->targetCoP(cop);
+    footTask->targetForce(w_c.force());
+    distribWrench_ = w_0;
   }
 
   void Stabilizer::updateCoMTaskZMPCC()
