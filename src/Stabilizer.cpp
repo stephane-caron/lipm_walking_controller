@@ -73,8 +73,23 @@ namespace lipm_walking
       dt_(dt),
       mass_(controlRobot.mass()),
       householder_(19, 12),
-      costRinv_(12, 12)
+      costRinv_(12, 12),
+      Q_(12, 12),
+      c_(12)
   {
+    lsSolverDS_.warm(true);
+    lsSolverDS_.feasibilityTol(1e-6);
+    lsSolverDS_.persistence(true);
+    lsSolverDS_.forceMinSize(false);
+    lsSolverDS_.feasibilityMaxIter(4 * lsSolverDS_.feasibilityMaxIter());
+    lsSolverDS_.optimalityMaxIter(4 * lsSolverDS_.optimalityMaxIter());
+
+    lsSolverSS_.warm(true);
+    lsSolverSS_.feasibilityTol(1e-6);
+    lsSolverSS_.persistence(true);
+    lsSolverSS_.forceMinSize(false);
+    lsSolverSS_.feasibilityMaxIter(4 * lsSolverSS_.feasibilityMaxIter());
+    lsSolverSS_.optimalityMaxIter(4 * lsSolverSS_.optimalityMaxIter());
   }
 
   void Stabilizer::addLogEntries(mc_rtc::Logger & logger)
@@ -723,17 +738,17 @@ namespace lipm_walking
     //Eigen::MatrixXd A0 = A; // A is modified by solve()
     //Eigen::VectorXd b0 = b; // b is modified by solve()
     auto startTime = std::chrono::high_resolution_clock::now();
-    bool solutionFound = lsSolver_.solve(A, b, C, bl, bu);
+    bool solutionFound = lsSolverDS_.solve(A, b, C, bl, bu);
     auto endTime = std::chrono::high_resolution_clock::now();
     lssolTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
     if (!solutionFound)
     {
       LOG_ERROR("DS force distribution QP failed to run");
-      lsSolver_.print_inform();
+      lsSolverDS_.print_inform();
       return;
     }
 
-    Eigen::VectorXd x = lsSolver_.result();
+    Eigen::VectorXd x = lsSolverDS_.result();
     lssolGroundtruth_ = x;
   }
 
@@ -827,14 +842,14 @@ namespace lipm_walking
     Eigen::VectorXd b_eq;
     b_eq.resize(0);
 
-    Eigen::VectorXd c = -A.transpose() * b;
+    c_.noalias() = -A.transpose() * b;
 
     auto startTime = std::chrono::high_resolution_clock::now();
-    Eigen::MatrixXd Q = A.transpose() * A;
-    bool solutionFound = qpSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ false);
-    Eigen::VectorXd x_noqr = qpSolver_.result();
+    Q_.noalias() = A.transpose() * A;
+    bool solutionFound = qpSolver_.solve(Q_, c_, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ false);
     auto endTime = std::chrono::high_resolution_clock::now();
     quadprogNoQRTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
+    Eigen::VectorXd x_noqr = qpSolver_.result();
 
     startTime = std::chrono::high_resolution_clock::now();
     householder_.compute(A);
@@ -843,7 +858,7 @@ namespace lipm_walking
     triangularView.solveInPlace(costRinv_);
 
     //bool solutionFound = qpSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ false);
-    solutionFound = qpSolver_.solve(costRinv_, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
+    solutionFound = qpSolver_.solve(costRinv_, c_, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
     endTime = std::chrono::high_resolution_clock::now();
     quadprogTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
     if (!solutionFound)
@@ -900,17 +915,17 @@ namespace lipm_walking
     bu.tail<NB_CONS>().setZero();
 
     auto startTime = std::chrono::high_resolution_clock::now();
-    lsSolver_.solve(A, b, C, bl, bu); // A and b are modified by solve()
+    lsSolverSS_.solve(A, b, C, bl, bu); // A and b are modified by solve()
     auto endTime = std::chrono::high_resolution_clock::now();
     lssolTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
-    if (lsSolver_.inform() != Eigen::lssol::eStatus::STRONG_MINIMUM)
+    if (lsSolverSS_.inform() != Eigen::lssol::eStatus::STRONG_MINIMUM)
     {
       LOG_ERROR("SS force distribution QP failed to run");
-      lsSolver_.print_inform();
+      lsSolverSS_.print_inform();
       return;
     }
 
-    Eigen::VectorXd x = lsSolver_.result();
+    Eigen::VectorXd x = lsSolverSS_.result();
     lssolGroundtruth_ = x;
   }
 
