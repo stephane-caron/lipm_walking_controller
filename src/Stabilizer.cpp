@@ -77,19 +77,6 @@ namespace lipm_walking
       Q_(12, 12),
       c_(12)
   {
-    lsSolverDS_.warm(true);
-    lsSolverDS_.feasibilityTol(1e-6);
-    lsSolverDS_.persistence(true);
-    lsSolverDS_.forceMinSize(false);
-    lsSolverDS_.feasibilityMaxIter(4 * lsSolverDS_.feasibilityMaxIter());
-    lsSolverDS_.optimalityMaxIter(4 * lsSolverDS_.optimalityMaxIter());
-
-    lsSolverSS_.warm(true);
-    lsSolverSS_.feasibilityTol(1e-6);
-    lsSolverSS_.persistence(true);
-    lsSolverSS_.forceMinSize(false);
-    lsSolverSS_.feasibilityMaxIter(4 * lsSolverSS_.feasibilityMaxIter());
-    lsSolverSS_.optimalityMaxIter(4 * lsSolverSS_.optimalityMaxIter());
   }
 
   void Stabilizer::addLogEntries(mc_rtc::Logger & logger)
@@ -117,11 +104,6 @@ namespace lipm_walking
     logger.addLogEntry("error_vdc", [this]() { return vdcHeightError_; });
     logger.addLogEntry("error_zmp", [this]() { return zmpError_; });
     logger.addLogEntry("perf_Stabilizer", [this]() { return runTime_; });
-    logger.addLogEntry("perf_StabilizerLSSOL", [this]() { return lssolTime_; });
-    logger.addLogEntry("perf_StabilizerQuadProg", [this]() { return quadprogTime_; });
-    logger.addLogEntry("perf_StabilizerQuadProgNoQR", [this]() { return quadprogNoQRTime_; });
-    logger.addLogEntry("qpError", [this]() { return qpError_; });
-    logger.addLogEntry("qpErrorNoQR", [this]() { return qpErrorNoQR_; });
     logger.addLogEntry("qrDiff", [this]() { return qrDiff_; });
     logger.addLogEntry("stabilizer_admittance_com", [this]() { return comAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_cop", [this]() { return copAdmittance_; });
@@ -581,16 +563,13 @@ namespace lipm_walking
     {
       case ContactState::DoubleSupport:
         distributeWrench(desiredWrench);
-        distributeWrenchQuadProg(desiredWrench);
         break;
       case ContactState::LeftFoot:
         saturateWrench(desiredWrench, leftFootTask);
-        saturateWrenchQuadProg(desiredWrench, leftFootTask);
         rightFootTask->setZeroTargetWrench();
         break;
       case ContactState::RightFoot:
         saturateWrench(desiredWrench, rightFootTask);
-        saturateWrenchQuadProg(desiredWrench, rightFootTask);
         leftFootTask->setZeroTargetWrench();
         break;
     }
@@ -715,111 +694,6 @@ namespace lipm_walking
     // b_pressure = 0
 
     constexpr unsigned NB_CONS = 16 + 16 + 2;
-    Eigen::Matrix<double, NB_CONS, NB_VAR> C;
-    Eigen::VectorXd bl, bu;
-    C.setZero(NB_CONS, NB_VAR);
-    bl.setConstant(NB_VAR + NB_CONS, -1e5);
-    bu.setConstant(NB_VAR + NB_CONS, +1e5);
-    auto blCons = bl.tail<NB_CONS>();
-    auto buCons = bu.tail<NB_CONS>();
-    // CWC * w_l_lc <= 0
-    C.block<16, 6>(0, 0) = wrenchFaceMatrix_ * X_0_lc.dualMatrix();
-    buCons.segment<16>(0).setZero();
-    // CWC * w_r_rc <= 0
-    C.block<16, 6>(16, 6) = wrenchFaceMatrix_ * X_0_rc.dualMatrix();
-    buCons.segment<16>(16).setZero();
-    // w_l_lc.force().z() >= MIN_DS_PRESSURE
-    // w_r_rc.force().z() >= MIN_DS_PRESSURE
-    C.block<1, 6>(32, 0) = X_0_lc.dualMatrix().bottomRows<1>();
-    C.block<1, 6>(33, 6) = X_0_rc.dualMatrix().bottomRows<1>();
-    blCons.segment<2>(32).setConstant(MIN_DS_PRESSURE);
-    buCons.segment<2>(32).setConstant(+1e5);
-
-    //Eigen::MatrixXd A0 = A; // A is modified by solve()
-    //Eigen::VectorXd b0 = b; // b is modified by solve()
-    auto startTime = std::chrono::high_resolution_clock::now();
-    bool solutionFound = lsSolverDS_.solve(A, b, C, bl, bu);
-    auto endTime = std::chrono::high_resolution_clock::now();
-    lssolTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
-    if (!solutionFound)
-    {
-      LOG_ERROR("DS force distribution QP failed to run");
-      lsSolverDS_.print_inform();
-      return;
-    }
-
-    Eigen::VectorXd x = lsSolverDS_.result();
-    lssolGroundtruth_ = x;
-  }
-
-  void Stabilizer::distributeWrenchQuadProg(const sva::ForceVecd & desiredWrench)
-  {
-    // Variables
-    // ---------
-    // x = [w_l_0 w_r_0] where
-    // w_l_0: spatial force vector of left foot contact in inertial frame
-    // w_r_0: spatial force vector of right foot contact in inertial frame
-    //
-    // Objective
-    // ---------
-    // Weighted minimization of the following tasks:
-    // w_l_0 + w_r_0 == desiredWrench  -- realize desired contact wrench
-    // w_l_lankle == 0 -- minimize left foot ankle torque (anisotropic weight)
-    // w_r_rankle == 0 -- minimize right foot ankle torque (anisotropic weight)
-    // (1 - lfr) * w_l_lc.z() == lfr * w_r_rc.z()
-    //
-    // Constraints
-    // -----------
-    // CWC X_0_lc* w_l_0 <= 0  -- left foot wrench within contact wrench cone
-    // CWC X_0_rc* w_r_0 <= 0  -- right foot wrench within contact wrench cone
-    // (X_0_lc* w_l_0).z() > minPressure  -- minimum left foot contact pressure
-    // (X_0_rc* w_r_0).z() > minPressure  -- minimum right foot contact pressure
-
-    const sva::PTransformd & X_0_lc = leftFootContact.pose;
-    const sva::PTransformd & X_0_rc = rightFootContact.pose;
-    sva::PTransformd X_0_lankle = leftFootContact.anklePose();
-    sva::PTransformd X_0_rankle = rightFootContact.anklePose();
-
-    constexpr unsigned NB_VAR = 6 + 6;
-    constexpr unsigned COST_DIM = 6 + NB_VAR + 1;
-    Eigen::MatrixXd A;
-    Eigen::VectorXd b;
-    A.setZero(COST_DIM, NB_VAR);
-    b.setZero(COST_DIM);
-
-    // |w_l_0 + w_r_0 - desiredWrench|^2
-    auto A_net = A.block<6, 12>(0, 0);
-    auto b_net = b.segment<6>(0);
-    A_net.block<6, 6>(0, 0) = Eigen::Matrix6d::Identity();
-    A_net.block<6, 6>(0, 6) = Eigen::Matrix6d::Identity();
-    b_net = desiredWrench.vector();
-
-    // |ankle torques|^2
-    auto A_lankle = A.block<6, 6>(6, 0);
-    auto A_rankle = A.block<6, 6>(12, 6);
-    // anisotropic weights:  taux, tauy, tauz,   fx,   fy,   fz;
-    A_lankle.diagonal() <<     1.,   1., 1e-4, 1e-3, 1e-3, 1e-4;
-    A_rankle.diagonal() <<     1.,   1., 1e-4, 1e-3, 1e-3, 1e-4;
-    A_lankle *= X_0_lankle.dualMatrix();
-    A_rankle *= X_0_rankle.dualMatrix();
-
-    // |(1 - lfr) * w_l_lc.force().z() - lfr * w_r_rc.force().z()|^2
-    double lfr = leftFootRatio_;
-    auto A_pressure = A.block<1, 12>(18, 0);
-    A_pressure.block<1, 6>(0, 0) = (1 - lfr) * X_0_lc.dualMatrix().bottomRows<1>();
-    A_pressure.block<1, 6>(0, 6) = -lfr * X_0_rc.dualMatrix().bottomRows<1>();
-
-    // Apply weights
-    A_net *= fdqpWeights_.netWrenchSqrt;
-    b_net *= fdqpWeights_.netWrenchSqrt;
-    A_lankle *= fdqpWeights_.ankleTorqueSqrt;
-    A_rankle *= fdqpWeights_.ankleTorqueSqrt;
-    // b_lankle = 0
-    // b_rankle = 0
-    A_pressure *= fdqpWeights_.pressureSqrt;
-    // b_pressure = 0
-
-    constexpr unsigned NB_CONS = 16 + 16 + 2;
     Eigen::Matrix<double, NB_CONS , NB_VAR> A_ineq;
     Eigen::VectorXd b_ineq;
     A_ineq.setZero(NB_CONS, NB_VAR);
@@ -868,8 +742,6 @@ namespace lipm_walking
     }
 
     Eigen::VectorXd x = qpSolver_.result();
-    qpErrorNoQR_ = (x_noqr - lssolGroundtruth_).norm();
-    qpError_ = (x - lssolGroundtruth_).norm();
     qrDiff_ = (x - x_noqr).norm();
     sva::ForceVecd w_l_0(x.segment<3>(0), x.segment<3>(3));
     sva::ForceVecd w_r_0(x.segment<3>(6), x.segment<3>(9));
@@ -886,50 +758,6 @@ namespace lipm_walking
   }
 
   void Stabilizer::saturateWrench(const sva::ForceVecd & desiredWrench, std::shared_ptr<mc_tasks::force::CoPTask> & footTask)
-  {
-    constexpr unsigned NB_CONS = 16;
-    constexpr unsigned NB_VAR = 6;
-
-    // Variables
-    // ---------
-    // x = [w_0] where
-    // w_0: spatial force vector of foot contact in inertial frame
-    //
-    // Objective
-    // ---------
-    // weighted minimization of |w_c - X_0_c* desiredWrench|^2
-    //
-    // Constraints
-    // -----------
-    // F X_0_c* w_0 <= 0    -- contact stability
-
-    const sva::PTransformd & X_0_c = footTask->targetPose();
-
-    Eigen::Matrix6d A = Eigen::Matrix6d::Identity();
-    Eigen::Vector6d b = desiredWrench.vector();
-
-    Eigen::MatrixXd C = wrenchFaceMatrix_ * X_0_c.dualMatrix();
-    Eigen::VectorXd bl, bu;
-    bl.setConstant(NB_VAR + NB_CONS, -1e5);
-    bu.setConstant(NB_VAR + NB_CONS, +1e5);
-    bu.tail<NB_CONS>().setZero();
-
-    auto startTime = std::chrono::high_resolution_clock::now();
-    lsSolverSS_.solve(A, b, C, bl, bu); // A and b are modified by solve()
-    auto endTime = std::chrono::high_resolution_clock::now();
-    lssolTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
-    if (lsSolverSS_.inform() != Eigen::lssol::eStatus::STRONG_MINIMUM)
-    {
-      LOG_ERROR("SS force distribution QP failed to run");
-      lsSolverSS_.print_inform();
-      return;
-    }
-
-    Eigen::VectorXd x = lsSolverSS_.result();
-    lssolGroundtruth_ = x;
-  }
-
-  void Stabilizer::saturateWrenchQuadProg(const sva::ForceVecd & desiredWrench, std::shared_ptr<mc_tasks::force::CoPTask> & footTask)
   {
     constexpr unsigned NB_CONS = 16;
     constexpr unsigned NB_VAR = 6;
@@ -973,8 +801,6 @@ namespace lipm_walking
     }
 
     Eigen::VectorXd x = qpSolver_.result();
-    qpError_ = (x - lssolGroundtruth_).norm();
-    qpErrorNoQR_ = qpError_;
     qrDiff_ = 0.;
     sva::ForceVecd w_0(x.head<3>(), x.tail<3>());
     sva::ForceVecd w_c = X_0_c.dualMul(w_0);

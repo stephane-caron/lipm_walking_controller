@@ -61,7 +61,7 @@ set(CONTROLLER_NAME "${PROJET_NAME}_controller")
 add_library(${PROJECT_NAME} SHARED ${CONTROLLER_SRC} ${CONTROLLER_HDR})
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DMC_CONTROL_EXPORTS")
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} copra::copra eigen-lssol::eigen-lssol mc_rtc::mc_control_fsm)
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} copra::copra mc_rtc::mc_control_fsm)
 install(TARGETS ${PROJECT_NAME} DESTINATION ${MC_RTC_LIBDIR}/mc_controller)
 
 add_library(${CONTROLLER_NAME} SHARED lib.cpp)

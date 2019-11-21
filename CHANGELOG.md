@@ -8,6 +8,15 @@ All notable changes to this project will be documented in this file.
 
 - Documentation: build instructions
 
+### Fixed
+
+- Improved solve time of wrench distribution QP from 200-400 us to 5-20 us
+
+### Changed
+
+- Removed dependency on ``eigen-lssol``
+- Stabilizer: switched solver of wrench distribution QP from LSSOL to QuadProg
+
 ## [v1.4] - 2019/11/18
 
 ### Fixed

@@ -28,7 +28,6 @@
 #pragma once
 
 #include <Eigen/QR>
-#include <eigen-lssol/LSSOL_LS.h>
 #include <eigen-quadprog/QuadProg.h>
 #include <mc_tasks/CoMTask.h>
 #include <mc_tasks/CoPTask.h>
@@ -365,8 +364,6 @@ namespace lipm_walking
 
   private:
     ContactState contactState_ = ContactState::DoubleSupport;
-    Eigen::LSSOL_LS lsSolverDS_; /**< Least-squares solver for wrench distribution */
-    Eigen::LSSOL_LS lsSolverSS_; /**< Least-squares solver for wrench distribution */
     Eigen::Matrix<double, 16, 6> wrenchFaceMatrix_; /**< Matrix of single-contact wrench cone inequalities */
     Eigen::QuadProgDense qpSolver_; /**< Least-squares solver for wrench distribution */
     Eigen::Vector2d comAdmittance_ = Eigen::Vector2d::Zero(); /**< Admittance gains for CoM admittance control */
@@ -418,13 +415,9 @@ namespace lipm_walking
     sva::MotionVecd contactStiffness_;
     sva::PTransformd zmpFrame_;
 
-    Eigen::VectorXd lssolGroundtruth_;
     Eigen::HouseholderQR<Eigen::MatrixXd> householder_;
     Eigen::MatrixXd costRinv_;
 
-    double lssolTime_ = 0.;
-    double qpErrorNoQR_ = 0.;
-    double qpError_ = 0.;
     double qrDiff_ = 0.;
     double quadprogNoQRTime_ = 0.;
     double quadprogTime_ = 0.;

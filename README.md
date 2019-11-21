@@ -21,8 +21,8 @@ Compilation requires:
 * [ROS](http://www.ros.org/) with a working [catkin workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace)
 * [SpaceVecAlg](https://github.com/jrl-umi3218/SpaceVecAlg): spatial vector algebra
 * [RBDyn](https://github.com/jrl-umi3218/RBDyn/): rigid body dynamics
-* [eigen-lssol](https://gite.lirmm.fr/multi-contact/eigen-lssol): quadratic programming (if you have the LSSOL licence ask us this library)
 * [eigen-qld](https://github.com/jrl-umi3218/eigen-qld): quadratic programming
+* [eigen-quadprog](https://github.com/jrl-umi3218/eigen-quadprog): quadratic programming
 * [sch-core](https://github.com/jrl-umi3218/sch-core): collision detection
 * [Tasks](https://github.com/jrl-umi3218/Tasks/): inverse kinematics
 * [mc\_rbdyn\_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf): robot model loader
