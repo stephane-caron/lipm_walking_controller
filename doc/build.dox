@@ -26,7 +26,6 @@ Apply this process to all dependencies in the following order:
 - [Eigen3ToPython](https://github.com/jrl-umi3218/Eigen3ToPython)
 - [SpaceVecAlg](https://github.com/jrl-umi3218/SpaceVecAlg)
 - [RBDyn](https://github.com/jrl-umi3218/RBDyn/)
-- [eigen-lssol](https://gite.lirmm.fr/multi-contact/eigen-lssol)
 - [eigen-qld](https://github.com/jrl-umi3218/eigen-qld)
 - [eigen-quadprog](https://github.com/jrl-umi3218/eigen-quadprog)
 - [sch-core](https://github.com/jrl-umi3218/sch-core)
