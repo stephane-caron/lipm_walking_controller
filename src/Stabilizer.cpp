@@ -71,11 +71,7 @@ namespace lipm_walking
       pendulum_(pendulum),
       controlRobot_(controlRobot),
       dt_(dt),
-      mass_(controlRobot.mass()),
-      householder_(19, 12),
-      costRinv_(12, 12),
-      Q_(12, 12),
-      c_(12)
+      mass_(controlRobot.mass())
   {
   }
 
@@ -104,7 +100,6 @@ namespace lipm_walking
     logger.addLogEntry("error_vdc", [this]() { return vdcHeightError_; });
     logger.addLogEntry("error_zmp", [this]() { return zmpError_; });
     logger.addLogEntry("perf_Stabilizer", [this]() { return runTime_; });
-    logger.addLogEntry("qrDiff", [this]() { return qrDiff_; });
     logger.addLogEntry("stabilizer_admittance_com", [this]() { return comAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_cop", [this]() { return copAdmittance_; });
     logger.addLogEntry("stabilizer_admittance_dfz", [this]() { return dfzAdmittance_; });
@@ -551,14 +546,11 @@ namespace lipm_walking
   void Stabilizer::run()
   {
     auto startTime = std::chrono::high_resolution_clock::now();
-
     checkGains();
     checkInTheAir();
     setSupportFootGains();
     updateZMPFrame();
-
     auto desiredWrench = computeDesiredWrench();
-
     switch (contactState_)
     {
       case ContactState::DoubleSupport:
@@ -573,11 +565,8 @@ namespace lipm_walking
         leftFootTask->setZeroTargetWrench();
         break;
     }
-
     updateCoMTaskZMPCC();
-
     updateFootForceDifferenceControl();
-
     auto endTime = std::chrono::high_resolution_clock::now();
     runTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
   }
@@ -693,6 +682,9 @@ namespace lipm_walking
     A_pressure *= fdqpWeights_.pressureSqrt;
     // b_pressure = 0
 
+    Eigen::MatrixXd Q = A.transpose() * A;
+    Eigen::VectorXd c = -A.transpose() * b;
+
     constexpr unsigned NB_CONS = 16 + 16 + 2;
     Eigen::Matrix<double, NB_CONS , NB_VAR> A_ineq;
     Eigen::VectorXd b_ineq;
@@ -716,25 +708,7 @@ namespace lipm_walking
     Eigen::VectorXd b_eq;
     b_eq.resize(0);
 
-    c_.noalias() = -A.transpose() * b;
-
-    auto startTime = std::chrono::high_resolution_clock::now();
-    Q_.noalias() = A.transpose() * A;
-    bool solutionFound = qpSolver_.solve(Q_, c_, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ false);
-    auto endTime = std::chrono::high_resolution_clock::now();
-    quadprogNoQRTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
-    Eigen::VectorXd x_noqr = qpSolver_.result();
-
-    startTime = std::chrono::high_resolution_clock::now();
-    householder_.compute(A);
-    costRinv_.setIdentity();
-    auto triangularView = householder_.matrixQR().topRightCorner<12, 12>().triangularView<Eigen::Upper>();
-    triangularView.solveInPlace(costRinv_);
-
-    //bool solutionFound = qpSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ false);
-    solutionFound = qpSolver_.solve(costRinv_, c_, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
-    endTime = std::chrono::high_resolution_clock::now();
-    quadprogTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
+    bool solutionFound = qpSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ false);
     if (!solutionFound)
     {
       LOG_ERROR("DS force distribution QP: solver found no solution");
@@ -742,7 +716,6 @@ namespace lipm_walking
     }
 
     Eigen::VectorXd x = qpSolver_.result();
-    qrDiff_ = (x - x_noqr).norm();
     sva::ForceVecd w_l_0(x.segment<3>(0), x.segment<3>(3));
     sva::ForceVecd w_r_0(x.segment<3>(6), x.segment<3>(9));
     distribWrench_ = w_l_0 + w_r_0;
@@ -789,11 +762,7 @@ namespace lipm_walking
     Eigen::VectorXd b_eq;
     b_eq.resize(0);
 
-    auto startTime = std::chrono::high_resolution_clock::now();
     bool solutionFound = qpSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ true);
-    auto endTime = std::chrono::high_resolution_clock::now();
-    quadprogTime_ = std::chrono::duration<double, std::milli>(endTime - startTime).count();
-    quadprogNoQRTime_ = quadprogTime_;
     if (!solutionFound)
     {
       LOG_ERROR("SS force distribution QP: solver found no solution");
@@ -801,7 +770,6 @@ namespace lipm_walking
     }
 
     Eigen::VectorXd x = qpSolver_.result();
-    qrDiff_ = 0.;
     sva::ForceVecd w_0(x.head<3>(), x.tail<3>());
     sva::ForceVecd w_c = X_0_c.dualMul(w_0);
     Eigen::Vector2d cop = (e_z.cross(w_c.couple()) / w_c.force()(2)).head<2>();
