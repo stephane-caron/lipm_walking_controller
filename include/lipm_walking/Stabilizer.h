@@ -365,7 +365,8 @@ namespace lipm_walking
 
   private:
     ContactState contactState_ = ContactState::DoubleSupport;
-    Eigen::LSSOL_LS lsSolver_; /**< Least-squares solver for wrench distribution */
+    Eigen::LSSOL_LS lsSolverDS_; /**< Least-squares solver for wrench distribution */
+    Eigen::LSSOL_LS lsSolverSS_; /**< Least-squares solver for wrench distribution */
     Eigen::Matrix<double, 16, 6> wrenchFaceMatrix_; /**< Matrix of single-contact wrench cone inequalities */
     Eigen::QuadProgDense qpSolver_; /**< Least-squares solver for wrench distribution */
     Eigen::Vector2d comAdmittance_ = Eigen::Vector2d::Zero(); /**< Admittance gains for CoM admittance control */
@@ -427,5 +428,7 @@ namespace lipm_walking
     double qrDiff_ = 0.;
     double quadprogNoQRTime_ = 0.;
     double quadprogTime_ = 0.;
+    Eigen::MatrixXd Q_;
+    Eigen::VectorXd c_;
   };
 }
