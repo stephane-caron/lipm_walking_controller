@@ -414,14 +414,5 @@ namespace lipm_walking
     sva::MotionVecd contactDamping_;
     sva::MotionVecd contactStiffness_;
     sva::PTransformd zmpFrame_;
-
-    Eigen::HouseholderQR<Eigen::MatrixXd> householder_;
-    Eigen::MatrixXd costRinv_;
-
-    double qrDiff_ = 0.;
-    double quadprogNoQRTime_ = 0.;
-    double quadprogTime_ = 0.;
-    Eigen::MatrixXd Q_;
-    Eigen::VectorXd c_;
   };
 }
