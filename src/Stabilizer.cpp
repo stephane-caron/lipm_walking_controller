@@ -827,9 +827,10 @@ namespace lipm_walking
     Eigen::VectorXd b_eq;
     b_eq.resize(0);
 
+    Eigen::VectorXd c = -A.transpose() * b;
+
     auto startTime = std::chrono::high_resolution_clock::now();
     Eigen::MatrixXd Q = A.transpose() * A;
-    Eigen::VectorXd c = -A.transpose() * b;
     bool solutionFound = qpSolver_.solve(Q, c, A_eq, b_eq, A_ineq, b_ineq, /* isDecomp = */ false);
     Eigen::VectorXd x_noqr = qpSolver_.result();
     auto endTime = std::chrono::high_resolution_clock::now();
