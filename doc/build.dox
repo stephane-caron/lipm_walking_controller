@@ -7,7 +7,7 @@ In what follows, we assume we are starting from a fresh and up-to-date Ubuntu 16
 @code
 $ sudo apt-get update
 $ sudo apt-get -y upgrade
-$ sudo apt-get -y install cmake curl cython doxygen g++ git gfortran libboost1.58-all-dev libeigen3-dev libgeos++-dev libnanomsg-dev libtinyxml2-dev python-coverage python-nose python-numpy python-pip python-setuptools ros-kinetic-eigenpy sudo
+$ sudo apt-get -y install cmake cython doxygen g++ git gfortran libboost1.58-all-dev libeigen3-dev libgeos++-dev libnanomsg-dev libtinyxml2-dev python-coverage python-nose python-numpy python-pip python-setuptools
 @endcode
 
 \section jrl JRL dependencies
@@ -33,7 +33,6 @@ Apply this process to all dependencies in the following order:
 - [Tasks](https://github.com/jrl-umi3218/Tasks/)
 - [mc_rbdyn_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf)
 - [copra](https://github.com/vsamy/copra)
-- [hpp-spline](https://github.com/humanoid-path-planner/hpp-spline.git)
 
 \section ros ROS dependencies
 
@@ -43,12 +42,16 @@ The walking controller depends on ROS for its GUI. Make sure you install ROS Kin
 ayumi:~$ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 ayumi:~$ sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 ayumi:~$ sudo apt-get update
-ayumi:~$ sudo apt-get install -y ros-kinetic-desktop
+ayumi:~$ sudo apt-get install -y ros-kinetic-desktop ros-kinetic-eigenpy
 ayumi:~$ sudo rosdep init
 ayumi:~$ rosdep update
 ayumi:~$ echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
 ayumi:~$ source ~/.bashrc
 @endcode
+
+Now you can install one last dependency with the same CMake pipeline as above:
+
+- [hpp-spline](https://github.com/humanoid-path-planner/hpp-spline.git)
 
 Create your catkin workspace:
 
