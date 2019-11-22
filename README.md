@@ -6,7 +6,7 @@ Source code of the walking and stair climbing controller used in the experiments
 
 ## Getting started
 
-- [Installation instructions](https://github.com/stephane-caron/lipm_walking_controller/wiki/Installation-instructions)
+- [Installation instructions](https://scaron.info/doc/lipm_walking_controller/build.html)
 - [Wiki](https://github.com/stephane-caron/lipm_walking_controller/wiki) for guides and troubleshooting
 - [API documentation](https://scaron.info/doc/lipm_walking_controller/)
 
