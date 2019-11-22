@@ -7,7 +7,7 @@ In what follows, we assume we are starting from a fresh and up-to-date Ubuntu 16
 @code
 $ sudo apt-get update
 $ sudo apt-get -y upgrade
-$ sudo apt-get -y install cmake cython doxygen g++ git gfortran libboost1.58-all-dev libeigen3-dev libgeos++-dev libnanomsg-dev libtinyxml2-dev python-coverage python-nose python-numpy python-pip python-setuptools
+$ sudo apt-get -y install cmake cython doxygen g++ git gfortran libboost1.58-all-dev libeigen3-dev libgeos++-dev libnanomsg-dev libtinyxml2-dev python-coverage python-nose python-numpy python-pip python-setuptools screen
 @endcode
 
 \section jrl JRL dependencies
@@ -115,7 +115,7 @@ ayumi:~/Software/catkin_ws/$ catkin_make install
 You can test the controller in simulation using [Choreonoid](https://choreonoid.org/en/) and the AIST dynamics simulator. First, install the following packages:
 
 @code
-$ sudo apt-get install -y f2c gettext liblapack-dev libomniorb4-dev libyaml-dev omniidl-python ros-kinetic-openrtm-aist
+$ sudo apt-get install -y f2c gettext liblapack-dev libomniorb4-dev libyaml-dev omniidl-python ros-kinetic-openrtm-aist ros-kinetic-openrtm-aist-python
 @endcode
 
 Install the OpenHRP3 library:
@@ -146,8 +146,31 @@ ayumi:~/Software/choreonoid/build/$ sudo make install
 
 Install the following dependencies using the standard CMake pipeline:
 
-- [mc_udp](https://gite.lirmm.fr/multi-contact/mc_udp)
-- [jvrc_choreonoid](https://gite.lirmm.fr/multi-contact/mc_udp)
+- [mc_udp](https://gite.lirmm.fr/multi-contact/mc_udp): UDP interface for mc_rtc
+- [jvrc_choreonoid](https://gite.lirmm.fr/multi-contact/jvrc_choreonoid): JVRC-1 robot model and project files
+
+Go to ``~/.config/Choreonoid/Choreonoid.conf`` and complete your path variables as follows:
+
+@code
+pathVariables:
+  MODEL:
+    - "/usr/local/share/OpenHRP-3.1/sample/model"
+    - "/usr/local/share/OpenHRP-3.1/robot"
+@endcode
+
+Make sure your omniORB naming service is running by running the ``reset-omninames.sh`` script from your Choreonoid build folder:
+
+@code
+ayumi:~/Software/choreonoid/build/bin$ sudo ./reset-omninames.sh
+ * Stopping omniORB name server omniNames                                               [ OK ]
+ * Starting omniORB name server omniNames                                               [ OK ]
+@endcode
+
+You should now be able to run the simulation by:
+
+@code
+ayumi:/usr/local/share/hrpsys/samples/JVRC1$ choreonoid --start-simulation sim_mc_udp.cnoid
+@endcode
 
 */
 
