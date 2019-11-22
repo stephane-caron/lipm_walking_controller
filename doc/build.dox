@@ -93,6 +93,13 @@ ayumi:~/Software/mc_rtc/build$ make -j4
 ayumi:~/Software/mc_rtc/build$ sudo make install
 @endcode
 
+Finally, let us update our ``LD_LIBRARY_PATH`` so that we can link against our future controllers:
+
+@code
+ayumi:~$ echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib" >> ~/.bashrc
+ayumi:~$ echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib/mc_controller" >> ~/.bashrc
+@endcode
+
 \section controller Building the controller
 
 Now that all dependencies are installed, link the controller in your catkin workspace and follow the standard catkin workflow:
