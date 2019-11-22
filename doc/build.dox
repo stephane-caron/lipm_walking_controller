@@ -110,6 +110,40 @@ ayumi:~/$ sudo chown -R ayumi:ayumi /usr/local/lib/mc_controller
 ayumi:~/Software/catkin_ws/$ catkin_make install
 @endcode
 
+\section choreonoid Building Choreonoid
+
+You can test the controller in simulation using [Choreonoid](https://choreonoid.org/en/) and the AIST dynamics simulator. First, install the following packages:
+
+@code
+$ sudo apt-get install -y f2c liblapack-dev libomniorb4-dev libyaml-dev omniidl-python ros-kinetic-openrtm-aist
+@endcode
+
+gettext
+
+Install the OpenHRP3 library:
+
+@code
+ayumi:~/Software/$ git clone --recursive https://github.com/fkanehiro/openhrp3.git
+ayumi:~/Software/openhrp3/build/$ cmake .. -DOPENRTM_DIR=/opt/ros/kinetic -DCOMPILE_JAVA_STUFF=OFF
+@endcode
+
+Install the hrpsys-base suite of OpenRTM components:
+
+@code
+ayumi:~/Software/$ git clone --recursive https://github.com/fkanehiro/hrpsys-base.git
+ayumi:~/Software/hrpsys-base/build/$ cmake .. -DCOMPILE_JAVA_STUFF=OFF -DBUILD_KALMAN_FILTER=OFF -DBUILD_STABILIZER=OFF
+@endcode
+
+Finally, install Choreonoid. Here are instructions for the commit I'm working on presently:
+
+@code
+ayumi:~/Software/$ git clone https://github.com/s-nakaoka/choreonoid.git
+ayumi:~/Software/choreonoid$ git reset --hard edd3ffda21a679374522572601e5cebbd0867ae5
+ayumi:~/Software/choreonoid/build/$ cmake .. -DENABLE_CORBA=ON -DBUILD_CORBA_PLUGIN=ON -DBUILD_OPENHRP_PLUGIN=ON -DBUILD_OPENRTM_PLUGIN=ON -DUSE_BUILTIN_CAMERA_IMAGE_IDL=ON -DUSE_PYBIND11=OFF -DUSE_PYTHON3=OFF
+ayumi:~/Software/choreonoid/build/$ make -j4
+ayumi:~/Software/choreonoid/build/$ sudo make install
+@endcode
+
 */
 
 }
