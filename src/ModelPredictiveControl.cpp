@@ -106,13 +106,11 @@ namespace lipm_walking
         }),
       ComboInput(
         "MPC QP solver",
-        {"QuadProgDense", "QLD", "LSSOL"},
+        {"QuadProgDense", "QLD"},
         [this]()
         {
           switch (solver_)
           {
-            case copra::SolverFlag::LSSOL:
-              return "LSSOL";
             case copra::SolverFlag::QLD:
               return "QLD";
             case copra::SolverFlag::QuadProgDense:
@@ -122,15 +120,11 @@ namespace lipm_walking
         },
         [this](const std::string & solver)
         {
-          if (solver == "LSSOL")
-          {
-            solver_ = copra::SolverFlag::LSSOL;
-          }
-          else if (solver == "QLD")
+          if (solver == "QLD")
           {
             solver_ = copra::SolverFlag::QLD;
           }
-          else
+          else // (solver == "QuadProgDense")
           {
             solver_ = copra::SolverFlag::QuadProgDense;
           }
