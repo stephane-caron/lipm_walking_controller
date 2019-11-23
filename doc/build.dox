@@ -234,7 +234,7 @@ Almost there! To finally fire up everything, follow these three steps:
     @endcode
 - Start the controller:
     @code
-    ayumi:~$ MCUDPControl -h localhost -p 4444
+    ayumi:~$ MCUDPControl
     @endcode
 
 If everything worked well (as in the Docker) you should get something like this:
