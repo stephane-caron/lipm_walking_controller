@@ -167,6 +167,7 @@ Finally, install Choreonoid:
 
 @code
 ayumi:~/Software/$ git clone --branch release-1.7 https://github.com/s-nakaoka/choreonoid.git
+ayumi:~/Software/choreonoid/misc/script$ ./install-requisites-ubuntu-16.04.sh
 ayumi:~/Software/choreonoid/build/$ cmake .. -DENABLE_CORBA=ON -DBUILD_CORBA_PLUGIN=ON -DBUILD_OPENHRP_PLUGIN=ON -DBUILD_OPENRTM_PLUGIN=ON -DUSE_BUILTIN_CAMERA_IMAGE_IDL=ON -DUSE_PYBIND11=OFF -DUSE_PYTHON3=OFF
 ayumi:~/Software/choreonoid/build/$ make -j4
 ayumi:~/Software/choreonoid/build/$ sudo make install
