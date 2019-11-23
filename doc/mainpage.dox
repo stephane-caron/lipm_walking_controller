@@ -13,7 +13,7 @@ The easiest way to get started with the controller is to use its Docker image:
 
 @code
 $ xhost +local:docker
-$ docker run -it --rm --user ayumi --workdir /home/ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 stephanecaron/tmp_install
+$ docker run -it --rm --user ayumi --workdir /home/ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 stephanecaron/lipm_testing:1.0.2
 @endcode
 
 Alternatively, you can follow the instructions to \ref build "build from source".

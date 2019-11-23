@@ -203,6 +203,45 @@ You should now be able to run the simulation by (note that you need to be in tha
 ayumi:/usr/local/share/hrpsys/samples/JVRC1$ choreonoid --start-simulation sim_mc_udp.cnoid
 @endcode
 
+\section config Configuring and running the controller
+
+Write the following in your ``~/.config/mc_rtc/mc_rtc.conf`` configuration:
+
+@code
+{
+  "MainRobot": "JVRC1",
+  "Enabled": ["LIPMWalking"],
+  "UDP":
+  {
+    "host": "localhost",
+    "port": 4444
+  }
+}
+@endcode
+
+This tells mc_rtc to load the controller for the JVRC-1 robot model and communicating over UDP with the robot-side joint PD servo controller.
+
+Almost there! To finally fire up everything, follow these three steps:
+
+- Start the RViz GUI:
+    @code
+    ayumi:~$ roslaunch lipm_walking_controller display.launch robot:=jvrc1
+    @endcode
+- Start the Choreonoid simulation:
+    @code
+    ayumi:~/Software/choreonoid/build/bin$ sudo ./reset-omninames.sh
+    ayumi:/usr/local/share/hrpsys/samples/JVRC1$ choreonoid --start-simulation sim_mc_udp.cnoid
+    @endcode
+- Start the controller:
+    @code
+    ayumi:~$ MCUDPControl -h localhost -p 4444
+    @endcode
+
+If everything worked well (as in the Docker) you should get something like this:
+
+<img src="https://user-images.githubusercontent.com/1189580/69481155-04de3500-0e52-11ea-91cc-02d05d504ffa.png" style="max-height: 42em" align="left">
+<div style="clear: both"></div>
+
 */
 
 }
