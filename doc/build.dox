@@ -5,9 +5,9 @@ namespace lipm_walking {
 In what follows, we assume we are starting from a fresh and up-to-date Ubuntu 16.04 system:
 
 @code
-$ sudo apt-get update
-$ sudo apt-get -y upgrade
-$ sudo apt-get -y install cmake cython doxygen g++ git gfortran libboost1.58-all-dev libeigen3-dev libgeos++-dev libnanomsg-dev libtinyxml2-dev python-coverage python-nose python-numpy python-pip python-setuptools screen
+ayumi:~$ sudo apt-get update
+ayumi:~$ sudo apt-get -y upgrade
+ayumi:~$ sudo apt-get -y install cmake cython doxygen g++ git gfortran libboost1.58-all-dev libeigen3-dev libgeos++-dev libnanomsg-dev libtinyxml2-dev python-coverage python-nose python-numpy python-pip python-setuptools
 @endcode
 
 \section jrl JRL dependencies
@@ -36,10 +36,10 @@ Apply this process to all dependencies in the following order:
 
 \section ros ROS dependencies
 
-The walking controller depends on ROS for its GUI. Make sure you install ROS Kinetic following the [official instructions](https://wiki.ros.org/kinetic/Installation/Ubuntu):
+The walking controller depends on ROS for its GUI. Make sure you install ROS Kinetic following the [official instructions](https://wiki.ros.org/kinetic/Installation/Ubuntu), that is:
 
 @code
-ayumi:~$ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+ayumi:~$ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu xenial main" > /etc/apt/sources.list.d/ros-latest.list'
 ayumi:~$ sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 ayumi:~$ sudo apt-get update
 ayumi:~$ sudo apt-get install -y ros-kinetic-desktop ros-kinetic-eigenpy
@@ -113,37 +113,60 @@ ayumi:~/Software/catkin_ws/$ catkin_make -DCMAKE_BUILD_TYPE=Release
 To avoid a sudo at catkin_make install you can change ownership or permissions of the ``/usr/local/lib/mc_controller`` folder:
 
 @code
-ayumi:~/$ sudo chown -R ayumi:ayumi /usr/local/lib/mc_controller
+ayumi:~$ sudo chown -R ayumi:ayumi /usr/local/lib/mc_controller
 ayumi:~/Software/catkin_ws/$ catkin_make install
 @endcode
 
-\section choreonoid Building Choreonoid
+\section choreonoid_build Building Choreonoid
 
 You can test the controller in simulation using [Choreonoid](https://choreonoid.org/en/) and the AIST dynamics simulator. First, install the following packages:
 
 @code
-$ sudo apt-get install -y f2c gettext liblapack-dev libomniorb4-dev libyaml-dev omniidl-python ros-kinetic-openrtm-aist ros-kinetic-openrtm-aist-python
+ayumi:~$ sudo apt-get install -y f2c gettext liblapack-dev libomniorb4-dev libyaml-dev omniidl omniidl-python software-properties-common
 @endcode
 
-Install the OpenHRP3 library:
+Install OpenRTM-aist 1.2.0 packages (manually distributed...):
+
+@code
+ayumi:~/Software$ wget https://github.com/OpenRTM/OpenRTM-aist/releases/download/svn/RELEASE_1_1_2/OpenRTM-aist_1.1.2_ubuntu16.04_amd64_package.tar.gz
+ayumi:~/Software$ tar zxvf OpenRTM-aist_1.1.2_ubuntu16.04_amd64_package.tar.gz
+ayumi:~/Software/OpenRTM-aist_1.1.2_ubuntu16.04_amd64_package/$ sudo dpkg -i openrtm-aist_1.1.2-0_amd64.deb
+ayumi:~/Software/OpenRTM-aist_1.1.2_ubuntu16.04_amd64_package/$ sudo dpkg -i openrtm-aist-dev_1.1.2-0_amd64.deb
+ayumi:~/Software/OpenRTM-aist_1.1.2_ubuntu16.04_amd64_package/$ sudo dpkg -i openrtm-aist-example_1.1.2-0_amd64.deb
+ayumi:~/Software$ rm -rf OpenRTM-aist_1.1.2_ubuntu16.04_amd64_package*
+@endcode
+
+@code
+ayumi:~/Software$ wget https://github.com/OpenRTM/OpenRTM-aist-Python/releases/download/svn%252FRELEASE_1_1_2/OpenRTM-aist-Python_1.1.2_ubuntu16.04_amd64_package.tar.gz
+ayumi:~/Software$ tar zxvf OpenRTM-aist-Python_1.1.2_ubuntu16.04_amd64_package.tar.gz
+ayumi:~/Software/OpenRTM-aist-Python_1.1.2_ubuntu16.04_amd64_package$ sudo dpkg -i openrtm-aist-python_1.1.2-1_amd64.deb
+ayumi:~/Software/OpenRTM-aist-Python_1.1.2_ubuntu16.04_amd64_package$ sudo dpkg -i openrtm-aist-python-example_1.1.2-1_amd64.deb
+ayumi:~/Software$ rm -rf OpenRTM-aist-Python_1.1.2_ubuntu16.04_amd64_package*
+@endcode
+
+Install the [OpenHRP3](https://github.com/fkanehiro/openhrp3/tree/53d561a288866a9ebf23c2bd07631fe4c5b91594) library:
 
 @code
 ayumi:~/Software/$ git clone --recursive https://github.com/fkanehiro/openhrp3.git
-ayumi:~/Software/openhrp3/build/$ cmake .. -DOPENRTM_DIR=/opt/ros/kinetic -DCOMPILE_JAVA_STUFF=OFF
+ayumi:~/Software/openhrp3/util$ ./installPackages.sh packages.list.ubuntu.16.04
+ayumi:~/Software/openhrp3/build/$ cmake ..
+ayumi:~/Software/openhrp3/build/$ make -j4
+ayumi:~/Software/openhrp3/build/$ sudo make install
 @endcode
 
-Install the hrpsys-base suite of OpenRTM components:
+Install the [hrpsys-base](https://github.com/fkanehiro/hrpsys-base/tree/5cbb5490f55c7017f7ff789c3d9de531ba92e1b6) suite of OpenRTM components:
 
 @code
 ayumi:~/Software/$ git clone --recursive https://github.com/fkanehiro/hrpsys-base.git
-ayumi:~/Software/hrpsys-base/build/$ cmake .. -DCOMPILE_JAVA_STUFF=OFF -DBUILD_KALMAN_FILTER=OFF -DBUILD_STABILIZER=OFF
+ayumi:~/Software/hrpsys-base/build/$ cmake .. -DBUILD_KALMAN_FILTER=ON -DBUILD_STABILIZER=OFF
+ayumi:~/Software/hrpsys-base/build/$ make -j4
+ayumi:~/Software/hrpsys-base/build/$ sudo make install
 @endcode
 
-Finally, install Choreonoid. Here are instructions for the commit I'm working on presently:
+Finally, install Choreonoid:
 
 @code
-ayumi:~/Software/$ git clone https://github.com/s-nakaoka/choreonoid.git
-ayumi:~/Software/choreonoid$ git reset --hard edd3ffda21a679374522572601e5cebbd0867ae5
+ayumi:~/Software/$ git clone --branch release-1.7 https://github.com/s-nakaoka/choreonoid.git
 ayumi:~/Software/choreonoid/build/$ cmake .. -DENABLE_CORBA=ON -DBUILD_CORBA_PLUGIN=ON -DBUILD_OPENHRP_PLUGIN=ON -DBUILD_OPENRTM_PLUGIN=ON -DUSE_BUILTIN_CAMERA_IMAGE_IDL=ON -DUSE_PYBIND11=OFF -DUSE_PYTHON3=OFF
 ayumi:~/Software/choreonoid/build/$ make -j4
 ayumi:~/Software/choreonoid/build/$ sudo make install
@@ -173,7 +196,7 @@ ayumi:~/Software/choreonoid/build/bin$ sudo ./reset-omninames.sh
  * Starting omniORB name server omniNames                                               [ OK ]
 @endcode
 
-You should now be able to run the simulation by:
+You should now be able to run the simulation by (note that you need to be in that specific folder for the Choreonoid simulation to start successfully):
 
 @code
 ayumi:/usr/local/share/hrpsys/samples/JVRC1$ choreonoid --start-simulation sim_mc_udp.cnoid

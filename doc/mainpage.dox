@@ -18,41 +18,8 @@ $ docker run -it --rm --user ayumi --workdir /home/ayumi -e DISPLAY=${DISPLAY} -
 
 Alternatively, you can follow the instructions to \ref build "build from source".
 
-\section overview Overview of the code
+Learn how the code is organized on the \ref overview "code overview" page.
 
-The LIPM walking controller is built with the [mc_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc) framework. In mc\_rtc, the role of a controller is to initialize and update a set of *tasks* for whole-body control. These tasks are in turn used to formulate and solve an inverse-kinematics or inverse-dynamics quadratic program (QP) using the [Tasks](https://github.com/jrl-umi3218/Tasks/) library. Solving the QP provides joint torques that are sent directly to torque-controlled robots, or joint accelerations that are integrated into positions and sent to position-controlled robots. All of this is done automatically by the framework, so that the only task of a controller is to update... tasks.
-
-There are two main functions in the controller:
-
-- ``Controller::Controller`` initializes tasks and internal objects such as, in this controller, the stabilizer ``Stabilizer`` and walking pattern generator ``ModelPredictiveControl``
-- ``Controller::run`` is the main function which is called at every control cycle. When this function returns, all tasks should have been updated properly.
-
-\subsection main_components Main components
-
-The ``Controller`` class has some main attributes that you will see everywhere in the code:
-
-- ``Controller::controlRobot()``: robot state output by the QP-based whole-body controller
-- ``Controller::mpc()``: model-predictive-control problem solver used for walking pattern generation
-- ``Controller::pendulum()``: holds the reference state (CoM position, velocity, ZMP, ...) from the walking pattern
-- ``Controller::preview``: current solution trajectory from the walking pattern generator
-- ``Controller::plan``: current footstep plan
-- ``Controller::realRobot()``: estimated robot state
-- ``Controller::stabilizer()``: balance feedback control component that updates task targets
-
-As a general rule, look out for documentation in header files or on the [API documentation](https://scaron.info/doc/lipm_walking_controller/).
-
-\subsection fsm Finite state machine
-
-The last instruction in the controller's ``run()`` function calls ``mc_control::fsm::Controller::run()``, which runs the main function of the current state in the finite state machine (FSM). Check out how the FSM works in the [FSM wiki page](https://gite.lirmm.fr/multi-contact/mc_rtc/wikis/FSMController). The four states in the walking controller's FSM are described in the [Graphical user interface](https://github.com/stephane-caron/lipm_walking_controller/wiki/Graphical-user-interface) guide:
-
-- ``states::Initial``: nothing happens yet and the robot just holds its posture.
-- ``states::Standing``: the user clicked on "Start standing", the stabilizer is now on.
-- ``states::SingleSupport``: the robot is walking, currently in single support phase.
-- ``states::DoubleSupport``: the robot is walking, currently in double support phase.
-
-If you just want some balance control without walking, you can modify the ``Standing`` state to suit your needs.
-
-If you want the robot to do something while walking, you can extend the FSM and execute your new states [in parallel](https://gite.lirmm.fr/multi-contact/mc_rtc/wikis/FSMController#parallel) with ``states::SingleSupport`` and ``states::DoubleSupport``.
 */
 
 }

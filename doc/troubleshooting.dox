@@ -2,7 +2,7 @@ namespace lipm_walking {
 
 /** \page troubleshooting Troubleshooting
 
-\section choreonoid Choreonoid questions
+\section choreonoid_questions Choreonoid questions
 
 ### Robot falls disarticulated when starting the simulation
 
