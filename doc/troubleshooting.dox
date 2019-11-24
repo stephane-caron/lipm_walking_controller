@@ -6,11 +6,11 @@ namespace lipm_walking {
 
 ### Robot falls disarticulated when starting the simulation
 
-This is likely due to Choreonoid failing to load the PDcontroller RTC. Open the
-"Message" view and check for error messages.
+This can be anything. Open the "Message" view and check if you have one of the error messages reported below.
 
-If you see ``A file of RTC "PDcontroller" does not exist``, it is likely that
-you don't have ``/usr/local/lib/choreonoid-1.7/rtc/PDcontroller.so``. If you have ``/usr/local/lib/PDcontroller.so``, link this file to ``/usr/local/lib/choreonoid-1.7/rtc/`` and try again.
+#### A file of RTC "PDcontroller" does not exist
+
+It is likely that you don't have ``/usr/local/lib/choreonoid-1.7/rtc/PDcontroller.so``. If you have ``/usr/local/lib/PDcontroller.so``, link this file to ``/usr/local/lib/choreonoid-1.7/rtc/`` and try again.
 
 */
 
