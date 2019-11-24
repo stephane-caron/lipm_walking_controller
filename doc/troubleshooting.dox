@@ -8,7 +8,7 @@ namespace lipm_walking {
 
 This can be anything. Open the "Message" view and check if you have one of the error messages reported below.
 
-#### A file of RTC "PDcontroller" does not exist
+### A file of RTC "PDcontroller" does not exist
 
 It is likely that you don't have ``/usr/local/lib/choreonoid-1.7/rtc/PDcontroller.so``. If you have ``/usr/local/lib/PDcontroller.so``, link this file to ``/usr/local/lib/choreonoid-1.7/rtc/`` and try again.
 

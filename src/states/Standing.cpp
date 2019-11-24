@@ -120,10 +120,16 @@ namespace lipm_walking
           [this]() { return std::round(releaseHeight_ * 100.) / 100.; },
           [this](double height) { releaseHeight_ = clamp(height, 0., 0.25); }),
         Label(
-          "Left foot pressure [N]",
+          "Desired left foot pressure [N]",
+          [this]() { return stabilizer().leftFootTask->targetWrench().force().z(); }),
+        Label(
+          "Desired right foot pressure [N]",
+          [this]() { return stabilizer().rightFootTask->targetWrench().force().z(); }),
+        Label(
+          "Measured left foot pressure [N]",
           [&ctl]() { return ctl.realRobot().forceSensor("LeftFootForceSensor").force().z(); }),
         Label(
-          "Right foot pressure [N]",
+          "Measured right foot pressure [N]",
           [&ctl]() { return ctl.realRobot().forceSensor("RightFootForceSensor").force().z(); }),
         Button(
           "Go to left foot",
