@@ -9,11 +9,17 @@ This is the API documentation for the [lipm_walking_controller](https://github.c
 
 \section getting_started Getting started
 
-The easiest way to get started with the controller is to use its Docker image:
+The easiest way to get started with the controller is to use its Docker image. Start a container with:
 
 @code
 $ xhost +local:docker
-$ docker run -it --rm --user ayumi --workdir /home/ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 stephanecaron/lipm_testing:1.0.2
+$ CONTAINER=$(docker run -it -d --user ayumi --workdir /home/ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 stephanecaron/lipm_testing:1.0.6)
+@endcode
+
+Then, run the controller by:
+
+@code
+$ docker exec -it ${CONTAINER} ./lipm_walking.sh
 @endcode
 
 Alternatively, you can follow the instructions to \ref build "build from source".
