@@ -93,12 +93,17 @@ ayumi:~/Software/mc_rtc/build$ make -j4
 ayumi:~/Software/mc_rtc/build$ sudo make install
 @endcode
 
-Finally, let us update our ``LD_LIBRARY_PATH`` so that we can link against our future controllers:
+Let us update our ``LD_LIBRARY_PATH`` so that we can link against our future controllers:
 
 @code
 ayumi:~$ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/lib" >> ~/.bashrc
 ayumi:~$ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/lib/mc_controller" >> ~/.bashrc
 @endcode
+
+Finally, we will need an interface to communicate with our (real or simulated) robots. Install one of the following:
+
+- [mc_openrtm](https://gite.lirmm.fr/multi-contact/mc_openrtm): OpenRTM interface, install for simulations (also for HRP-2Kai)
+- [mc_udp](https://gite.lirmm.fr/multi-contact/mc_udp): optional, install if your robot has a UDP interface (for instance HRP-4)
 
 \section controller Building the controller
 
@@ -177,7 +182,6 @@ ayumi:~/Software/choreonoid/build/$ sudo make install
 
 Install the following dependencies using the standard CMake pipeline:
 
-- [mc_udp](https://gite.lirmm.fr/multi-contact/mc_udp): UDP interface for mc_rtc
 - [jvrc_choreonoid](https://gite.lirmm.fr/multi-contact/jvrc_choreonoid): JVRC-1 robot model and project files
 
 Go to ``~/.config/Choreonoid/Choreonoid.conf`` and complete your path variables as follows:
@@ -189,10 +193,11 @@ pathVariables:
     - "/usr/local/share/OpenHRP-3.1/robot"
 @endcode
 
-Make sure your omniORB naming service is running by running the ``reset-omninames.sh`` script from your Choreonoid build folder:
+Make sure your omniORB naming service is started by running the ``reset-omninames.sh`` script from your Choreonoid build folder. This script may be useful more than once so we might as well install it:
 
 @code
-ayumi:~/Software/choreonoid/build/bin$ sudo ./reset-omninames.sh
+ayumi:~/Software/choreonoid/build/bin$ sudo cp reset-omninames.sh /usr/local/bin/reset-omninames
+ayumi:~/Software/choreonoid/build/bin$ reset-omninames
  * Stopping omniORB name server omniNames                                               [ OK ]
  * Starting omniORB name server omniNames                                               [ OK ]
 @endcode
@@ -200,7 +205,7 @@ ayumi:~/Software/choreonoid/build/bin$ sudo ./reset-omninames.sh
 You should now be able to run the simulation by (note that you need to be in that specific folder for the Choreonoid simulation to start successfully):
 
 @code
-ayumi:/usr/local/share/hrpsys/samples/JVRC1$ choreonoid --start-simulation sim_mc_udp.cnoid
+ayumi:/usr/local/share/hrpsys/samples/JVRC1$ choreonoid --start-simulation sim_mc.cnoid
 @endcode
 
 \section config Configuring and running the controller
@@ -209,19 +214,12 @@ Write the following in your ``~/.config/mc_rtc/mc_rtc.conf`` configuration:
 
 @code
 {
-  "MainRobot": "JVRC1",
   "Enabled": ["LIPMWalking"],
-  "UDP":
-  {
-    "host": "localhost",
-    "port": 4444
-  }
+  "MainRobot": "JVRC1"
 }
 @endcode
 
-This tells mc_rtc to load the controller for the JVRC-1 robot model and communicating over UDP with the robot-side joint PD servo controller.
-
-Almost there! To finally fire up everything, follow these three steps:
+Almost there! We can finally:
 
 - Start the RViz GUI:
     @code
@@ -229,12 +227,8 @@ Almost there! To finally fire up everything, follow these three steps:
     @endcode
 - Start the Choreonoid simulation:
     @code
-    ayumi:~/Software/choreonoid/build/bin$ sudo ./reset-omninames.sh
-    ayumi:/usr/local/share/hrpsys/samples/JVRC1$ choreonoid --start-simulation sim_mc_udp.cnoid
-    @endcode
-- Start the controller:
-    @code
-    ayumi:~$ MCUDPControl
+    ayumi:~/Software/choreonoid/build/bin$ sudo reset-omninames
+    ayumi:/usr/local/share/hrpsys/samples/JVRC1$ choreonoid --start-simulation sim_mc.cnoid
     @endcode
 
 If everything worked well (as in the Docker) you should get something like this:
