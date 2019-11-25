@@ -13,13 +13,13 @@ The easiest way to get started with the controller is to use its Docker image. S
 
 @code
 $ xhost +local:docker
-$ CONTAINER=$(docker run -it -d --user ayumi --workdir /home/ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 stephanecaron/lipm_testing:1.0.6)
+$ CONTAINER=$(docker run -it -d --user ayumi --workdir /home/ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 stephanecaron/lipm_testing:1.1.1)
 @endcode
 
 Then, run the controller by:
 
 @code
-$ docker exec -it ${CONTAINER} ./lipm_walking.sh
+$ docker exec -it ${CONTAINER} lipm_walking
 @endcode
 
 Alternatively, you can follow the instructions to \ref build "build from source".
