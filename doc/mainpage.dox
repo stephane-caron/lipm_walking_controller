@@ -12,9 +12,9 @@ This is the API documentation for the [lipm_walking_controller](https://github.c
 The easiest way to get started with the controller is to use its Docker image. Start and run the container with:
 
 @code
-$ xhost +local:docker
-$ CONTAINER=$(docker run -it -d --user ayumi --workdir /home/ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 stephanecaron/lipm_testing:1.1.1)
-$ docker exec -it ${CONTAINER} lipm_walking
+$ xhost +local:docker # enable graphical user interfaces from Docker
+$ alias lipm_walking="docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 stephanecaron/lipm_walking:1.5 lipm_walking"
+$ lipm_walking --floor
 @endcode
 
 Alternatively, you can follow the instructions to \ref build "build from source".

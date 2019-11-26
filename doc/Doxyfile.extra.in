@@ -1,4 +1,4 @@
-ALIASES += controllerversion=1.4.0
+ALIASES += controllerversion=1.5
 
 FILE_PATTERNS = *.dox *.h *.cpp
 INPUT = @PROJECT_SOURCE_DIR@/doc @PROJECT_SOURCE_DIR@/include @PROJECT_SOURCE_DIR@/src/states @PROJECT_SOURCE_DIR@/src

@@ -2,11 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [v1.5] - 2019/11/26
 
 ### Added
 
-- Documentation: build instructions
+- Docker image with the complete controller environment
+- Documentation: write build instructions
+- Stabilizer: set wrench distribution QP weights from GUI
 
 ### Fixed
 
