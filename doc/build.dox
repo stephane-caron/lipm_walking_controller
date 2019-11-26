@@ -184,7 +184,7 @@ ayumi:~/Software/choreonoid/build/$ sudo make install
 
 Install the following dependencies using the standard CMake pipeline:
 
-- [jvrc_choreonoid](https://gite.lirmm.fr/multi-contact/jvrc_choreonoid/tree/2fb1700d815f5373ee474510d4583165b81a446f): JVRC-1 robot model and project files
+- [jvrc_choreonoid](https://gite.lirmm.fr/multi-contact/jvrc_choreonoid/tree/aaa0998db6e9a8b23ef3f04238948ee54ee00fec): JVRC-1 robot model and project files
 
 Go to ``~/.config/Choreonoid/Choreonoid.conf`` and complete your path variables as follows:
 
