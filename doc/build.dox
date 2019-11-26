@@ -12,7 +12,7 @@ ayumi:~$ sudo apt-get -y install cmake cython doxygen g++ git gfortran libboost1
 
 \section jrl JRL dependencies
 
-Suppose our username is ``ayumi`` and we keep source software repositories in ``~/Software``. We install dependencies from [jrl-umi3218](https://github.com/jrl-umi3218/) repositories following the standard CMake pipeline, starting with [Eigen3ToPython](https://github.com/jrl-umi3218/Eigen3ToPython):
+Suppose our username is ``ayumi`` and we keep source software repositories in ``~/Software``. We install dependencies from [jrl-umi3218](https://github.com/jrl-umi3218/) repositories following the standard CMake pipeline, starting with Eigen3ToPython:
 
 @code
 ayumi:~/Software$ git clone --recursive https://github.com/jrl-umi3218/Eigen3ToPython
@@ -23,16 +23,18 @@ ayumi:~/Software/Eigen3ToPython/build$ sudo make install
 
 Apply this process to all dependencies in the following order:
 
-- [Eigen3ToPython](https://github.com/jrl-umi3218/Eigen3ToPython): Python bindings for Eigen
-- [SpaceVecAlg](https://github.com/jrl-umi3218/SpaceVecAlg): spatial vector algebra
-- [RBDyn](https://github.com/jrl-umi3218/RBDyn/): rigid body dynamics
-- [eigen-qld](https://github.com/jrl-umi3218/eigen-qld): quadratic programming
-- [eigen-quadprog](https://github.com/jrl-umi3218/eigen-quadprog): quadratic programming
-- [sch-core](https://github.com/jrl-umi3218/sch-core): collision detection
-- [sch-core-python](https://github.com/jrl-umi3218/sch-core-python): Python bindings for collision detection
-- [Tasks](https://github.com/jrl-umi3218/Tasks/): inverse kinematics
-- [mc_rbdyn_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf): robot model loader
-- [copra](https://github.com/vsamy/copra): linear model predictive control
+- [Eigen3ToPython](https://github.com/jrl-umi3218/Eigen3ToPython/tree/dcc442987c3d488fd60ce7e7bcabfdf7feb847f6): Python bindings for Eigen
+- [SpaceVecAlg](https://github.com/jrl-umi3218/SpaceVecAlg/tree/4fff3d8a45499e495498da49d24c554be22a2c47): spatial vector algebra
+- [RBDyn](https://github.com/jrl-umi3218/RBDyn/commit/bf5dc94fbb52fe311fd17ba67da84ba07c82c2b7): rigid body dynamics
+- [eigen-qld](https://github.com/jrl-umi3218/eigen-qld/commit/434e9f684c18b5b5827b29b3a70aabacc5eb192f): quadratic programming
+- [eigen-quadprog](https://github.com/jrl-umi3218/eigen-quadprog/commit/cb2d5a0e2f640d3c75a62c50e1cdab15b92342d6): quadratic programming
+- [sch-core](https://github.com/jrl-umi3218/sch-core/commit/12959e0afc28d038f750918e33d4669612c4c2dc): collision detection
+- [sch-core-python](https://github.com/jrl-umi3218/sch-core-python/commit/2890b2ccd89fdcae31fc75c7efd54f39f8239a48): Python bindings for collision detection
+- [Tasks](https://github.com/jrl-umi3218/Tasks/commit/33f6b298aa3aa3f3cb24d62df4b959d1e4eede93): inverse kinematics
+- [mc_rbdyn_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf/commit/a85621d468aa2631640fcc226ea78df3c5c16c90): robot model loader
+- [copra](https://github.com/vsamy/copra/commit/97509e74504e604305be916691c4d6217e2b7755): linear model predictive control
+
+\note These links and other links below point to the commits used at the time of writing these instructions. If anything breaks in the process, you always have the option to clone these specific commits rather than the latest ``master``.
 
 \section ros ROS dependencies
 
@@ -51,7 +53,7 @@ ayumi:~$ source ~/.bashrc
 
 Now you can install one last dependency with the same CMake pipeline as above:
 
-- [hpp-spline](https://github.com/humanoid-path-planner/hpp-spline.git): spline interpolation
+- [hpp-spline](https://github.com/humanoid-path-planner/hpp-spline/commit/9f80a57a7abe14cbf23b9da57df6e5945f703804): spline interpolation
 
 Create your catkin workspace:
 
@@ -62,8 +64,8 @@ ayumi:~/Software/catkin_ws/$ catkin_make
 
 There are two ROS projects for mc_rtc:
 
-- [mc_rtc_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros): ROS tools for mc_rtc
-- [mc_rtc_ros_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data): ROS models for mc_rtc
+- [mc_rtc_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros/tree/6d5b6f1bb89c446f200794d94dd3b510d456d1b8): ROS tools for mc_rtc
+- [mc_rtc_ros_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data/tree/c3674db95d1658f2054739dc0c99eae9cfca494d): ROS models for mc_rtc
 
 The installation is a bit broken here: you will need to link the second one and build once before linking the first one.
 
@@ -84,7 +86,7 @@ ayumi:~$ echo "source ~/Software/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 Once ROS data packages have been built, apply the CMake pipeline to our last dependency:
 
-- [mc_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc): robot control framework
+- [mc_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc/tree/e5529d0c4812bd15f33c7557f6ccea61ba0008a1): robot control framework
 
 @code
 ayumi:~/Software$ git clone --recursive git@gite.lirmm.fr:multi-contact/mc_rtc.git
@@ -102,8 +104,8 @@ ayumi:~$ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/lib/mc_cont
 
 Finally, we will need an interface to communicate with our (real or simulated) robots. Install one of the following:
 
-- [mc_openrtm](https://gite.lirmm.fr/multi-contact/mc_openrtm): OpenRTM interface, install for simulations (also for HRP-2Kai)
-- [mc_udp](https://gite.lirmm.fr/multi-contact/mc_udp): optional, install if your robot has a UDP interface (for instance HRP-4)
+- [mc_openrtm](https://gite.lirmm.fr/multi-contact/mc_openrtm/tree/9b93983a08bbddbb186db1a0aac03105066b34e8): OpenRTM interface, install for simulations (also for HRP-2Kai)
+- [mc_udp](https://gite.lirmm.fr/multi-contact/mc_udp/tree/0cefb1ab0743718eaab2251d2008b0fb119eb143): optional, install if your robot has a UDP interface (for instance HRP-4)
 
 \section controller Building the controller
 
@@ -124,7 +126,7 @@ ayumi:~/Software/catkin_ws/$ catkin_make install
 
 \section choreonoid_build Building Choreonoid
 
-You can test the controller in simulation using [Choreonoid](https://choreonoid.org/en/) and the AIST dynamics simulator. First, install the following packages:
+You can test the controller in simulation using Choreonoid and the AIST dynamics simulator. First, install the following packages:
 
 @code
 ayumi:~$ sudo apt-get install -y f2c gettext liblapack-dev libomniorb4-dev libyaml-dev omniidl omniidl-python software-properties-common
@@ -168,7 +170,7 @@ ayumi:~/Software/hrpsys-base/build/$ make -j4
 ayumi:~/Software/hrpsys-base/build/$ sudo make install
 @endcode
 
-Finally, install Choreonoid:
+Finally, install [Choreonoid](https://github.com/s-nakaoka/choreonoid/tree/82148c9eb86310717fc90392aee9c0b63e77dd5a):
 
 @code
 ayumi:~/Software/$ git clone --branch release-1.7 https://github.com/s-nakaoka/choreonoid.git
@@ -182,7 +184,7 @@ ayumi:~/Software/choreonoid/build/$ sudo make install
 
 Install the following dependencies using the standard CMake pipeline:
 
-- [jvrc_choreonoid](https://gite.lirmm.fr/multi-contact/jvrc_choreonoid): JVRC-1 robot model and project files
+- [jvrc_choreonoid](https://gite.lirmm.fr/multi-contact/jvrc_choreonoid/tree/2fb1700d815f5373ee474510d4583165b81a446f): JVRC-1 robot model and project files
 
 Go to ``~/.config/Choreonoid/Choreonoid.conf`` and complete your path variables as follows:
 
