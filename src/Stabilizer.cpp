@@ -201,6 +201,22 @@ namespace lipm_walking
         "Reset CoM integrator",
         [this]() { zmpccIntegrator_.setZero(); }),
       ArrayInput(
+        "Wrench distribution weights",
+        {"Net wrench", "Ankle", "Pressure"},
+        [this]() -> Eigen::Vector3d
+        {
+          double netWrench = std::pow(fdqpWeights_.netWrenchSqrt, 2);
+          double ankleTorque = std::pow(fdqpWeights_.ankleTorqueSqrt, 2);
+          double pressure = std::pow(fdqpWeights_.pressureSqrt, 2);
+          return {netWrench, ankleTorque, pressure};
+        },
+        [this](const Eigen::Vector3d & weights)
+        {
+          fdqpWeights_.netWrenchSqrt = std::sqrt(weights(0));
+          fdqpWeights_.ankleTorqueSqrt = std::sqrt(weights(1));
+          fdqpWeights_.pressureSqrt = std::sqrt(weights(2));
+        }),
+      ArrayInput(
         "CoM admittance",
         {"Ax", "Ay"},
         [this]() { return comAdmittance_; },
