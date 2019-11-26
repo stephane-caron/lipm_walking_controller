@@ -95,17 +95,12 @@ ayumi:~/Software/mc_rtc/build$ make -j4
 ayumi:~/Software/mc_rtc/build$ sudo make install
 @endcode
 
-Let us update our ``LD_LIBRARY_PATH`` so that we can link against our future controllers:
+Finally, let us update our ``LD_LIBRARY_PATH`` so that we can link against our future controllers:
 
 @code
 ayumi:~$ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/lib" >> ~/.bashrc
 ayumi:~$ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/lib/mc_controller" >> ~/.bashrc
 @endcode
-
-Finally, we will need an interface to communicate with our (real or simulated) robots. Install one of the following:
-
-- [mc_openrtm](https://gite.lirmm.fr/multi-contact/mc_openrtm/tree/9b93983a08bbddbb186db1a0aac03105066b34e8): OpenRTM interface, install for simulations (also for HRP-2Kai)
-- [mc_udp](https://gite.lirmm.fr/multi-contact/mc_udp/tree/0cefb1ab0743718eaab2251d2008b0fb119eb143): optional, install if your robot has a UDP interface (for instance HRP-4)
 
 \section controller Building the controller
 
@@ -170,7 +165,7 @@ ayumi:~/Software/hrpsys-base/build/$ make -j4
 ayumi:~/Software/hrpsys-base/build/$ sudo make install
 @endcode
 
-Finally, install [Choreonoid](https://github.com/s-nakaoka/choreonoid/tree/82148c9eb86310717fc90392aee9c0b63e77dd5a):
+Install [Choreonoid](https://github.com/s-nakaoka/choreonoid/tree/82148c9eb86310717fc90392aee9c0b63e77dd5a):
 
 @code
 ayumi:~/Software/$ git clone --branch release-1.7 https://github.com/s-nakaoka/choreonoid.git
@@ -182,7 +177,12 @@ ayumi:~/Software/choreonoid/build/$ sudo make install
 
 \section jvrc Simulation with the JVRC-1 model
 
-Install the following dependencies using the standard CMake pipeline:
+We will need an interface to communicate with our simulated robots. Install one of the following:
+
+- [mc_openrtm](https://gite.lirmm.fr/multi-contact/mc_openrtm/tree/9b93983a08bbddbb186db1a0aac03105066b34e8): OpenRTM interface to connect mc_rtc with the Choreonoid simulation
+- [mc_udp](https://gite.lirmm.fr/multi-contact/mc_udp/tree/0cefb1ab0743718eaab2251d2008b0fb119eb143): optional, install if your robot has a UDP interface (for instance HRP-4)
+
+Then, install the Choreonoid project files from the following repository using the standard CMake pipeline:
 
 - [jvrc_choreonoid](https://gite.lirmm.fr/multi-contact/jvrc_choreonoid/tree/aaa0998db6e9a8b23ef3f04238948ee54ee00fec): JVRC-1 robot model and project files
 
