@@ -69,6 +69,7 @@ namespace utils
       : dt_(dt)
     {
       average_ = initValue;
+      rawValue_ = initValue;
       this->timeConstant(timeConstant);
     }
 
@@ -80,6 +81,7 @@ namespace utils
     void append(const Eigen::Vector3d & value)
     {
       average_ += alpha_ * (value - average_);
+      rawValue_ = value;
       if (saturation_ > 0.)
       {
         saturate_();
@@ -92,6 +94,22 @@ namespace utils
     const Eigen::Vector3d & eval() const
     {
       return average_;
+    }
+
+    /** Last raw value provided to the integrator.
+     *
+     */
+    const Eigen::Vector3d & raw() const
+    {
+      return rawValue_;
+    }
+
+    /** Reset average to zero.
+     *
+     */
+    inline void reset()
+    {
+      return setZero();
     }
 
     /** Set output saturation; disable by providing a negative value.
@@ -153,10 +171,11 @@ namespace utils
 
   protected:
     Eigen::Vector3d average_ = Eigen::Vector3d::Zero();
+    Eigen::Vector3d rawValue_ = Eigen::Vector3d::Zero();
     double alpha_;
     double dt_;
-    double timeConstant_;
     double saturation_ = -1.;
+    double timeConstant_;
   };
 }
 
