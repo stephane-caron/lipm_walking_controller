@@ -398,7 +398,7 @@ namespace lipm_walking
     Eigen::Vector3d takeoffOffset_ = Eigen::Vector3d::Zero(); // [m]
     double comHeight_ = 0.8; // [m]
     double doubleSupportDuration_ = 0.2; // [s]
-    double finalDSPDuration_ = 0.3; // [s]
+    double finalDSPDuration_ = 0.6; // [s]
     double initDSPDuration_ = 0.6; // [s]
     double landingDuration_ = 0.15; // [s]
     double landingPitch_ = 0.;
