@@ -135,12 +135,12 @@
       {
         "gains":
         {
-          "prop": 4.0,
-          "integral": 15.0,
+          "prop": 3.0,
+          "integral": 20.0,
           "deriv": 0.5
         },
-        "derivator_time_constant": 1.0,
-        "integrator_time_constant": 15.0
+        "derivator_time_constant": 5.0,
+        "integrator_time_constant": 30.0
       },
       "sole":
       {
