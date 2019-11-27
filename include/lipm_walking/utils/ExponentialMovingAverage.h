@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2018-2019, CNRS-UM LIRMM
  * All rights reserved.
  *
@@ -26,6 +26,8 @@
  */
 
 #pragma once
+
+#include <Eigen/Dense>
 
 namespace utils
 {

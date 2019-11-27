@@ -58,7 +58,7 @@ namespace utils
       return v;
     }
   }
-  
+
   /** Clamp a value in a given interval.
    *
    * \param v Reference to value.
@@ -79,7 +79,7 @@ namespace utils
       v = vMin;
     }
   }
-  
+
   /** Clamp a value in a given interval, issuing a warning when bounds are hit.
    *
    * \param v Value.
@@ -108,7 +108,7 @@ namespace utils
       return v;
     }
   }
-  
+
   /** Clamp a value in a given interval, issuing a warning when bounds are hit.
    *
    * \param v Reference to value.

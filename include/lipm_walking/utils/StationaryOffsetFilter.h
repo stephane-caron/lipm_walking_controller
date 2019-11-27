@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include <Eigen/Dense>
+
 #include "ExponentialMovingAverage.h"
 
 namespace utils

@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include <Eigen/Dense>
+
 namespace utils
 {
   /** Spherical linear interpolation between two rotation matrices.

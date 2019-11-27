@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include <Eigen/Dense>
+
 namespace utils
 {
   /** Cubic polynomial curve.

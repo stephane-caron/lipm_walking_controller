@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include <Eigen/Dense>
+
 namespace utils
 {
   /** Compute velocity by finite difference of position measurements, applying a
