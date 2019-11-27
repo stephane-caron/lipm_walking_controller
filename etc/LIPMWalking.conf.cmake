@@ -267,8 +267,8 @@
       },
       "backward_20cm_steps":
       {
-        "double_support_duration": 0.1,
-        "single_support_duration": 0.7,
+        "double_support_duration": 0.2,
+        "single_support_duration": 0.8,
         "swing_height": 0.05,
         "contacts":
         [
@@ -696,8 +696,8 @@
       },
       "backward_20cm_steps":
       {
-        "double_support_duration": 0.1,
-        "single_support_duration": 0.7,
+        "double_support_duration": 0.2,
+        "single_support_duration": 0.8,
         "swing_height": 0.05,
         "contacts":
         [
