@@ -2,13 +2,13 @@ namespace lipm_walking {
 
 /** \page stabilizer Tuning the stabilizer
 
-The stabilizer performs feedback control to make the robot track the desired walking pattern. The stabilizer of this controller is based on [linear inverted pendulum tracking](https://doi.org/10.1109/IROS.2010.5651082). It is documented in the following [paper](https://hal.archives-ouvertes.fr/hal-01875387/document), [slides](https://scaron.info/slides/jpl-2019.pdf) and [poster](https://scaron.info/files/icra-2019/poster.pdf). We will now discuss the process of tuning its gains.
+The stabilizer performs feedback control to make the robot track the desired walking pattern. The stabilizer of this controller is based on [linear inverted pendulum tracking](https://doi.org/10.1109/IROS.2010.5651082). It is documented in the following [paper](https://hal.archives-ouvertes.fr/hal-01875387/document), [slides](https://scaron.info/slides/jpl-2019.pdf) and [poster](https://scaron.info/files/icra-2019/poster.pdf). Let us discuss the process of tuning its gains.
 
 \section gains Feedback gains
 
-There are two sets of gain to tune in the stabilizer: _admittance gains_ (force control) and _DCM tracking gains_ (floating base control). We cannot achieve perfect position and force control at the same time due to delays and modelling errors; what we are aiming for is a compromise between the two, for a given task (usually walking).
+There are two sets of gain to tune in the stabilizer: _admittance gains_ (force control) and _DCM tracking gains_ (floating base control). We cannot achieve perfect position and force control at the same time due to _e.g._ delays and modeling errors; what we are aiming for is a compromise between the two, for a given task (usually walking).
 
-As a first approximation, we can imagine that these gains tune the compliance/stiffness of the floating base of the robot (recall that we don't control the DCM _per se_ but [because it is the best way to control the floating base](https://scaron.info/slides/jpl-2019.pdf#page=28)). Larger admittances make the floating base more compliant, improving force control in the short term but degrading position tracking in the long term. Meanwhile, larger DCM tracking gains make the floating base stiffer, improving position tracking in the short term but yielding oscillations for high values. The threshold at which these oscillations appear depends on admittances (larger admittances lower the threshold).
+As a first approximation, we can imagine that these gains tune the compliance/stiffness of the floating base of the robot (recall that we don't control the DCM _per se_ but [because it is the best way to control the floating base](https://scaron.info/slides/jpl-2019.pdf#page=28)). Larger admittances make the floating base more compliant, improving force control in the short term but potentially degrading position tracking in the long term. Meanwhile, larger DCM tracking gains make the floating base stiffer, improving position tracking in the short term but yielding oscillations for high values. The threshold at which these oscillations appear depends on admittances (larger admittances lower the threshold).
 
 Here is the list of main gains to configure and their rule-of-thumb effect:
 
@@ -17,9 +17,13 @@ Here is the list of main gains to configure and their rule-of-thumb effect:
 <table>
 <tr><td><b>Gain</b></td><td><b>Effect of increasing</b></td></tr>
 <tr><td><i>Proportional</i></td><td>Stiffens position control</td></tr>
-<tr><td><i>Integral</i></td><td>Reduces steady-state error, stiffens position controller</td></tr>
+<tr><td><i>Integral</i></td><td>Reduces steady-state error, stiffens position control</td></tr>
 <tr><td><i>ZMP</i></td><td>Damps oscillations (allows higher proportional gain) but increases position compliance</td></tr>
 </table>
+
+Ideally we would like these gains to be as low as possible. Larger modeling errors increase steady state error: we can compensate them (for the static part) by increasing the integral gain, but a large integral gain also has drawbacks (_e.g._ slow convergence if the integrator time constant is large, or risk of oscillations otherwise). Improving the model is, when possible, a more principled way to address the problem at its root.
+
+As an example, until version 1.3 of the controller we introduced a modeling error in wrench distribution discussed in [this issue](https://github.com/stephane-caron/lipm_walking_controller/issues/28). With v1.3 running on the HRP-2Kai humanoid, we could go down to a DCM proportional gain ``P=4``: at ``P=3``, the robot was marginally stable, complying to perturbations without returning to the desired equilibrium in standing tests. From version 1.4, we could take the gain down to ``P=3`` (even ``P=2``).
 
 \subsection admittance Admittance control
 
