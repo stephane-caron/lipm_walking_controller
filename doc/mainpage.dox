@@ -7,14 +7,10 @@ namespace lipm_walking {
 
 This is the API documentation for the [lipm_walking_controller](https://github.com/stephane-caron/lipm_walking_controller) version \controllerversion.
 
-\section getting_started Getting started
-
-The easiest way to get started with the controller is to use its Docker image. Start and run the container with:
+The easiest way to get started with the controller is to use its \ref docker "Docker image":
 
 @code
-$ xhost +local:docker # enable graphical user interfaces from Docker
-$ alias lipm_walking="docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 stephanecaron/lipm_walking:1.5 lipm_walking"
-$ lipm_walking --floor
+$ docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 stephanecaron/lipm_walking_controller:1.5 lipm_walking --floor
 @endcode
 
 Alternatively, you can follow the instructions to \ref build "build from source".
