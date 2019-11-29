@@ -9,14 +9,14 @@ The easiest way to get started with the controller is to use its Docker image.
 You will first need to allow Docker containers to access the X Window System (for Choreonoid and RViz):
 
 @code
-$ xhost +local:docker
+xhost +local:docker
 @endcode
 
 Pull and run the Docker image using the following alias:
 
 @code
-$ alias lipm_walking="docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 stephanecaron/lipm_walking_controller:1.5 lipm_walking"
-$ lipm_walking --floor
+alias lipm_walking="docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 stephanecaron/lipm_walking_controller:1.5 lipm_walking"
+lipm_walking --floor
 @endcode
 
 You should get something like this:
