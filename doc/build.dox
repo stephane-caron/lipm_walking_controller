@@ -4,22 +4,22 @@ namespace lipm_walking {
 
 In what follows, we assume we are starting from a fresh and up-to-date Ubuntu 16.04 system:
 
-@code
+\code
 ayumi:~$ sudo apt-get update
 ayumi:~$ sudo apt-get -y upgrade
 ayumi:~$ sudo apt-get -y install cmake cython doxygen g++ git gfortran libboost1.58-all-dev libeigen3-dev libgeos++-dev libnanomsg-dev libtinyxml2-dev python-coverage python-nose python-numpy python-pip python-setuptools
-@endcode
+\endcode
 
 \section jrl JRL dependencies
 
 Suppose our username is ``ayumi`` and we keep source software repositories in ``~/Software``. We install dependencies from [jrl-umi3218](https://github.com/jrl-umi3218/) repositories following the standard CMake pipeline, starting with Eigen3ToPython:
 
-@code
+\code
 ayumi:~/Software$ git clone --recursive https://github.com/jrl-umi3218/Eigen3ToPython
 ayumi:~/Software/Eigen3ToPython/build$ cmake .. -DCMAKE_BUILD_TYPE=Release
 ayumi:~/Software/Eigen3ToPython/build$ make -j4
 ayumi:~/Software/Eigen3ToPython/build$ sudo make install
-@endcode
+\endcode
 
 Apply this process to all dependencies in the following order:
 
@@ -40,7 +40,7 @@ Apply this process to all dependencies in the following order:
 
 The walking controller depends on ROS for its GUI. Make sure you install ROS Kinetic following the [official instructions](https://wiki.ros.org/kinetic/Installation/Ubuntu), that is:
 
-@code
+\code
 ayumi:~$ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu xenial main" > /etc/apt/sources.list.d/ros-latest.list'
 ayumi:~$ sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 ayumi:~$ sudo apt-get update
@@ -49,7 +49,7 @@ ayumi:~$ sudo rosdep init
 ayumi:~$ rosdep update
 ayumi:~$ echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
 ayumi:~$ source ~/.bashrc
-@endcode
+\endcode
 
 Now you can install one last dependency with the same CMake pipeline as above:
 
@@ -57,10 +57,10 @@ Now you can install one last dependency with the same CMake pipeline as above:
 
 Create your catkin workspace:
 
-@code
+\code
 ayumi:~$ mkdir -p ~/Software/catkin_ws/src
 ayumi:~/Software/catkin_ws/$ catkin_make
-@endcode
+\endcode
 
 There are two ROS projects for mc_rtc:
 
@@ -69,18 +69,18 @@ There are two ROS projects for mc_rtc:
 
 The installation is a bit broken here: you will need to link the second one and build once before linking the first one.
 
-@code
+\code
 ayumi:~/Software/catkin_ws/src/$ ln -s ~/Software/mc_rtc_ros_data
 ayumi:~/Software/catkin_ws/$ catkin_make -DCMAKE_BUILD_TYPE=Release
 ayumi:~/Software/catkin_ws/$ catkin_make install
 ayumi:~/Software/catkin_ws/src/$ ln -s ~/Software/mc_rtc_ros
-@endcode
+\endcode
 
 From this state, we are ready to build mc_rtc. Make sure you source catkin development files in your bash or zsh configuration as well:
 
-@code
+\code
 ayumi:~$ echo "source ~/Software/catkin_ws/devel/setup.bash" >> ~/.bashrc
-@endcode
+\endcode
 
 \section rtc Building mc_rtc
 
@@ -88,92 +88,92 @@ Once ROS data packages have been built, apply the CMake pipeline to our last dep
 
 - [mc_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc/tree/e5529d0c4812bd15f33c7557f6ccea61ba0008a1): robot control framework
 
-@code
+\code
 ayumi:~/Software$ git clone --recursive git@gite.lirmm.fr:multi-contact/mc_rtc.git
 ayumi:~/Software/mc_rtc/build$ cmake .. -DCMAKE_BUILD_TYPE=Release
 ayumi:~/Software/mc_rtc/build$ make -j4
 ayumi:~/Software/mc_rtc/build$ sudo make install
-@endcode
+\endcode
 
 Finally, let us update our ``LD_LIBRARY_PATH`` so that we can link against our future controllers:
 
-@code
+\code
 ayumi:~$ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/lib" >> ~/.bashrc
 ayumi:~$ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/lib/mc_controller" >> ~/.bashrc
-@endcode
+\endcode
 
 \section controller Building the controller
 
 Now that all dependencies are installed, link the controller in your catkin workspace and follow the standard catkin workflow:
 
-@code
+\code
 ayumi:~/Software/$ git clone --recursive https://github.com/stephane-caron/lipm_walking_controller/
 ayumi:~/Software/catkin_ws/src/$ ln -s ~/Software/lipm_walking_controller
 ayumi:~/Software/catkin_ws/$ catkin_make -DCMAKE_BUILD_TYPE=Release
-@endcode
+\endcode
 
 To avoid a sudo at catkin_make install you can change ownership or permissions of the ``/usr/local/lib/mc_controller`` folder:
 
-@code
+\code
 ayumi:~$ sudo chown -R ayumi:ayumi /usr/local/lib/mc_controller
 ayumi:~/Software/catkin_ws/$ catkin_make install
-@endcode
+\endcode
 
 \section choreonoid_build Building Choreonoid
 
 You can test the controller in simulation using Choreonoid and the AIST dynamics simulator. First, install the following packages:
 
-@code
+\code
 ayumi:~$ sudo apt-get install -y f2c gettext liblapack-dev libomniorb4-dev libyaml-dev omniidl omniidl-python software-properties-common
-@endcode
+\endcode
 
 Install OpenRTM-aist 1.2.0 packages (manually distributed...):
 
-@code
+\code
 ayumi:~/Software$ wget https://github.com/OpenRTM/OpenRTM-aist/releases/download/svn/RELEASE_1_1_2/OpenRTM-aist_1.1.2_ubuntu16.04_amd64_package.tar.gz
 ayumi:~/Software$ tar zxvf OpenRTM-aist_1.1.2_ubuntu16.04_amd64_package.tar.gz
 ayumi:~/Software/OpenRTM-aist_1.1.2_ubuntu16.04_amd64_package/$ sudo dpkg -i openrtm-aist_1.1.2-0_amd64.deb
 ayumi:~/Software/OpenRTM-aist_1.1.2_ubuntu16.04_amd64_package/$ sudo dpkg -i openrtm-aist-dev_1.1.2-0_amd64.deb
 ayumi:~/Software/OpenRTM-aist_1.1.2_ubuntu16.04_amd64_package/$ sudo dpkg -i openrtm-aist-example_1.1.2-0_amd64.deb
 ayumi:~/Software$ rm -rf OpenRTM-aist_1.1.2_ubuntu16.04_amd64_package*
-@endcode
+\endcode
 
-@code
+\code
 ayumi:~/Software$ wget https://github.com/OpenRTM/OpenRTM-aist-Python/releases/download/svn%252FRELEASE_1_1_2/OpenRTM-aist-Python_1.1.2_ubuntu16.04_amd64_package.tar.gz
 ayumi:~/Software$ tar zxvf OpenRTM-aist-Python_1.1.2_ubuntu16.04_amd64_package.tar.gz
 ayumi:~/Software/OpenRTM-aist-Python_1.1.2_ubuntu16.04_amd64_package$ sudo dpkg -i openrtm-aist-python_1.1.2-1_amd64.deb
 ayumi:~/Software/OpenRTM-aist-Python_1.1.2_ubuntu16.04_amd64_package$ sudo dpkg -i openrtm-aist-python-example_1.1.2-1_amd64.deb
 ayumi:~/Software$ rm -rf OpenRTM-aist-Python_1.1.2_ubuntu16.04_amd64_package*
-@endcode
+\endcode
 
 Install the [OpenHRP3](https://github.com/fkanehiro/openhrp3/tree/53d561a288866a9ebf23c2bd07631fe4c5b91594) library:
 
-@code
+\code
 ayumi:~/Software/$ git clone --recursive https://github.com/fkanehiro/openhrp3.git
 ayumi:~/Software/openhrp3/util$ ./installPackages.sh packages.list.ubuntu.16.04
 ayumi:~/Software/openhrp3/build/$ cmake ..
 ayumi:~/Software/openhrp3/build/$ make -j4
 ayumi:~/Software/openhrp3/build/$ sudo make install
-@endcode
+\endcode
 
 Install the [hrpsys-base](https://github.com/fkanehiro/hrpsys-base/tree/5cbb5490f55c7017f7ff789c3d9de531ba92e1b6) suite of OpenRTM components:
 
-@code
+\code
 ayumi:~/Software/$ git clone --recursive https://github.com/fkanehiro/hrpsys-base.git
 ayumi:~/Software/hrpsys-base/build/$ cmake .. -DBUILD_KALMAN_FILTER=ON -DBUILD_STABILIZER=OFF
 ayumi:~/Software/hrpsys-base/build/$ make -j4
 ayumi:~/Software/hrpsys-base/build/$ sudo make install
-@endcode
+\endcode
 
 Install [Choreonoid](https://github.com/s-nakaoka/choreonoid/tree/82148c9eb86310717fc90392aee9c0b63e77dd5a):
 
-@code
+\code
 ayumi:~/Software/$ git clone --branch release-1.7 https://github.com/s-nakaoka/choreonoid.git
 ayumi:~/Software/choreonoid/misc/script$ ./install-requisites-ubuntu-16.04.sh
 ayumi:~/Software/choreonoid/build/$ cmake .. -DENABLE_CORBA=ON -DBUILD_CORBA_PLUGIN=ON -DBUILD_OPENHRP_PLUGIN=ON -DBUILD_OPENRTM_PLUGIN=ON -DUSE_BUILTIN_CAMERA_IMAGE_IDL=ON -DUSE_PYBIND11=OFF -DUSE_PYTHON3=OFF
 ayumi:~/Software/choreonoid/build/$ make -j4
 ayumi:~/Software/choreonoid/build/$ sudo make install
-@endcode
+\endcode
 
 \section jvrc Simulation with the JVRC-1 model
 
@@ -188,50 +188,50 @@ Then, install the Choreonoid project files from the following repository using t
 
 Go to ``~/.config/Choreonoid/Choreonoid.conf`` and complete your path variables as follows:
 
-@code
+\code
 pathVariables:
   MODEL:
     - "/usr/local/share/OpenHRP-3.1/sample/model"
     - "/usr/local/share/OpenHRP-3.1/robot"
-@endcode
+\endcode
 
 Make sure your omniORB naming service is started by running the ``reset-omninames.sh`` script from your Choreonoid build folder. This script may be useful more than once so we might as well install it:
 
-@code
+\code
 ayumi:~/Software/choreonoid/build/bin$ sudo cp reset-omninames.sh /usr/local/bin/reset-omninames
 ayumi:~/Software/choreonoid/build/bin$ reset-omninames
  * Stopping omniORB name server omniNames                                               [ OK ]
  * Starting omniORB name server omniNames                                               [ OK ]
-@endcode
+\endcode
 
 You should now be able to run the simulation by (note that you need to be in that specific folder for the Choreonoid simulation to start successfully):
 
-@code
+\code
 ayumi:/usr/local/share/hrpsys/samples/JVRC1$ choreonoid --start-simulation sim_mc.cnoid
-@endcode
+\endcode
 
 \section config Configuring and running the controller
 
 Write the following in your ``~/.config/mc_rtc/mc_rtc.conf`` configuration:
 
-@code
+\code
 {
   "Enabled": ["LIPMWalking"],
   "MainRobot": "JVRC1"
 }
-@endcode
+\endcode
 
 Almost there! We can finally:
 
 - Start the RViz GUI:
-    @code
+    \code
     ayumi:~$ roslaunch lipm_walking_controller display.launch robot:=jvrc1
-    @endcode
+    \endcode
 - Start the Choreonoid simulation:
-    @code
+    \code
     ayumi:~/Software/choreonoid/build/bin$ sudo reset-omninames
     ayumi:/usr/local/share/hrpsys/samples/JVRC1$ choreonoid --start-simulation sim_mc.cnoid
-    @endcode
+    \endcode
 
 If everything worked well (as in the Docker) you should get something like this:
 

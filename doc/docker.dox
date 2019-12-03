@@ -6,18 +6,18 @@ The easiest way to get started with the controller is to use its Docker image.
 
 \section docker_linux From Linux
 
-You will first need to allow Docker containers to access the X Window System (for Choreonoid and RViz):
+Pull and run the Docker image by running:
 
-@code
-xhost +local:docker
-@endcode
+\code
+docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw stephanecaron/lipm_walking_controller:1.5 lipm_walking --floor
+\endcode
 
-Pull and run the Docker image using the following alias:
+Replace \htmlonly <code>lipm_walking --floor</code> \endhtmlonly by ``bash`` to open a terminal in the container rather than the controller. You can also make an alias for faster later access:
 
-@code
-alias lipm_walking="docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 stephanecaron/lipm_walking_controller:1.5 lipm_walking"
+\code
+alias lipm_walking="docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw stephanecaron/lipm_walking_controller:1.5 lipm_walking"
 lipm_walking --floor
-@endcode
+\endcode
 
 You should get something like this:
 
@@ -26,13 +26,15 @@ You should get something like this:
 
 Use the controller via its [RViz panel](https://github.com/stephane-caron/lipm_walking_controller/wiki/Graphical-user-interface). When you are done, type Control-C in the terminal to close both windows.
 
+See the \ref docker_questions "Docker troubleshooting" section if you encounter any problem.
+
 \section docker_mac From macOS
 
-...
+Let me know if you manage to get the Docker image to run from macOS ;-)
 
 \section docker_windows From Windows
 
-...
+Let me know if you manage to get the Docker image to run from Windows ;-)
 
 */
 

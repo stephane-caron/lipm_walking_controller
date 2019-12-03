@@ -12,9 +12,38 @@ This can be anything. Open the "Message" view and check if you have one of the e
 
 It is likely that you don't have ``/usr/local/lib/choreonoid-1.7/rtc/PDcontroller.so``. If you have ``/usr/local/lib/PDcontroller.so``, link this file to ``/usr/local/lib/choreonoid-1.7/rtc/`` and try again.
 
+\section docker_questions Docker questions
+
 ### Got permission denied while trying to connect to the Docker daemon socket
 
 This errors happens when your user is not in the docker group. Add it to the group by running ``sudo usermod -a -G docker tastalian``. You will need to log out and in again for this modification to be applied.
+
+### Could not connect to display
+
+If you see occurrences of the following messages in your terminal:
+
+\code
+No protocol specified
+QXcbConnection: Could not connect to display :0
+\endcode
+
+On Linux: this error happens for instance on Ubuntu 14.04 where Docker containers are not allowed by default to communicate with the X Window System. You can fix this by granting local access to the ``docker`` group:
+
+\code
+xhost +local:docker
+\endcode
+
+On macOS: you can use XQuartz as detailed in [these instructions](https://sourabhbajaj.com/blog/2017/02/07/gui-applications-docker-mac/).
+
+### RViz closes unexpectedly
+
+RViz closes unexpectedly with the following error:
+
+\code
+rviz: /build/ogre-1.9-mqY1wq/ogre-1.9-1.9.0+dfsg1/OgreMain/src/OgreNode.cpp:630: virtual void Ogre::Node::setScale(const Ogre::Vector3&): Assertion `!inScale.isNaN() && "Invalid vector supplied as parameter"' failed.
+\endcode
+
+I have no clue what this error is. It happens sometimes on my old Ubuntu 14.04 setup (maybe related to window resizing from the awesome tiling window manager), but it is non-blocking. Re-run the controller and RViz should eventually start.
 
 */
 
