@@ -12,6 +12,10 @@ This can be anything. Open the "Message" view and check if you have one of the e
 
 It is likely that you don't have ``/usr/local/lib/choreonoid-1.7/rtc/PDcontroller.so``. If you have ``/usr/local/lib/PDcontroller.so``, link this file to ``/usr/local/lib/choreonoid-1.7/rtc/`` and try again.
 
+### Got permission denied while trying to connect to the Docker daemon socket
+
+This errors happens when your user is not in the docker group. Add it to the group by running ``sudo usermod -a -G docker tastalian``. You will need to log out and in again for this modification to be applied.
+
 */
 
 }
