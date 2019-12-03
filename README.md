@@ -6,13 +6,21 @@ Source code of the walking and stair climbing controller used in the experiments
 
 ## Getting started
 
-- [Installation instructions](https://scaron.info/doc/lipm_walking_controller/build.html)
+The easiest way to get started with the controller is to run its Docker image from an Ubuntu Linux distribution:
+
+```
+docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --net="host" stephanecaron/lipm_walking_controller:1.5 lipm_walking --floor
+```
+
+See also:
+
+- [Documentation](https://scaron.info/doc/lipm_walking_controller/)
+- [Technical report](https://hal.archives-ouvertes.fr/hal-01875387/document)
 - [Wiki](https://github.com/stephane-caron/lipm_walking_controller/wiki) for guides and troubleshooting
-- [API documentation](https://scaron.info/doc/lipm_walking_controller/)
 
 ## Installation
 
-The controller has been tested on Ubuntu 14.04 (gcc/clang) with ROS Indigo and Ubuntu 16.04 (gcc) with ROS Kinetic. See the [installation instructions](https://github.com/stephane-caron/lipm_walking_controller/wiki/Installation-instructions) on the wiki.
+The controller has been tested on Ubuntu 14.04 (gcc/clang) with ROS Indigo and Ubuntu 16.04 (gcc) with ROS Kinetic. See the instructions to [build from source](https://scaron.info/doc/lipm_walking_controller/build.html) in the controller documentation.
 
 ### Dependencies
 
