@@ -2,20 +2,20 @@ namespace lipm_walking {
 
 /** \page docker Using the Docker container
 
-The easiest way to get started with the controller is to use its Docker image.
+The easiest way to get started with the controller is to run its Docker image from an Ubuntu Linux distribution.
 
 \section docker_linux From Linux
 
 Pull and run the Docker image by running:
 
 \code
-docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw stephanecaron/lipm_walking_controller:1.5 lipm_walking --floor
+docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --net="host" stephanecaron/lipm_walking_controller:1.5 lipm_walking --floor
 \endcode
 
-Replace \htmlonly <code>lipm_walking --floor</code> \endhtmlonly by ``bash`` to open a terminal in the container rather than the controller. You can also make an alias for faster later access:
+Replace \htmlonly <code>lipm_walking --floor</code> \endhtmlonly by ``bash`` to open a terminal in the container. You can also make an alias for faster later access:
 
 \code
-alias lipm_walking="docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw stephanecaron/lipm_walking_controller:1.5 lipm_walking"
+alias lipm_walking="docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --net=\"host\" stephanecaron/lipm_walking_controller:1.5 lipm_walking"
 lipm_walking --floor
 \endcode
 
