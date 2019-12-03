@@ -9,29 +9,34 @@ Source code of the walking and stair climbing controller used in the experiments
 The easiest way to get started with the controller is to run its Docker image from an Ubuntu Linux distribution:
 
 ```
-docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --net="host" stephanecaron/lipm_walking_controller:1.5 lipm_walking --floor
+docker run -it --net="host" --rm --user ayumi \
+    -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+    stephanecaron/lipm_walking_controller:1.5 \
+    lipm_walking --floor
 ```
 
 See also:
 
 - [Documentation](https://scaron.info/doc/lipm_walking_controller/)
 - [Technical report](https://hal.archives-ouvertes.fr/hal-01875387/document)
-- [Wiki](https://github.com/stephane-caron/lipm_walking_controller/wiki) for guides and troubleshooting
+- [Wiki](https://github.com/stephane-caron/lipm_walking_controller/wiki)
 
 ## Installation
 
-The controller has been tested on Ubuntu 14.04 (gcc/clang) with ROS Indigo and Ubuntu 16.04 (gcc) with ROS Kinetic. See the instructions to [build from source](https://scaron.info/doc/lipm_walking_controller/build.html) in the controller documentation.
+The controller has been tested on Ubuntu 14.04 with ROS Indigo and Ubuntu 16.04 with ROS Kinetic. See the instructions to [build from source](https://scaron.info/doc/lipm_walking_controller/build.html) in the documentation.
 
 ### Dependencies
 
 Compilation requires:
 
 * [ROS](http://www.ros.org/) with a working [catkin workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace)
+* [Eigen3ToPython](https://github.com/jrl-umi3218/Eigen3ToPython): Python bindings for Eigen
 * [SpaceVecAlg](https://github.com/jrl-umi3218/SpaceVecAlg): spatial vector algebra
 * [RBDyn](https://github.com/jrl-umi3218/RBDyn/): rigid body dynamics
 * [eigen-qld](https://github.com/jrl-umi3218/eigen-qld): quadratic programming
 * [eigen-quadprog](https://github.com/jrl-umi3218/eigen-quadprog): quadratic programming
 * [sch-core](https://github.com/jrl-umi3218/sch-core): collision detection
+* [sch-core-python](https://github.com/jrl-umi3218/sch-core-python): Python bindings for sch-core
 * [Tasks](https://github.com/jrl-umi3218/Tasks/): inverse kinematics
 * [mc\_rbdyn\_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf): robot model loader
 * [copra](https://github.com/vsamy/copra): linear model predictive control
