@@ -293,20 +293,6 @@ namespace lipm_walking
       return HrepXd(worldHrepMat, worldHrepVec);
     }
 
-    /** Move contact by a given magnitude in a random direction.
-     *
-     * \param magnitude Absolute displacement after noising.
-     *
-     */
-    Contact addNoise(double magnitude) const
-    {
-      Contact noisedContact = *this;
-      Eigen::Vector3d unitRandom = Eigen::Vector3d::Random().normalized();
-      Eigen::Vector3d displacement = magnitude * unitRandom;
-      noisedContact.pose = sva::PTransformd{displacement} * this->pose;
-      return noisedContact;
-    }
-
     /** Compute floating base transform that puts the robot in contact.
      *
      * \param robot Robot model (including its multi-body configuration).
