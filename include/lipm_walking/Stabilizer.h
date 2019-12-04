@@ -202,6 +202,16 @@ namespace lipm_walking
       contactState_ = contactState;
     }
 
+    /** Set model sole properties.
+     *
+     * \param sole Sole parameters.
+     *
+     */
+    void sole(const Sole & sole)
+    {
+      sole_ = sole;
+    }
+
     /** Update real-robot state.
      *
      * \param com Position of the center of mass.
@@ -407,6 +417,7 @@ namespace lipm_walking
     double vdcFrequency_ = 1.; /**< Frequency used in double-support vertical drift compensation */
     double vdcHeightError_ = 0.; /**< Average height error used in vertical drift compensation */
     double vdcStiffness_ = 1000.; /**< Stiffness used in single-support vertical drift compensation */
+    Sole sole_; /**< Sole dimensions of the robot model */
     mc_rtc::Configuration config_; /**< Stabilizer configuration dictionary */
     std::vector<std::string> comActiveJoints_; /**< Joints used by CoM IK task */
     sva::ForceVecd distribWrench_ = sva::ForceVecd::Zero();

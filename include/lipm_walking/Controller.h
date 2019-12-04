@@ -296,6 +296,14 @@ namespace lipm_walking
       return plan.singleSupportDuration();
     }
 
+    /** Get model sole properties.
+     *
+     */
+    const Sole & sole() const
+    {
+      return sole_;
+    }
+
     /** This getter is only used for consistency with the rest of mc_rtc.
      *
      */

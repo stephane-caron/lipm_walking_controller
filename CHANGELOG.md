@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Fixed
+
+- Contact: read ankle transform from robot model (remove hard-coded values)
+
 ## [v1.5] - 2019/11/26
 
 ### Added

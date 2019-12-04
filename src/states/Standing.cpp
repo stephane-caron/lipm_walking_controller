@@ -226,13 +226,14 @@ namespace lipm_walking
 
   void states::Standing::updateTarget(double leftFootRatio)
   {
+    auto & sole = controller().sole();
     if (controller().stabilizer().contactState() != ContactState::DoubleSupport)
     {
       LOG_ERROR("Cannot update CoM target while in single support");
       return;
     }
     leftFootRatio = clamp(leftFootRatio, 0., 1., "Standing target");
-    sva::PTransformd X_0_lfr = sva::interpolate(rightFootContact_.anklePose(), leftFootContact_.anklePose(), leftFootRatio);
+    sva::PTransformd X_0_lfr = sva::interpolate(rightFootContact_.anklePose(sole), leftFootContact_.anklePose(sole), leftFootRatio);
     copTarget_ = X_0_lfr.translation();
     leftFootRatio_ = leftFootRatio;
   }

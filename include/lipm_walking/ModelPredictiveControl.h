@@ -35,6 +35,7 @@
 #include <lipm_walking/Contact.h>
 #include <lipm_walking/Pendulum.h>
 #include <lipm_walking/Preview.h>
+#include <lipm_walking/Sole.h>
 #include <lipm_walking/utils/world.h>
 
 namespace lipm_walking
@@ -54,6 +55,8 @@ namespace lipm_walking
     static constexpr unsigned INPUT_SIZE = 2; // input is 2D CoM jerk
     static constexpr unsigned NB_STEPS = 16; // number of sampling steps
     static constexpr unsigned STATE_SIZE = 6; // state is CoM [pos, vel, accel]
+
+    using RefVec = Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1>;
 
     /** Initialize new problem.
      *
@@ -114,14 +117,14 @@ namespace lipm_walking
      */
     void comHeight(double height)
     {
-      zeta_ = height / world::GRAVITY;
-      double omegaInv = std::sqrt(zeta_);
+      double zeta = height / world::GRAVITY;
+      double omegaInv = std::sqrt(zeta);
       dcmFromState_ <<
         1, 0, omegaInv, 0, 0, 0,
         0, 1, 0, omegaInv, 0, 0;
       zmpFromState_ <<
-        1, 0, 0, 0, -zeta_, 0,
-        0, 1, 0, 0, 0, -zeta_;
+        1, 0, 0, 0, -zeta, 0,
+        0, 1, 0, 0, 0, -zeta;
     }
 
     /** Reset contacts.
@@ -213,16 +216,14 @@ namespace lipm_walking
       return nextContact_;
     }
 
-    using RefVec = Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1>;
-
-    const RefVec & velRef() const
+    /** Set model sole properties.
+     *
+     * \param sole Sole parameters.
+     *
+     */
+    void sole(const Sole & sole)
     {
-      return velRef_;
-    }
-
-    const RefVec & zmpRef() const
-    {
-      return zmpRef_;
+      sole_ = sole;
     }
 
   private:
@@ -244,20 +245,19 @@ namespace lipm_walking
     double zmpWeight = 1000.; /**< Weight of reference ZMP tracking cost */
 
   private:
-    Contact initContact_;
-    Contact nextContact_;
-    Contact targetContact_;
-    Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1> velRef_;
-    Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1> zmpRef_;
+    Contact initContact_; /**< First support contact */
+    Contact nextContact_; /**< Third (optional) support contact */
+    Contact targetContact_; /**< Second support contact */
+    Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1> velRef_; /**< Stacked vector of reference CoM velocities */
+    Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1> zmpRef_; /**< Stacked vector of reference ZMPs */
     Eigen::Matrix<double, 2 * (NB_STEPS + 1), STATE_SIZE * (NB_STEPS + 1)> velCostMat_;
-    Eigen::Matrix<double, 2, STATE_SIZE> dcmFromState_;
-    Eigen::Matrix<double, 2, STATE_SIZE> zmpFromState_;
-    Eigen::VectorXd initState_;
-    HrepXd hreps_[4]; /**< ZMP inequality constraints (H-rep) */
-    copra::SolverFlag solver_ = copra::SolverFlag::QLD;
-    double buildAndSolveTime_ = 0.; // [s]
-    double solveTime_ = 0.; // [s]
-    double zeta_;
+    Eigen::Matrix<double, 2, STATE_SIZE> dcmFromState_; /**< Linear map to extract the DCM of a CoM state (position, velocity, acceleration) */
+    Eigen::Matrix<double, 2, STATE_SIZE> zmpFromState_; /**< Linear map to compute the ZMP of a CoM state (position, velocity, acceleration) */
+    Eigen::VectorXd initState_; /**< Initial CoM state (position, velocity, acceleration) */
+    HrepXd hreps_[4]; /**< Halfspace representation for ZMP inequality constraints */
+    copra::SolverFlag solver_ = copra::SolverFlag::QLD; /**< Quadratic programming solver */
+    double buildAndSolveTime_ = 0.; /**< Time in [s] taken to build and solve the MPC problem */
+    double solveTime_ = 0.; /**< Time in [s] taken to solve the MPC problem */
     std::shared_ptr<Preview> solution_ = nullptr;
     std::shared_ptr<copra::ControlCost> jerkCost_;
     std::shared_ptr<copra::PreviewSystem> previewSystem_;
@@ -267,7 +267,8 @@ namespace lipm_walking
     std::shared_ptr<copra::TrajectoryCost> velCost_;
     std::shared_ptr<copra::TrajectoryCost> zmpCost_;
     unsigned indexToHrep_[NB_STEPS + 1]; /**< Mapping from timestep index to ZMP inequality constraints */
-    unsigned nbDoubleSupportSteps_;
+    unsigned nbDoubleSupportSteps_; /**< Number of discretization steps for the double support phase */
+    Sole sole_; /**< Sole dimensions of the robot model */
     unsigned nbInitSupportSteps_;
     unsigned nbNextDoubleSupportSteps_;
     unsigned nbTargetSupportSteps_;

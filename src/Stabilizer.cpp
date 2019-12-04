@@ -656,8 +656,8 @@ namespace lipm_walking
 
     const sva::PTransformd & X_0_lc = leftFootContact.pose;
     const sva::PTransformd & X_0_rc = rightFootContact.pose;
-    sva::PTransformd X_0_lankle = leftFootContact.anklePose();
-    sva::PTransformd X_0_rankle = rightFootContact.anklePose();
+    sva::PTransformd X_0_lankle = leftFootContact.anklePose(sole_);
+    sva::PTransformd X_0_rankle = rightFootContact.anklePose(sole_);
 
     constexpr unsigned NB_VAR = 6 + 6;
     constexpr unsigned COST_DIM = 6 + NB_VAR + 1;

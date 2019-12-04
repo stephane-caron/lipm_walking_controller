@@ -199,12 +199,12 @@ namespace lipm_walking
   void ModelPredictiveControl::computeZMPRef()
   {
     zmpRef_.setZero();
-    Eigen::Vector2d p_0 = initContact_.anklePos().head<2>();
-    Eigen::Vector2d p_1 = targetContact_.anklePos().head<2>();
-    Eigen::Vector2d p_2 = nextContact_.anklePos().head<2>();
+    Eigen::Vector2d p_0 = initContact_.anklePos(sole_).head<2>();
+    Eigen::Vector2d p_1 = targetContact_.anklePos(sole_).head<2>();
+    Eigen::Vector2d p_2 = nextContact_.anklePos(sole_).head<2>();
     if (nbTargetSupportSteps_ < 1) // stop during first DSP
     {
-      p_1 = 0.5 * (initContact_.anklePos() + targetContact_.anklePos()).head<2>();
+      p_1 = 0.5 * (initContact_.anklePos(sole_) + targetContact_.anklePos(sole_)).head<2>();
     }
     for (long i = 0; i <= NB_STEPS; i++)
     {

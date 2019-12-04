@@ -98,9 +98,16 @@ namespace lipm_walking
     // Read settings from configuration file
     plans_ = planConfig;
     mpcConfig_ = config("mpc");
-    sole_ = robotConfig("sole");
     std::string initialPlan = plans_.keys()[0];
     config("initial_plan", initialPlan);
+
+    // Read sole properties from robot model and configuration file
+    sva::PTransformd X_0_lfc = controlRobot().surfacePose("LeftFootCenter");
+    sva::PTransformd X_0_lf = controlRobot().surfacePose("LeftFoot");
+    sva::PTransformd X_lf_lfc = X_0_lf * X_0_lfc.inv();
+    sole_ = robotConfig("sole");
+    sole_.leftAnkleOffset = X_lf_lfc.translation().head<2>();
+    LOG_INFO("leftAnkleOffset = " << sole_.leftAnkleOffset.transpose());
 
     std::vector<std::string> comActiveJoints = robotConfig("com")("active_joints");
     config("stabilizer").add("admittance", robotConfig("admittance"));
@@ -109,7 +116,9 @@ namespace lipm_walking
     stabilizer_.configure(config("stabilizer"));
 
     loadFootstepPlan(initialPlan);
+    mpc_.sole(sole_);
     stabilizer_.reset(robots());
+    stabilizer_.sole(sole_);
     stabilizer_.wrenchFaceMatrix(sole_);
 
     addLogEntries(logger());

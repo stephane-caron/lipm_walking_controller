@@ -34,6 +34,7 @@
 #include <mc_rtc/logging.h>
 #include <mc_rbdyn/Robot.h>
 
+#include <lipm_walking/Sole.h>
 #include <lipm_walking/utils/world.h>
 
 namespace lipm_walking
@@ -118,16 +119,18 @@ namespace lipm_walking
 
     /** Position of ankle from foot center frame.
      *
+     * \param sole Sole dimensions.
+     *
      */
-    Eigen::Vector3d anklePos() const
+    Eigen::Vector3d anklePos(const Sole & sole) const
     {
       if (surfaceName == "LeftFootCenter")
       {
-        return p() - 0.015 * sagittal() - 0.01 * lateral();
+        return p() + sole.leftAnkleOffset.x() * sagittal() + sole.leftAnkleOffset.y() * lateral();
       }
       else if (surfaceName == "RightFootCenter")
       {
-        return p() - 0.015 * sagittal() + 0.01 * lateral();
+        return p() + sole.leftAnkleOffset.x() * sagittal() - sole.leftAnkleOffset.y() * lateral();
       }
       else
       {
@@ -138,10 +141,12 @@ namespace lipm_walking
 
     /** Get frame rooted at the ankle.
      *
+     * \param sole Sole dimensions.
+     *
      */
-    sva::PTransformd anklePose() const
+    sva::PTransformd anklePose(const Sole & sole) const
     {
-      return {pose.rotation(), anklePos()};
+      return {pose.rotation(), anklePos(sole)};
     }
 
     /** Shorthand for world x-coordinate.
