@@ -189,8 +189,8 @@
       },
       "sole":
       {
-        "half_length": 0.112,
-        "half_width": 0.065,
+        "half_length": 0.11,
+        "half_width": 0.05,
         "friction": 0.7
       },
       "torso":
