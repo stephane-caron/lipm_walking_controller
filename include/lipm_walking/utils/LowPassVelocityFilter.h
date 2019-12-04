@@ -80,7 +80,7 @@ namespace utils
      */
     void cutoffPeriod(double period)
     {
-      period = std::max(period, 2 * dt_);
+      period = std::max(period, 2 * dt_); // Nyquist–Shannon sampling theorem
       cutoffPeriod_ = period;
     }
 

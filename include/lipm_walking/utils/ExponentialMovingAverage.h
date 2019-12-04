@@ -145,7 +145,7 @@ namespace utils
      */
     void timeConstant(double T)
     {
-      T = std::max(T, 2 * dt_);
+      T = std::max(T, 2 * dt_); // Nyquist–Shannon sampling theorem
       alpha_ = 1. - std::exp(-dt_ / T);
       timeConstant_ = T;
     }
