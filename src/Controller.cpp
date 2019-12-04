@@ -107,7 +107,6 @@ namespace lipm_walking
     sva::PTransformd X_lf_lfc = X_0_lf * X_0_lfc.inv();
     sole_ = robotConfig("sole");
     sole_.leftAnkleOffset = X_lf_lfc.translation().head<2>();
-    LOG_INFO("leftAnkleOffset = " << sole_.leftAnkleOffset.transpose());
 
     std::vector<std::string> comActiveJoints = robotConfig("com")("active_joints");
     config("stabilizer").add("admittance", robotConfig("admittance"));
