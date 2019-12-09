@@ -41,7 +41,18 @@ RViz closes unexpectedly with the following error:
 rviz: /build/ogre-1.9-mqY1wq/ogre-1.9-1.9.0+dfsg1/OgreMain/src/OgreNode.cpp:630: virtual void Ogre::Node::setScale(const Ogre::Vector3&): Assertion `!inScale.isNaN() && "Invalid vector supplied as parameter"' failed.
 \endcode
 
-I have no clue what this error is. It happens sometimes on my old Ubuntu 14.04 setup (maybe related to window resizing from the awesome tiling window manager), but it is non-blocking. Re-run the controller and RViz should eventually start. If the problem persist, \ref docker_separate "run Choreonoid and RViz separately" and look at their respective outputs to the terminal.
+This error seems to happen when RViz sees the very first iteration of markers coming from mc_rtc. It is usually non-blocking: restart the controller and RViz should eventually start. If the problem persist, \ref docker_separate "run Choreonoid and RViz separately" and look at their respective outputs to the terminal.
+
+### Could not reach any registry endpoint
+
+I had the following error on an Ubuntu 14.04 system where the ``/`` partition was almost full:
+
+\code
+Pulling repository stephanecaron/lipm_walking_controller
+FATA[0768] Could not reach any registry endpoint
+\endcode
+
+Search results pointed to an outdated Docker client version, but the cause of the problem was rather that Docker did not have enough disk space to extract the image after pulling it. Freeing disk space solved it.
 
 */
 
