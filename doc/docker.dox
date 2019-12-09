@@ -4,18 +4,20 @@ namespace lipm_walking {
 
 The easiest way to get started with the controller is to run its Docker image from an Ubuntu Linux distribution.
 
-\section docker_linux From Linux
+The Docker image has been tested on Ubuntu LTS releases from 14.04 to 18.04. It is unsupported on macOS or Windows as GUI compatibility (for Choreonoid and RViz) is an issue with these systems.
+
+\section docker_run Running all at once
 
 Pull and run the Docker image by running:
 
 \code
-docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --net="host" stephanecaron/lipm_walking_controller:1.5 lipm_walking --floor
+docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw stephanecaron/lipm_walking_controller lipm_walking --floor
 \endcode
 
-Replace \htmlonly <code>lipm_walking --floor</code> \endhtmlonly by ``bash`` to open a terminal in the container. You can also make an alias for faster later access:
+Replace \htmlonly <code>lipm_walking --floor</code> \endhtmlonly by ``bash`` to open a shell in the container. You can also make an alias for faster later access:
 
 \code
-alias lipm_walking="docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --net=\"host\" stephanecaron/lipm_walking_controller:1.5 lipm_walking"
+alias lipm_walking="docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw stephanecaron/lipm_walking_controller lipm_walking"
 lipm_walking --floor
 \endcode
 
@@ -28,13 +30,33 @@ Use the controller via its [RViz panel](https://github.com/stephane-caron/lipm_w
 
 See the \ref docker_questions "Docker troubleshooting" section if you encounter any problem.
 
-\section docker_mac From macOS
+\section docker_separate Running processes separately
 
-Let me know if you manage to get the Docker image to run from macOS ;-)
+The ``lipm_walking`` script starts Choreonoid and RViz in parallel, but you might want to run them separately, for instance keeping RViz open while restarting the controller once in a while. In this case, run the image in detached mode as follows:
 
-\section docker_windows From Windows
+\code
+CONTAINER=$(docker run -it -d --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw stephanecaron/lipm_walking_controller bash)
+\endcode
 
-Let me know if you manage to get the Docker image to run from Windows ;-)
+You can now open shells in the running container via ``docker exec -it ${CONTAINER} bash``, where ``${CONTAINER}`` is the shell variable that holds the container identifier.
+
+Open RViz as follows:
+
+\code
+host:~$ docker exec -it ${CONTAINER} bash
+ayumi:~$ roslaunch lipm_walking_controller display.launch robot:=jvrc1
+\endcode
+
+Open Choreonoid as follows:
+
+\code
+host:~$ docker exec -it ${CONTAINER} bash
+ayumi:~$ sudo reset-omninames
+ayumi:~$ cd /usr/local/share/hrpsys/samples/JVRC1
+ayumi:/usr/local/share/hrpsys/samples/JVRC1$ choreonoid --start-simulation sim_mc.cnoid
+\endcode
+
+Drop the ``--start-simulation`` argument above if you prefer to start the simulation by clicking on the GUI button. Check out the other Choreonoid projects in the ``JVRC1`` directory for the stair climbing scenario.
 
 */
 

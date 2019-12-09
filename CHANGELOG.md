@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Contact: read ankle transform from robot model (remove hard-coded values)
+- Sole dimensions for JVRC-1 model
 
 ## [v1.5] - 2019/11/26
 
