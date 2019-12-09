@@ -4,7 +4,7 @@ namespace lipm_walking {
 
 The easiest way to get started with the controller is to run its Docker image from an Ubuntu Linux distribution.
 
-The Docker image has been tested on Ubuntu LTS releases from 14.04 to 18.04. It is unsupported on macOS or Windows as GUI compatibility (for Choreonoid and RViz) is an issue with these systems.
+The Docker image has been tested on Ubuntu LTS releases from 14.04 to 18.04 (for 14.04 you will need to run ``xhost +local:docker`` beforehand). It is unsupported on macOS or Windows as GUI compatibility (for Choreonoid and RViz) is an issue with these systems.
 
 \section docker_run Running all at once
 
