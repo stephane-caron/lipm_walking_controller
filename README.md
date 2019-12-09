@@ -9,17 +9,14 @@ Source code of the walking and stair climbing controller used in the experiments
 The easiest way to get started with the controller is to run its Docker image from an Ubuntu Linux distribution:
 
 ```
-docker run -it --net="host" --rm --user ayumi \
+xhost +local:docker
+docker run -it --rm --user ayumi \
     -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-    stephanecaron/lipm_walking_controller:1.5 \
+    stephanecaron/lipm_walking_controller \
     lipm_walking --floor
 ```
 
-See also:
-
-- [Documentation](https://scaron.info/doc/lipm_walking_controller/)
-- [Technical report](https://hal.archives-ouvertes.fr/hal-01875387/document)
-- [Wiki](https://github.com/stephane-caron/lipm_walking_controller/wiki)
+See the [documentation](https://scaron.info/doc/lipm_walking_controller/docker.html) for more usage instructions.
 
 ## Installation
 
@@ -49,27 +46,27 @@ The following dependencies are not publicly released but available upon request 
 
 ## Usage
 
-Launch RViz for the JVRC-1 model by:
-```sh
-roslaunch lipm_walking_controller display.launch robot:=jvrc1
-```
-Enable the controller in your mc\_rtc configuration:
-```sh
+If it is not there already, enable the controller in your mc\_rtc configuration:
+```json
 {
   "MainRobot": "JVRC1",
   "Enabled": ["LIPMWalking"]
 }
 ```
+Launch RViz for the JVRC-1 model by:
+```sh
+roslaunch lipm_walking_controller display.launch robot:=jvrc1
+```
 Finally, start the controller from your mc\_rtc interface. Here is the example
-of a local [Choreonoid](https://choreonoid.org/en/) simulation using the
-[mc\_udp](https://gite.lirmm.fr/multi-contact/mc_udp) interface:
+of the [Choreonoid](https://choreonoid.org/en/) project installed from
+[jvrc\_choreonoid](https://gite.lirmm.fr/multi-contact/jvrc_choreonoid) in the
+Docker image:
 ```sh
 cd /usr/local/share/hrpsys/samples/JVRC1
-choreonoid --start-simulation sim_mc_udp.cnoid  # in one terminal
-MCUDPControl -h localhost  # in another terminal
+choreonoid --start-simulation sim_mc.cnoid
 ```
 You should end up with the following windows:
-![2019-09-03-104321_1920x1080_scrot](https://user-images.githubusercontent.com/1189580/64157945-ead71c80-ce37-11e9-9081-7936702c5fbc.png)
+![Choreonoid and RViz GUI of the controller](https://user-images.githubusercontent.com/1189580/64157945-ead71c80-ce37-11e9-9081-7936702c5fbc.png)
 See the [Graphical user interface](https://github.com/stephane-caron/lipm_walking_controller/wiki/Graphical-user-interface) page of the
 wiki for further instructions on how to use this GUI.
 

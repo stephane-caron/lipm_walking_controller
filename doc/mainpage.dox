@@ -10,6 +10,7 @@ This is the API documentation for the [lipm_walking_controller](https://github.c
 The easiest way to get started with the controller is to use its \ref docker "Docker image":
 
 \code
+xhost +local:docker
 docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw stephanecaron/lipm_walking_controller lipm_walking --floor
 \endcode
 
