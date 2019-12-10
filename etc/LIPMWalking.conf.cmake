@@ -421,6 +421,51 @@
           { "pose": {"translation": [2.74776, -0.38652, 0], "rotation": [0.875393, 0.483412, 0, -0.483412, 0.875393, 0, 0, 0, 1] }, "surface": "LeftFootCenter" }
         ]
       },
+      "custom_backward":
+      {
+        "double_support_duration": 0.2,
+        "single_support_duration": 0.8,
+        "step_length": 0.15,
+        "swing_height": 0.05,
+        "contacts":
+        [
+          { "pose": { "translation": [0.0, -0.09, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.09, 0.0] }, "surface": "LeftFootCenter"  }
+        ]
+      },
+      "custom_forward":
+      {
+        "double_support_duration": 0.1,
+        "single_support_duration": 0.7,
+        "step_length": 0.2,
+        "swing_height": 0.04,
+        "contacts":
+        [
+          { "pose": { "translation": [0.0, -0.09, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.09, 0.0] }, "surface": "LeftFootCenter"  }
+        ]
+      },
+      "custom_lateral":
+      {
+        "double_support_duration": 0.2,
+        "single_support_duration": 0.8,
+        "step_length": 0.1,
+        "swing_height": 0.04,
+        "contacts":
+        [
+          { "pose": { "translation": [0.0, -0.09, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.09, 0.0] }, "surface": "LeftFootCenter"  }
+        ],
+        "mpc":
+        {
+          "weights":
+          {
+            "jerk": 1.0,
+            "vel": [10.0, 300.0],
+            "zmp": 1000.0
+          }
+        }
+      },
       "forward_15cm_steps":
       {
         "double_support_duration": 0.1,
@@ -711,6 +756,51 @@
           { "pose": { "translation": [-1.0,  0.105, 0.0] }, "ref_vel": [0.0,  0.0, 0.0], "surface": "LeftFootCenter"  }
         ]
       },
+      "custom_backward":
+      {
+        "double_support_duration": 0.2,
+        "single_support_duration": 0.8,
+        "step_length": 0.15,
+        "swing_height": 0.05,
+        "contacts":
+        [
+          { "pose": { "translation": [0.0, -0.105, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.105, 0.0] }, "surface": "LeftFootCenter"  }
+        ]
+      },
+      "custom_forward":
+      {
+        "double_support_duration": 0.1,
+        "single_support_duration": 0.7,
+        "step_length": 0.2,
+        "swing_height": 0.04,
+        "contacts":
+        [
+          { "pose": { "translation": [0.0, -0.105, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.105, 0.0] }, "surface": "LeftFootCenter"  }
+        ]
+      },
+      "custom_lateral":
+      {
+        "double_support_duration": 0.2,
+        "single_support_duration": 0.8,
+        "step_length": 0.1,
+        "swing_height": 0.04,
+        "contacts":
+        [
+          { "pose": { "translation": [0.0, -0.105, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.105, 0.0] }, "surface": "LeftFootCenter"  }
+        ],
+        "mpc":
+        {
+          "weights":
+          {
+            "jerk": 1.0,
+            "vel": [10.0, 300.0],
+            "zmp": 1000.0
+          }
+        }
+      },
       "forward_15cm_steps":
       {
         "double_support_duration": 0.1,
@@ -896,6 +986,51 @@
           { "pose": { "translation": [0.45, -0.09, 0.0] }, "ref_vel": [0.15, 0.0, 0.0], "surface": "RightFootCenter" },
           { "pose": { "translation": [0.45,  0.09, 0.0] }, "ref_vel": [0.07, 0.0, 0.0], "surface": "LeftFootCenter" }
         ]
+      },
+      "custom_backward":
+      {
+        "double_support_duration": 0.2,
+        "single_support_duration": 0.8,
+        "step_length": 0.15,
+        "swing_height": 0.05,
+        "contacts":
+        [
+          { "pose": { "translation": [0.0, -0.09, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.09, 0.0] }, "surface": "LeftFootCenter"  }
+        ]
+      },
+      "custom_forward":
+      {
+        "double_support_duration": 0.1,
+        "single_support_duration": 0.7,
+        "step_length": 0.2,
+        "swing_height": 0.04,
+        "contacts":
+        [
+          { "pose": { "translation": [0.0, -0.09, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.09, 0.0] }, "surface": "LeftFootCenter"  }
+        ]
+      },
+      "custom_lateral":
+      {
+        "double_support_duration": 0.2,
+        "single_support_duration": 0.8,
+        "step_length": 0.1,
+        "swing_height": 0.04,
+        "contacts":
+        [
+          { "pose": { "translation": [0.0, -0.09, 0.0] }, "surface": "RightFootCenter" },
+          { "pose": { "translation": [0.0,  0.09, 0.0] }, "surface": "LeftFootCenter"  }
+        ],
+        "mpc":
+        {
+          "weights":
+          {
+            "jerk": 1.0,
+            "vel": [10.0, 300.0],
+            "zmp": 1000.0
+          }
+        }
       },
       "forward_15cm_steps":
       {
