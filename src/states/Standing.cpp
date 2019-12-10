@@ -94,7 +94,7 @@ namespace lipm_walking
       gui()->addElement(
         {"Walking", "Controller"},
         ComboInput("Footstep plan",
-          ctl.availablePlans(),
+          ctl.planInterpolator.availablePlans(),
           [&ctl]() { return ctl.plan.name; },
           [&ctl](const std::string & name)
           {
