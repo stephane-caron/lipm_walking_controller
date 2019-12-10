@@ -26,7 +26,7 @@
  */
 
 #include <lipm_walking/Contact.h>
-#include <lipm_walking/FootstepInterpolator.h>
+#include <lipm_walking/PlanInterpolator.h>
 #include <lipm_walking/utils/clamp.h>
 
 namespace lipm_walking
@@ -36,12 +36,12 @@ namespace lipm_walking
     return floor(pow(10, n) * x) / pow(10, n);
   }
 
-  FootstepInterpolator::FootstepInterpolator(std::shared_ptr<mc_rtc::gui::StateBuilder> gui_)
+  PlanInterpolator::PlanInterpolator(std::shared_ptr<mc_rtc::gui::StateBuilder> gui_)
       : gui_(gui_)
   {
   }
 
-  void FootstepInterpolator::addGUIElements()
+  void PlanInterpolator::addGUIElements()
   {
     using namespace mc_rtc::gui;
     // Ensure that a footstep marker independent from the map is used everytime
@@ -165,7 +165,7 @@ namespace lipm_walking
         }));
   }
 
-  void FootstepInterpolator::updateWorldTarget_(const Eigen::Vector3d& desired)
+  void PlanInterpolator::updateWorldTarget_(const Eigen::Vector3d& desired)
   {
     Eigen::Vector3d posWorld;
     posWorld << desired(0), desired(1), worldReference_.translation().z();
@@ -179,7 +179,7 @@ namespace lipm_walking
     run();
   }
 
-  void FootstepInterpolator::updateLocalTarget_(const SE2d & target)
+  void PlanInterpolator::updateLocalTarget_(const SE2d & target)
   {
     targetPose_.x = floorn(clamp(target.pos().x(), -5., 5.), 4);
     targetPose_.y = floorn(clamp(target.pos().y(), -5., 5.), 4);
@@ -187,7 +187,7 @@ namespace lipm_walking
     suggestGait();
   }
 
-  void FootstepInterpolator::suggestGait()
+  void PlanInterpolator::suggestGait()
   {
     double absX = std::abs(targetPose_.x);
     double absY = std::abs(targetPose_.y);
@@ -201,7 +201,7 @@ namespace lipm_walking
     }
   }
 
-  void FootstepInterpolator::configure(const mc_rtc::Configuration & plans)
+  void PlanInterpolator::configure(const mc_rtc::Configuration & plans)
   {
     plans_ = plans;
     for (auto name : {"custom_backward", "custom_forward", "custom_lateral"})
@@ -227,7 +227,7 @@ namespace lipm_walking
     run();
   }
 
-  void FootstepInterpolator::run()
+  void PlanInterpolator::run()
   {
     if (targetPose_.pos().norm() < 2e-3)
     {
@@ -278,7 +278,7 @@ namespace lipm_walking
     nbIter++;
   }
 
-  void FootstepInterpolator::runSagittal_()
+  void PlanInterpolator::runSagittal_()
   {
     bool goingBackward = (targetPose_.pos().x() < 0.);
     if (goingBackward)
@@ -377,27 +377,27 @@ namespace lipm_walking
     {
       if (nbFootsteps_ - 3 != nbInnerSteps)
       {
-        LOG_ERROR("[FootstepInterpolator] Footstep count check failed");
+        LOG_ERROR("[PlanInterpolator] Footstep count check failed");
       }
       if (std::abs(2 * outerStepLength + nbInnerSteps * innerStepLength - totalLength) > 1e-4)
       {
-        LOG_ERROR("[FootstepInterpolator] Total length check failed");
+        LOG_ERROR("[PlanInterpolator] Total length check failed");
       }
     }
     else // (nbInnerSteps == 0)
     {
       if (nbFootsteps_ != 2)
       {
-        LOG_ERROR("[FootstepInterpolator] Footstep count check failed");
+        LOG_ERROR("[PlanInterpolator] Footstep count check failed");
       }
       if (std::abs(outerStepLength - totalLength) > 1e-4)
       {
-        LOG_ERROR("[FootstepInterpolator] Total length check failed");
+        LOG_ERROR("[PlanInterpolator] Total length check failed");
       }
     }
   }
 
-  void FootstepInterpolator::runLateral_()
+  void PlanInterpolator::runLateral_()
   {
     customPlan_ = plans_("custom_lateral");
     customPlan_.name = "custom_lateral";
@@ -461,7 +461,7 @@ namespace lipm_walking
     stepLength_ = stepLength;
   }
 
-  void FootstepInterpolator::runInPlace_()
+  void PlanInterpolator::runInPlace_()
   {
     customPlan_ = plans_("custom_lateral");
     customPlan_.name = "custom_lateral";
@@ -523,7 +523,7 @@ namespace lipm_walking
     stepLength_ = 0.;
   }
 
-  void FootstepInterpolator::updateSupportPath(const sva::PTransformd & X_0_lf, const sva::PTransformd & X_0_rf)
+  void PlanInterpolator::updateSupportPath(const sva::PTransformd & X_0_lf, const sva::PTransformd & X_0_rf)
   {
     constexpr double PATH_STEP = 0.05;
     sva::PTransformd X_0_mid = sva::interpolate(X_0_lf, X_0_rf, 0.5);
@@ -537,7 +537,7 @@ namespace lipm_walking
     }
   }
 
-  void FootstepInterpolator::restoreDefaults()
+  void PlanInterpolator::restoreDefaults()
   {
     extraStepWidth_ = DEFAULT_EXTRA_STEP_WIDTH;
     initPose_.theta = 0.; // [rad]

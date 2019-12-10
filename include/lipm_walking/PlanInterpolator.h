@@ -36,10 +36,10 @@
 
 namespace lipm_walking
 {
-  /** Footstep interpolator.
+  /** Footstep plan interpolator.
    *
    */
-  struct FootstepInterpolator
+  struct PlanInterpolator
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -63,7 +63,7 @@ namespace lipm_walking
      * \param gui State builder for the gui.
      *
      */
-    FootstepInterpolator(std::shared_ptr<mc_rtc::gui::StateBuilder> gui);
+    PlanInterpolator(std::shared_ptr<mc_rtc::gui::StateBuilder> gui);
 
     /** Add GUI panel.
      *

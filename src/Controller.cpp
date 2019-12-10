@@ -34,6 +34,7 @@ namespace lipm_walking
 {
   Controller::Controller(std::shared_ptr<mc_rbdyn::RobotModule> robotModule, double dt, const mc_rtc::Configuration & config)
     : mc_control::fsm::Controller(robotModule, dt, config),
+      planInterpolator(gui()),
       halfSitPose(controlRobot().mbc().q),
       floatingBaseObs_(controlRobot()),
       comVelFilter_(dt, /* cutoff period = */ 0.01),
@@ -103,10 +104,13 @@ namespace lipm_walking
 
     // Read sole properties from robot model and configuration file
     sva::PTransformd X_0_lfc = controlRobot().surfacePose("LeftFootCenter");
+    sva::PTransformd X_0_rfc = controlRobot().surfacePose("RightFootCenter");
     sva::PTransformd X_0_lf = controlRobot().surfacePose("LeftFoot");
-    sva::PTransformd X_lf_lfc = X_0_lf * X_0_lfc.inv();
+    sva::PTransformd X_lfc_lf = X_0_lf * X_0_lfc.inv();
+    sva::PTransformd X_rfc_lfc = X_0_lfc * X_0_rfc.inv();
+    double stepWidth = X_rfc_lfc.translation().y();
     sole_ = robotConfig("sole");
-    sole_.leftAnkleOffset = X_lf_lfc.translation().head<2>();
+    sole_.leftAnkleOffset = X_lfc_lf.translation().head<2>();
 
     std::vector<std::string> comActiveJoints = robotConfig("com")("active_joints");
     config("stabilizer").add("admittance", robotConfig("admittance"));
@@ -114,6 +118,8 @@ namespace lipm_walking
     config("stabilizer")("tasks")("com").add("active_joints", comActiveJoints);
     stabilizer_.configure(config("stabilizer"));
 
+    //planInterpolator.configure(config("plans"));
+    planInterpolator.stepWidth(stepWidth);
     loadFootstepPlan(initialPlan);
     mpc_.sole(sole_);
     stabilizer_.reset(robots());
