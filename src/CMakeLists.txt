@@ -26,6 +26,7 @@
 set(CONTROLLER_SRC
     Controller.cpp
     FloatingBaseObserver.cpp
+    FootstepInterpolator.cpp
     FootstepPlan.cpp
     ModelPredictiveControl.cpp
     NetWrenchObserver.cpp
@@ -38,6 +39,7 @@ set(CONTROLLER_HDR
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/Contact.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/Controller.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/FloatingBaseObserver.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/FootstepInterpolator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/FootstepPlan.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/ModelPredictiveControl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/lipm_walking/NetWrenchObserver.h

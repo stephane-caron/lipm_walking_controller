@@ -10,8 +10,7 @@ The easiest way to get started with the controller is to run its Docker image fr
 
 ```
 xhost +local:docker
-docker run -it --rm --user ayumi \
-    -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
     stephanecaron/lipm_walking_controller \
     lipm_walking --floor
 ```

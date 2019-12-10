@@ -108,6 +108,14 @@ namespace lipm_walking
      */
     void updateInitialTransform(const sva::PTransformd & X_0_lf, const sva::PTransformd & X_0_rf, double initHeight);
 
+    /** Append footstep to plan.
+     *
+     */
+    void appendContact(Contact step)
+    {
+      contacts_.push_back(step);
+    }
+
     /** Default CoM height above ground contact.
      *
      */
@@ -276,6 +284,14 @@ namespace lipm_walking
       return supportContact_;
     }
 
+    /** Swap first two contacts in plan.
+     *
+     */
+    void swapFirstTwoContacts()
+    {
+      std::swap(contacts_[0], contacts_[1]);
+    }
+
     /** Default swing-foot height.
      *
      */
@@ -381,7 +397,7 @@ namespace lipm_walking
     /** Rewind plan to the beginning.
      *
      */
-    inline void rewind()
+    void rewind()
     {
       reset(0);
     }
