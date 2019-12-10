@@ -46,6 +46,7 @@
 #include <lipm_walking/ModelPredictiveControl.h>
 #include <lipm_walking/NetWrenchObserver.h>
 #include <lipm_walking/Pendulum.h>
+#include <lipm_walking/PlanInterpolator.h>
 #include <lipm_walking/Sole.h>
 #include <lipm_walking/Stabilizer.h>
 #include <lipm_walking/utils/LowPassVelocityFilter.h>
@@ -330,6 +331,7 @@ namespace lipm_walking
 
   public: /* visible to FSM states */
     FootstepPlan plan; /**< Current footstep plan */
+    PlanInterpolator planInterpolator; /**< Footstep plan interpolator */
     bool emergencyStop = false; /**< Emergency flag: if on, the controller stops doing anything */
     bool pauseWalking = false; /**< Is the pause-walking behavior engaged? */
     bool pauseWalkingRequested = false; /**< Has user clicked on the "Pause walking" button? */
