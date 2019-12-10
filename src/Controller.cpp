@@ -118,7 +118,7 @@ namespace lipm_walking
     config("stabilizer")("tasks")("com").add("active_joints", comActiveJoints);
     stabilizer_.configure(config("stabilizer"));
 
-    planInterpolator.configure(config("plans"));
+    planInterpolator.configure(planConfig);
     planInterpolator.stepWidth(stepWidth);
     loadFootstepPlan(initialPlan);
     mpc_.sole(sole_);
