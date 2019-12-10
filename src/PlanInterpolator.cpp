@@ -201,6 +201,11 @@ namespace lipm_walking
     plans_ = plans;
     for (auto name : {"custom_backward", "custom_forward", "custom_lateral"})
     {
+      if (!plans_.has(name))
+      {
+        LOG_ERROR("[PlanInterpolator] Configuration lacks \"" << name << "\" plan, skipping...");
+        continue;
+      }
       customPlan_ = plans_(name);
       const Contact & leftFoot = customPlan_.contacts()[1];
       const Contact & rightFoot = customPlan_.contacts()[0];
