@@ -96,12 +96,6 @@ namespace lipm_walking
       }
     }
 
-    // Read settings from configuration file
-    plans_ = planConfig;
-    mpcConfig_ = config("mpc");
-    std::string initialPlan = plans_.keys()[0];
-    config("initial_plan", initialPlan);
-
     // Read sole properties from robot model and configuration file
     sva::PTransformd X_0_lfc = controlRobot().surfacePose("LeftFootCenter");
     sva::PTransformd X_0_rfc = controlRobot().surfacePose("RightFootCenter");
@@ -112,16 +106,24 @@ namespace lipm_walking
     sole_ = robotConfig("sole");
     sole_.leftAnkleOffset = X_lfc_lf.translation().head<2>();
 
+    // Configure MPC solver
+    mpcConfig_ = config("mpc");
+    mpc_.sole(sole_);
+
+    // Forward robot-specific settings to stabilizer configuration
     std::vector<std::string> comActiveJoints = robotConfig("com")("active_joints");
     config("stabilizer").add("admittance", robotConfig("admittance"));
     config("stabilizer").add("dcm_tracking", robotConfig("dcm_tracking"));
     config("stabilizer")("tasks")("com").add("active_joints", comActiveJoints);
     stabilizer_.configure(config("stabilizer"));
 
+    // Read footstep plans from configuration
     planInterpolator.configure(planConfig);
     planInterpolator.stepWidth(stepWidth);
+    std::string initialPlan = planInterpolator.availablePlans()[0];
+    config("initial_plan", initialPlan);
     loadFootstepPlan(initialPlan);
-    mpc_.sole(sole_);
+
     stabilizer_.reset(robots());
     stabilizer_.sole(sole_);
     stabilizer_.wrenchFaceMatrix(sole_);
@@ -641,12 +643,23 @@ namespace lipm_walking
   {
     double initHeight = (plan.name.length() > 0) ? plan.supportContact().p().z() : 0.;
 
-    plan = plans_(name);
-    plan.name = name;
-    mpc_.configure(mpcConfig_);
-    if (!plan.mpcConfig.empty())
+    std::string action;
+    FootstepPlan defaultPlan = planInterpolator.getPlan(name);
+    if (plan.name != name)
     {
-      mpc_.configure(plan.mpcConfig);
+      plan = defaultPlan;
+      plan.name = name;
+      mpc_.configure(mpcConfig_);
+      if (!plan.mpcConfig.empty())
+      {
+        mpc_.configure(plan.mpcConfig);
+      }
+      action = "Loaded";
+    }
+    else // only reload contacts
+    {
+      plan.resetContacts(defaultPlan.contacts());
+      action = "Updated";
     }
     plan.complete(sole_);
     const sva::PTransformd & X_0_lf = controlRobot().surfacePose("LeftFootCenter");

@@ -169,14 +169,6 @@ namespace lipm_walking
      */
     void warnIfRobotIsInTheAir();
 
-    /** List available contact plans.
-     *
-     */
-    std::vector<std::string> availablePlans() const
-    {
-      return plans_.keys();
-    }
-
     /** Get control robot state.
      *
      */
@@ -362,7 +354,6 @@ namespace lipm_walking
     double minTorsoPitch_ = -0.2; /**< Joint angle lower bound for torso pitch joint, in [rad] */
     double torsoPitch_; /**< Torso pitch angle with respect to the pelvis body, in [rad] */
     mc_rtc::Configuration mpcConfig_; /**< Configuration dictionary for the walking pattern generator */
-    mc_rtc::Configuration plans_; /**< Configuration dictionary for fixed footstep plans */
     std::string segmentName_ = ""; /**< Name of current log segment (this is an mc_rtc specific) */
     unsigned nbLogSegments_ = 100; /**< Index used to number log segments (this is an mc_rtc specific) */
     unsigned nbMPCFailures_ = 0; /**< Number of times the walking pattern generator failed */

@@ -260,6 +260,16 @@ namespace lipm_walking
       return prevContact_;
     }
 
+    /** Reset contacts from another footstep plan.
+     *
+     * \param contacts New sequence of contacts.
+     *
+     */
+    void resetContacts(const std::vector<Contact> & contacts)
+    {
+      contacts_ = contacts;
+    }
+
     /** Default single-support duration.
      *
      */
