@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include "Controller.h"
+#include <lipm_walking/Controller.h>
 
 namespace lipm_walking
 {

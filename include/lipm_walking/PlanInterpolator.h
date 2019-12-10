@@ -58,12 +58,12 @@ namespace lipm_walking
       InPlace
     };
 
-    /** Create footstep planner.
+    /** Initialization just stores the GUI handle for later.
      *
-     * \param gui State builder for the gui.
+     * \param gui GUI handle.
      *
      */
-    PlanInterpolator(std::shared_ptr<mc_rtc::gui::StateBuilder> gui);
+    PlanInterpolator(std::shared_ptr<mc_rtc::gui::StateBuilder> gui) : gui_(gui) {}
 
     /** Add GUI panel.
      *
@@ -72,8 +72,10 @@ namespace lipm_walking
 
     /** Read configuration from dictionary.
      *
+     * \param config Configuration dictionary.
+     *
      */
-    void configure(const mc_rtc::Configuration &);
+    void configure(const mc_rtc::Configuration & config);
 
     /** Generate a new footstep plan.
      *
@@ -97,7 +99,7 @@ namespace lipm_walking
     /** List available contact plans.
      *
      */
-    inline std::vector<std::string> availablePlans() const
+    std::vector<std::string> availablePlans() const
     {
       return plans_.keys();
     }
@@ -105,7 +107,7 @@ namespace lipm_walking
     /** Name of custom footstep plan.
      *
      */
-    inline const std::string & customPlanName() const
+    const std::string & customPlanName() const
     {
       return customPlan_.name;
     }
@@ -113,7 +115,7 @@ namespace lipm_walking
     /** Get current gait as string.
      *
      */
-    inline std::string gait() const
+    std::string gait() const
     {
       if (gait_ == Gait::Sagittal)
       {
@@ -134,7 +136,7 @@ namespace lipm_walking
      * \param dir New gait direction.
      *
      */
-    inline void gait(const std::string & dir)
+    void gait(const std::string & dir)
     {
       if (dir == "Sagittal")
       {
@@ -159,7 +161,7 @@ namespace lipm_walking
     /** Get contact plan.
      *
      */
-    inline FootstepPlan getPlan(std::string name)
+    FootstepPlan getPlan(std::string name)
     {
       if (name == customPlan_.name)
       {
@@ -173,7 +175,7 @@ namespace lipm_walking
 
     /** Remove GUI panel.
      */
-    inline void removeGUIElements()
+    void removeGUIElements()
     {
       gui_->removeCategory({"Walking", "Planning"});
       gui_->removeCategory({"Walking", "Advanced", "Markers", "Planning"});
@@ -182,7 +184,7 @@ namespace lipm_walking
     /** Restore last backward target.
      *
      */
-    inline void restoreBackwardTarget()
+    void restoreBackwardTarget()
     {
       gait_ = Gait::Sagittal;
       targetPose_ = lastBackwardTarget_;
@@ -192,7 +194,7 @@ namespace lipm_walking
     /** Restore last forward target.
      *
      */
-    inline void restoreForwardTarget()
+    void restoreForwardTarget()
     {
       gait_ = Gait::Sagittal;
       targetPose_ = lastForwardTarget_;
@@ -202,7 +204,7 @@ namespace lipm_walking
     /** Restore last lateral target.
      *
      */
-    inline void restoreLateralTarget()
+    void restoreLateralTarget()
     {
       gait_ = Gait::Lateral;
       targetPose_ = lastLateralTarget_;
@@ -212,7 +214,7 @@ namespace lipm_walking
     /** Get step width.
      *
      */
-    inline double stepWidth() const
+    double stepWidth() const
     {
       return stepWidth_;
     }
@@ -226,7 +228,7 @@ namespace lipm_walking
      * Rose and J. G. Gamble).
      *
      */
-    inline void stepWidth(double stepWidth)
+    void stepWidth(double stepWidth)
     {
       stepWidth_ = stepWidth;
     }
@@ -234,7 +236,7 @@ namespace lipm_walking
     /** Get walking target in world frame.
      *
      */
-    inline const sva::PTransformd & worldReference() const
+    const sva::PTransformd & worldReference() const
     {
       return worldReference_;
     }
@@ -244,7 +246,7 @@ namespace lipm_walking
      * \param worldReference New target.
      *
      */
-    inline void worldReference(const sva::PTransformd & worldReference)
+    void worldReference(const sva::PTransformd & worldReference)
     {
       worldReference_ = worldReference;
     }
