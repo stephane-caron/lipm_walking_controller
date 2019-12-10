@@ -665,6 +665,8 @@ namespace lipm_walking
     const sva::PTransformd & X_0_lf = controlRobot().surfacePose("LeftFootCenter");
     const sva::PTransformd & X_0_rf = controlRobot().surfacePose("RightFootCenter");
     plan.updateInitialTransform(X_0_lf, X_0_rf, initHeight);
+    planInterpolator.worldReference(plan.initPose());
+    planInterpolator.updateSupportPath(X_0_lf, X_0_rf);
     plan.rewind();
     torsoPitch_ = (plan.hasTorsoPitch()) ? plan.torsoPitch() : defaultTorsoPitch_;
     LOG_INFO("Loaded footstep plan \"" << name << "\"");

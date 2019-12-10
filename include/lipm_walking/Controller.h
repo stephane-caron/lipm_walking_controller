@@ -324,6 +324,7 @@ namespace lipm_walking
   public: /* visible to FSM states */
     FootstepPlan plan; /**< Current footstep plan */
     PlanInterpolator planInterpolator; /**< Footstep plan interpolator */
+    bool customFootstepPlan = false; /**< Was the current footstep plan produced by interpolation? */
     bool emergencyStop = false; /**< Emergency flag: if on, the controller stops doing anything */
     bool pauseWalking = false; /**< Is the pause-walking behavior engaged? */
     bool pauseWalkingRequested = false; /**< Has user clicked on the "Pause walking" button? */

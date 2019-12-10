@@ -60,6 +60,11 @@ namespace lipm_walking
        */
       void teardown() override;
 
+      /** Check for footstep plan updates.
+       *
+       */
+      void checkPlanUpdates();
+
       /** Check transitions at beginning of control cycle.
        *
        */
@@ -124,15 +129,25 @@ namespace lipm_walking
        */
       void startWalking();
 
+    protected:
+      /** Change footstep plan.
+       *
+       * \param name New plan name.
+       *
+       */
+      void updatePlan(const std::string & name);
+
     private:
       Contact leftFootContact_; /**< Current left foot contact handle in plan */
       Contact rightFootContact_; /**< Current right foot contact handle in plan */
       Eigen::Vector3d copTarget_; /**< CoP target computed from GUI input */
       bool isMakingFootContact_; /**< Is the robot going back to double support? */
+      bool planChanged_; /**< Has footstep plan changed? */
       bool startWalking_; /**< Has the user clicked on "Start walking"? */
       double freeFootGain_; /**< Foot task gain when lifting one foot in the air */
       double leftFootRatio_; /**< Left foot ratio from GUI input */
       double releaseHeight_; /**< Desired height when lifting one foot in the air */
+      unsigned lastInterpolatorIter_; /**< Last iteration number of the plan interpolator */
     };
   }
 }
