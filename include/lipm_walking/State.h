@@ -47,13 +47,17 @@ namespace lipm_walking
 
     /** Get controller.
      *
+     * \returns controller Reference to controller.
+     *
      */
     Controller & controller()
     {
       return *controller_;
     }
 
-    /** Get GUI pointer.
+    /** Get GUI handle.
+     *
+     * \returns gui GUI handle.
      *
      */
     std::shared_ptr<mc_rtc::gui::StateBuilder> gui()
@@ -63,6 +67,8 @@ namespace lipm_walking
 
     /** Get logger.
      *
+     * \returns logger Reference to logger.
+     *
      */
     mc_rtc::Logger & logger()
     {
@@ -71,6 +77,8 @@ namespace lipm_walking
 
     /** Get pendulum reference.
      *
+     * \returns pendulum Reference to pendulum state.
+     *
      */
     Pendulum & pendulum()
     {
@@ -78,6 +86,8 @@ namespace lipm_walking
     }
 
     /** Get footstep plan.
+     *
+     * \returns plan Reference to footstep plan.
      *
      */
     FootstepPlan & plan()
@@ -99,6 +109,8 @@ namespace lipm_walking
     }
 
     /** Get stabilizer.
+     *
+     * \returns stabilizer Reference to stabilizer.
      *
      */
     Stabilizer & stabilizer()
