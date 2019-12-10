@@ -2,14 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
-
-### Fixed
-
-- Contact: read ankle transform from robot model (remove hard-coded values)
-- Sole dimensions for JVRC-1 model
-
-## [v1.5] - 2019/11/26
+## [v1.5] - 2019/12/10
 
 ### Added
 
@@ -19,7 +12,9 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Contact: read ankle transform from robot model (remove hard-coded values)
 - Improved solve time of wrench distribution QP from 200-400 us to 5-20 us
+- Sole dimensions for JVRC-1 model
 
 ### Changed
 
