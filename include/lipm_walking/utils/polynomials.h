@@ -31,11 +31,131 @@
 
 namespace utils
 {
+  /** Polynomial function.
+   *
+   */
+  template <typename T>
+  struct PolynomialBase
+  {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
+    /** Get the value of the polynomial at time t.
+     *
+     * \param t Value of the polynomial argument.
+     *
+     */
+    virtual T pos(double t) const = 0;
+  
+    /** Get the value of the first-order derivative (velocity) at time t.
+     *
+     * \param t Value of the polynomial argument.
+     *
+     */
+    virtual T vel(double t) const = 0;
+  
+    /** Get the value of the second-order derivative (acceleration) at time t.
+     *
+     * \param t Value of the polynomial argument.
+     *
+     */
+    virtual T accel(double t) const = 0;
+  
+    /** Get the value of the tangent vector at time t.
+     *
+     * \param t Value of the polynomial argument.
+     *
+     */
+    T tangent(double t) const
+    {
+      T v = this->vel(t);
+      return v / v.norm();
+    }
+  
+    /** Compute the arc length between two points of the polynomial curve.
+     *
+     * \param t_start Index of start point.
+     *
+     * \param t_end Index of end point.
+     *
+     * \returns length Arc length of the curve between ``P(t_start)`` and
+     * ``P(t_end)``.
+     *
+     * \note This function uses 5-point Gauss-Legendre quadrature [1]. It is
+     * adapted from the Unreal Engine's ``GetSplineLength`` [2] pointed out in
+     * ``jj``'s post on Medium [3].
+     *
+     * [1] https://en.wikipedia.org/wiki/Gaussian_quadrature
+     * [2] https://api.unrealengine.com/INT/BlueprintAPI/Spline/GetSplineLength/
+     * [3] https://medium.com/@all2one/how-to-compute-the-length-of-a-spline-e44f5f04c40
+     *
+     */
+    double arcLength(double t_start, double t_end) const
+    {
+      struct GaussLengendreCoefficient
+      {
+        double t; /**< value of polynomial variable */
+        double w; /**< corresponding Gauss-Legendre weight */
+      };
+      static constexpr GaussLengendreCoefficient coeffs[] =
+      {
+        { 0.0, 128. / 225. },
+        { -0.53846931010568311, 0.47862867049936647 },
+        { +0.53846931010568311, 0.47862867049936647 },
+        { -0.90617984593866396, 0.23692688505618908 },
+        { +0.90617984593866396, 0.23692688505618908 }
+      };
+      double a = (t_end - t_start) / 2.;
+      double b = (t_end + t_start) / 2.;
+      double length = 0.;
+      for (auto coeff : coeffs)
+      {
+        length += coeff.w * this->vel(a * coeff.t + b).norm();
+      }
+      return a * length;
+    }
+  
+    /** Inverse of the arc length function.
+     *
+     * \param t_start Start index on polynomial curve.
+     *
+     * \param length Desired arc length.
+     *
+     * \param t_guess Initial guess for the value of the desired output
+     * (optional).
+     *
+     * \returns t Value of the polynomial argument such that
+     * ``arcLength(t_start, t) == length``.
+     *
+     */
+    double arcLengthInverse(double t_start, double length, double t_guess = -1.) const
+    {
+      constexpr double PRECISION = 1e-3;
+      if (t_guess < 0.)
+      {
+        t_guess = t_start + 1.;
+      }
+      double l_guess = arcLength(t_start, t_guess);
+      if (std::abs(l_guess - length) < PRECISION)
+      {
+        return t_guess;
+      }
+      else if (l_guess < length)
+      {
+        return arcLengthInverse(t_guess, length - l_guess, 2. * t_guess - t_start);
+      }
+      else // (l_guess > length)
+      {
+        return arcLengthInverse(t_start, length, (t_guess + t_start) / 2.);
+      }
+    }
+  };
+
+
   /** Cubic polynomial curve.
    *
    */
   template <typename T>
-  struct CubicPolynomialBase
+  struct CubicPolynomialBase : PolynomialBase<T>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -207,7 +327,7 @@ namespace utils
     /** Reset underlying cubic polynomial coefficients.
      *
      */
-    void reset()
+    virtual void reset()
     {
       this->C0_ = initPos_;
       this->C1_ = initVel_;
@@ -215,18 +335,104 @@ namespace utils
       this->C3_ = -2. * (targetPos_ - initPos_) + initVel_ + targetVel_;
     }
 
-  private:
+  protected:
     T initPos_;
     T initVel_;
     T targetPos_;
     T targetVel_;
   };
 
+  /** Hermite polynomial with Overall Uniformly-Bounded Accelerations (HOUBA).
+   *
+   * \note See <https://hal.archives-ouvertes.fr/hal-01363757/document> for
+   * details on the definition and derivation of these polynomials.
+   *
+   */
+  template <typename T>
+  struct HoubaPolynomial : CubicHermitePolynomial<T>
+  {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+    /** Bring overloads down from parent class (otherwise C++ doesn't go up the
+     * inheritance tree to find them).
+     *
+     */
+    using CubicHermitePolynomial<T>::reset;
+
+    /** Rescale boundary velocities, then reset as Hermite polynomial.
+     *
+     */
+    void reset() override
+    {
+      T Delta = this->targetPos_ - this->initPos_;
+      double Delta_v0 = Delta.dot(this->initVel_);
+      double Delta_v1 = Delta.dot(this->targetVel_);
+      double v0_v0 = this->initVel_.dot(this->initVel_);
+      double v0_v1 = this->initVel_.dot(this->targetVel_);
+      double v1_v1 = this->targetVel_.dot(this->targetVel_);
+      double houbaInitVelScaling = 6. *
+        (3. * Delta_v0 * v1_v1 - 2. * Delta_v1 * v0_v1) /
+        (9. * v0_v0 * v1_v1 - 4. * v0_v1 * v0_v1);
+      if (houbaInitVelScaling < 0.)
+      {
+        houbaInitVelScaling *= -1.;
+      }
+      double houbaTargetVelScaling = 6. *
+        (-2. * Delta_v0 * v0_v1 + 3. * Delta_v1 * v0_v0) /
+        (9. * v0_v0 * v1_v1 - 4. * v0_v1 * v0_v1);
+      if (houbaTargetVelScaling < 0.)
+      {
+        houbaTargetVelScaling *= -1.;
+      }
+      this->initVel_ *= houbaInitVelScaling;
+      this->initVel_ *= extraInitVelScaling_;
+      this->targetVel_ *= houbaTargetVelScaling;
+      this->targetVel_ *= extraTargetVelScaling_;
+      CubicHermitePolynomial<T>::reset();
+    }
+
+    /** Get extra initial velocity scaling.
+     *
+     */
+    double extraInitVelScaling()
+    {
+      return extraInitVelScaling_;
+    }
+
+    /** Add extra initial velocity scaling to the HOUBA one.
+     *
+     */
+    void extraInitVelScaling(double scaling)
+    {
+      extraInitVelScaling_ = scaling;
+    }
+
+    /** Get extra target velocity scaling.
+     *
+     */
+    double extraTargetVelScaling()
+    {
+      return extraTargetVelScaling_;
+    }
+
+    /** Add extra target velocity scaling to the HOUBA one.
+     *
+     */
+    void extraTargetVelScaling(double scaling)
+    {
+      extraTargetVelScaling_ = scaling;
+    }
+
+  protected:
+    double extraInitVelScaling_ = 1.0;
+    double extraTargetVelScaling_ = 1.0;
+  };
+
   /** Quintic polynomial.
    *
    */
   template <typename T>
-  struct QuinticPolynomialBase
+  struct QuinticPolynomialBase : PolynomialBase<T>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -454,7 +660,7 @@ namespace utils
       this->C5_ = 6 * Delta - 3 * Sigma + Gamma;
     }
 
-  private:
+  protected:
     T initPos_;
     T initVel_;
     T initAccel_;
@@ -606,7 +812,7 @@ namespace utils
       return std::pow(sd(t), 2) * poly_.accel(s(t));
     }
 
-  private:
+  protected:
     double duration_;
     Polynomial<T> poly_;
   };
@@ -614,6 +820,7 @@ namespace utils
 
 using utils::CubicHermitePolynomial;
 using utils::CubicPolynomial;
+using utils::HoubaPolynomial;
 using utils::QuinticHermitePolynomial;
 using utils::QuinticPolynomial;
 using utils::RetimedPolynomial;
