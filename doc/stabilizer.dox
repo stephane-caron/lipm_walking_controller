@@ -42,6 +42,21 @@ You can debug them with the ``Tracking DCM X/Y`` and ``Tracking DCM-ZMP X/Y`` pl
 
 \section tests Standard tests
 
+Our evaluation of controller performance is largely based on plotting DCM and ZMP trajectories. Plots discussed below are distributed in a custom plot configuration for ``mc_log_ui`` that you can install as follows:
+
+\code
+ayumi:~$ mkdir -p ~/.config/mc_log_ui
+ayumi:~/.config/mc_log_ui$ ln -s ~/lipm_walking_controller/etc/mc_log_ui/custom_plot.json
+\endcode
+
+Open the plotting GUI for the last run of the controller by:
+
+\code
+ayumi:~$ mc_log_ui /tmp/mc-control-LIPMWalking-latest.bin
+\endcode
+
+Controller logs will all be stored in ``/tmp`` until you reboot your machine.
+
 \subsection standing Standing
 
 Standing tests evaluate the performance of disturbance rejection when you push the robot at the trunk. They are useful to debug 
