@@ -36,11 +36,6 @@ namespace lipm_walking
     return floor(pow(10, n) * x) / pow(10, n);
   }
 
-  PlanInterpolator::PlanInterpolator(std::shared_ptr<mc_rtc::gui::StateBuilder> gui_)
-      : gui_(gui_)
-  {
-  }
-
   void PlanInterpolator::addGUIElements()
   {
     using namespace mc_rtc::gui;
