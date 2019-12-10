@@ -45,6 +45,8 @@ namespace lipm_walking
 
     freeFootGain_ = 30.;
     isMakingFootContact_ = false;
+    planChanged_ = false;
+    lastInterpolatorIter_ = ctl.planInterpolator.nbIter;
     leftFootRatio_ = ctl.leftFootRatio();
     releaseHeight_ = 0.05; // [m]
     startWalking_ = false;
@@ -90,16 +92,19 @@ namespace lipm_walking
     if (gui())
     {
       using namespace mc_rtc::gui;
+      auto & interpolator = ctl.planInterpolator;
       gui()->removeElement({"Walking", "Controller"}, "Pause walking");
       gui()->addElement(
         {"Walking", "Controller"},
         ComboInput("Footstep plan",
           ctl.planInterpolator.availablePlans(),
           [&ctl]() { return ctl.plan.name; },
-          [&ctl](const std::string & name)
-          {
-            ctl.loadFootstepPlan(name);
-          }));
+          [this](const std::string & name) { updatePlan(name); }),
+        ComboInput(
+          "Gait",
+          {"Sagittal", "Lateral", "InPlace"},
+          [&interpolator]() { return interpolator.gait(); },
+          [&interpolator](const std::string & dir) { interpolator.gait(dir); }));
       gui()->addElement(
         {"Walking", "Controller"},
         Button(
@@ -170,6 +175,7 @@ namespace lipm_walking
     {
       gui()->removeCategory({"Standing"});
       gui()->removeElement({"Walking", "Controller"}, "Footstep plan");
+      gui()->removeElement({"Walking", "Controller"}, "Gait");
       gui()->removeElement({"Walking", "Controller"}, "Go to middle");
       gui()->removeElement({"Walking", "Controller"}, "Resume walking");
       gui()->removeElement({"Walking", "Controller"}, "Start walking");
@@ -178,7 +184,7 @@ namespace lipm_walking
 
   void states::Standing::runState()
   {
-    auto & ctl = controller();
+    checkPlanUpdates();
 
     if (isMakingFootContact_)
     {
@@ -205,6 +211,7 @@ namespace lipm_walking
       }
     }
 
+    auto & ctl = controller();
     auto & pendulum = ctl.pendulum();
 
     Eigen::Vector3d comTarget = copTarget_ + Eigen::Vector3d{0., 0., ctl.plan.comHeight()};
@@ -222,6 +229,29 @@ namespace lipm_walking
     pendulum.integrateIPM(zmp, lambda, ctl.timeStep);
     ctl.leftFootRatio(leftFootRatio_);
     ctl.stabilizer().run();
+  }
+
+  void states::Standing::checkPlanUpdates()
+  {
+    auto & ctl = controller();
+    if (ctl.planInterpolator.nbIter > lastInterpolatorIter_)
+    {
+      ctl.loadFootstepPlan(ctl.planInterpolator.customPlanName());
+      lastInterpolatorIter_ = ctl.planInterpolator.nbIter;
+      planChanged_ = true;
+    }
+    if (planChanged_)
+    {
+      if (gui())
+      {
+        gui()->removeElement({"Walking", "Controller"}, "Resume walking");
+        gui()->removeElement({"Walking", "Controller"}, "Start walking");
+        gui()->addElement(
+            {"Walking", "Controller"},
+            mc_rtc::gui::Button("Start walking", [this]() { startWalking(); }));
+      }
+      planChanged_ = false;
+    }
   }
 
   void states::Standing::updateTarget(double leftFootRatio)
@@ -340,6 +370,42 @@ namespace lipm_walking
       mc_rtc::gui::Button(
         "Pause walking",
         [&ctl]() { ctl.pauseWalkingCallback(/* verbose = */ true); }));
+  }
+
+  void states::Standing::updatePlan(const std::string & name)
+  {
+    auto & ctl = controller();
+    if (name.find("custom") != std::string::npos)
+    {
+      if (!ctl.customFootstepPlan)
+      {
+        ctl.planInterpolator.addGUIElements();
+        ctl.customFootstepPlan = true;
+      }
+      if (name.find("backward") != std::string::npos)
+      {
+        ctl.planInterpolator.restoreBackwardTarget();
+      }
+      else if (name.find("forward") != std::string::npos)
+      {
+        ctl.planInterpolator.restoreForwardTarget();
+      }
+      else if (name.find("lateral") != std::string::npos)
+      {
+        ctl.planInterpolator.restoreLateralTarget();
+      }
+      ctl.loadFootstepPlan(ctl.planInterpolator.customPlanName());
+    }
+    else // new plan is not custom
+    {
+      if (ctl.customFootstepPlan)
+      {
+        ctl.planInterpolator.removeGUIElements();
+        ctl.customFootstepPlan = false;
+      }
+      ctl.loadFootstepPlan(name);
+    }
+    planChanged_ = true;
   }
 }
 

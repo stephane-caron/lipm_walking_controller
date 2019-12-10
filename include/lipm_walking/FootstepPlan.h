@@ -200,6 +200,16 @@ namespace lipm_walking
       initDSPDuration_ = clamp(duration, 0.1, 1.6);
     }
 
+    /** Initial transform with respect to world frame.
+     *
+     * \returns X_0_init Initial transform of the plan.
+     *
+     */
+    const sva::PTransformd & initPose()
+    {
+      return X_0_init_;
+    }
+
     /** Get swing foot landing ratio.
      *
      */
