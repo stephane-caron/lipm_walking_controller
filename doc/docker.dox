@@ -1,6 +1,6 @@
 namespace lipm_walking {
 
-/** \page docker Using the Docker container
+/** \page docker Using the Docker image
 
 The easiest way to get started with the controller is to run its Docker image from an Ubuntu Linux distribution.
 

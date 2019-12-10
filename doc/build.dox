@@ -127,7 +127,7 @@ You can test the controller in simulation using Choreonoid and the AIST dynamics
 ayumi:~$ sudo apt-get install -y f2c gettext liblapack-dev libomniorb4-dev libyaml-dev omniidl omniidl-python software-properties-common
 \endcode
 
-Install OpenRTM-aist 1.2.0 packages (manually distributed...):
+Install OpenRTM-aist 1.1.2 packages (manually distributed...):
 
 \code
 ayumi:~/Software$ wget https://github.com/OpenRTM/OpenRTM-aist/releases/download/svn/RELEASE_1_1_2/OpenRTM-aist_1.1.2_ubuntu16.04_amd64_package.tar.gz
