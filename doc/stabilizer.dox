@@ -55,7 +55,7 @@ Open the plotting GUI for the last run of the controller by:
 ayumi:~$ mc_log_ui /tmp/mc-control-LIPMWalking-latest.bin
 \endcode
 
-Controller logs will all be stored in ``/tmp`` until you reboot your machine.
+All logs will be stored in ``/tmp`` until you reboot your machine.
 
 \subsection standing Standing
 

@@ -23,8 +23,9 @@ docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X
 Replace \htmlonly <code>lipm_walking --floor</code> \endhtmlonly by ``bash`` to open a shell in the container. You can also make an alias for faster later access:
 
 \code
-alias lipm_walking="docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw stephanecaron/lipm_walking_controller lipm_walking"
-lipm_walking --floor
+host:~$ docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw stephanecaron/lipm_walking_controller bash
+ayumi:/$ lipm_walking --staircase
+ayumi:/$ mc_log_ui /tmp/mc-control-LIPMWalking-latest.bin
 \endcode
 
 You should get something like this:
@@ -38,7 +39,7 @@ See the \ref docker_questions "Docker troubleshooting" section if you encounter 
 
 \section docker_separate Running processes separately
 
-The ``lipm_walking`` script starts Choreonoid and RViz in parallel, but you might want to run them separately, for instance keeping RViz open while restarting the controller once in a while. In this case, run the image in detached mode as follows:
+The \htmlonly <code>lipm_walking</code> \endhtmlonly script starts Choreonoid and RViz in parallel, but you might want to run them separately, for instance keeping RViz open while restarting the controller once in a while. In this case, run the image in detached mode as follows:
 
 \code
 CONTAINER=$(docker run -it -d --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw stephanecaron/lipm_walking_controller bash)
