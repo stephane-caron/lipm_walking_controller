@@ -51,11 +51,19 @@ namespace lipm_walking
     static constexpr double MAX_SAGITTAL_STEP_LENGTH = 0.4; // [m]
     static constexpr double MIN_STEP_LENGTH = 0.001; // [m]
 
+    /** Gait type.
+     *
+     * Walking is the most common one, where footsteps alternate on each side
+     * of the support path. Shuffling is used for lateral stepping: after each
+     * step, the robot brings back the other foot next to the current one.
+     * Turning is a special pattern where only footstep orientations change.
+     *
+     */
     enum class Gait
     {
-      Sagittal,
-      Lateral,
-      InPlace
+      Walk,
+      Shuffle,
+      Turn
     };
 
     /** Initialization just stores the GUI handle for later.
@@ -117,17 +125,17 @@ namespace lipm_walking
      */
     std::string gait() const
     {
-      if (gait_ == Gait::Sagittal)
+      if (gait_ == Gait::Shuffle)
       {
-        return "Sagittal";
+        return "Shuffle";
       }
-      else if (gait_ == Gait::Lateral)
+      else if (gait_ == Gait::Turn)
       {
-        return "Lateral";
+        return "Turn";
       }
-      else // (gait_ == Gait::InPlace)
+      else // (gait_ == Gait::Walk)
       {
-        return "InPlace";
+        return "Walk";
       }
     }
 
@@ -138,22 +146,22 @@ namespace lipm_walking
      */
     void gait(const std::string & dir)
     {
-      if (dir == "Sagittal")
+      if (dir == "Shuffle")
       {
         extraStepWidth_ = DEFAULT_EXTRA_STEP_WIDTH;
-        gait_ = Gait::Sagittal;
+        gait_ = Gait::Shuffle;
       }
-      else if (dir == "Lateral")
-      {
-        extraStepWidth_ = DEFAULT_EXTRA_STEP_WIDTH;
-        gait_ = Gait::Lateral;
-      }
-      else // (dir == "InPlace")
+      else if (dir == "Turn")
       {
         extraStepWidth_ = IN_PLACE_EXTRA_STEP_WIDTH;
-        gait_ = Gait::InPlace;
+        gait_ = Gait::Turn;
         targetPose_.x = 0.;
         targetPose_.y = 0.;
+      }
+      else // (dir == "Walk")
+      {
+        extraStepWidth_ = DEFAULT_EXTRA_STEP_WIDTH;
+        gait_ = Gait::Walk;
       }
       run();
     }
@@ -186,7 +194,7 @@ namespace lipm_walking
      */
     void restoreBackwardTarget()
     {
-      gait_ = Gait::Sagittal;
+      gait_ = Gait::Walk;
       targetPose_ = lastBackwardTarget_;
       run();
     }
@@ -196,7 +204,7 @@ namespace lipm_walking
      */
     void restoreForwardTarget()
     {
-      gait_ = Gait::Sagittal;
+      gait_ = Gait::Walk;
       targetPose_ = lastForwardTarget_;
       run();
     }
@@ -206,7 +214,7 @@ namespace lipm_walking
      */
     void restoreLateralTarget()
     {
-      gait_ = Gait::Lateral;
+      gait_ = Gait::Shuffle;
       targetPose_ = lastLateralTarget_;
       run();
     }
@@ -257,26 +265,26 @@ namespace lipm_walking
      */
     void restoreDefaults();
 
-    /** Generate a new stepping-in-place plan.
-     *
-     * \note Assumes it is called by run().
-     *
-     */
-    void runInPlace_();
-
     /** Generate a new lateral footstep plan.
      *
      * \note Assumes it is called by run().
      *
      */
-    void runLateral_();
+    void runShuffling_();
+
+    /** Generate a new stepping-in-place plan.
+     *
+     * \note Assumes it is called by run().
+     *
+     */
+    void runTurning_();
 
     /** Generate a new forward footstep plan.
      *
      * \note Assumes it is called by run().
      *
      */
-    void runSagittal_();
+    void runWalking_();
 
     /** Update local SE2 target from an SE2 target expressed in local frame
      *
@@ -297,7 +305,7 @@ namespace lipm_walking
 
   private:
     FootstepPlan customPlan_;
-    Gait gait_ = Gait::Sagittal;
+    Gait gait_ = Gait::Walk;
     HoubaPolynomial<Eigen::Vector2d> supportPath_;
     SE2d initPose_ = {0., 0., 0.};
     SE2d lastBackwardTarget_ = {-0.5, 0., 0.};
