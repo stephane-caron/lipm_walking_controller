@@ -71,7 +71,7 @@ namespace lipm_walking
     static constexpr double MAX_FDC_RY_VEL = 0.2; /**< Maximum y-axis angular velocity in [rad] / [s] for foot damping control. */
     static constexpr double MAX_FDC_RZ_VEL = 0.2; /**< Maximum z-axis angular velocity in [rad] / [s] for foot damping control. */
     static constexpr double MAX_ZMPCC_COM_OFFSET = 0.05; /**< Maximum CoM offset due to admittance control in [m] */
-    static constexpr double MIN_DS_PRESSURE = 15.; /**< Minimum normal contact force in DSP, used to avoid low-pressure targets when close to contact switches. */
+    static constexpr double MIN_DSP_FZ = 15.; /**< Minimum normal contact force in [N] for DSP, used to avoid low-force targets when close to contact switches. */
 
     /** Initialize stabilizer.
      *
@@ -161,9 +161,9 @@ namespace lipm_walking
      *
      * \param footTask One of leftFootTask or rightFootTask.
      *
-     * This function has no effect when the measured pressure is already higher
-     * than the target. Otherwise, it will set a positive admittance along the
-     * z-axis of the contact frame.
+     * This function has no effect when the measured normal force is already
+     * higher than the target. Otherwise, it will set a positive admittance
+     * along the z-axis of the contact frame.
      *
      */
     void seekTouchdown(std::shared_ptr<mc_tasks::force::CoPTask> footTask);
@@ -222,7 +222,7 @@ namespace lipm_walking
      *
      * \param wrench Net contact wrench in the inertial frame.
      *
-     * \param leftFootRatio Desired pressure distribution ratio for left foot.
+     * \param leftFootRatio Desired force distribution ratio for left foot.
      *
      */
     void updateState(const Eigen::Vector3d & com, const Eigen::Vector3d & comd, const sva::ForceVecd & wrench, double leftFootRatio);
@@ -284,17 +284,17 @@ namespace lipm_walking
       void configure(const mc_rtc::Configuration & config)
       {
         double ankleTorqueWeight = config("ankle_torque");
+        double forceRatioWeight = config("force_ratio");
         double netWrenchWeight = config("net_wrench");
-        double pressureWeight = config("pressure");
         ankleTorqueSqrt = std::sqrt(ankleTorqueWeight);
+        forceRatioSqrt = std::sqrt(forceRatioWeight);
         netWrenchSqrt = std::sqrt(netWrenchWeight);
-        pressureSqrt = std::sqrt(pressureWeight);
       }
 
     public:
       double ankleTorqueSqrt;
+      double forceRatioSqrt;
       double netWrenchSqrt;
-      double pressureSqrt;
     };
 
     /** Check that all gains are within boundaries.
