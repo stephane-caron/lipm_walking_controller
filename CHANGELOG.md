@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Terminology regarding pressure and foot force ratios
 - ZMP frame initialization
 
 ## [v1.5] - 2019/12/10

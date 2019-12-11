@@ -15,7 +15,7 @@
     {
       "net_wrench": 10000.0,
       "ankle_torque": 100.0,
-      "pressure": 1.0
+      "force_ratio": 1.0
     },
     "tasks":
     {

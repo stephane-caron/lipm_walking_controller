@@ -120,10 +120,10 @@ namespace lipm_walking
           [this]() { return std::round(releaseHeight_ * 100.) / 100.; },
           [this](double height) { releaseHeight_ = clamp(height, 0., 0.25); }),
         Label(
-          "Left foot pressure [N]",
+          "Left foot force [N]",
           [&ctl]() { return ctl.realRobot().forceSensor("LeftFootForceSensor").force().z(); }),
         Label(
-          "Right foot pressure [N]",
+          "Right foot force [N]",
           [&ctl]() { return ctl.realRobot().forceSensor("RightFootForceSensor").force().z(); }),
         Button(
           "Go to left foot",
@@ -290,16 +290,16 @@ namespace lipm_walking
 
   bool states::Standing::releaseFootContact(std::shared_ptr<mc_tasks::force::CoPTask> footTask)
   {
-    constexpr double MAX_FOOT_RELEASE_PRESSURE = 50.; // [N]
+    constexpr double MAX_FOOT_RELEASE_FORCE = 50.; // [N]
     auto & stabilizer = controller().stabilizer();
     if (footTask->admittance().couple().x() < 1e-10)
     {
       LOG_WARNING("Foot contact is already released");
       return false;
     }
-    else if (footTask->measuredWrench().force().z() > MAX_FOOT_RELEASE_PRESSURE)
+    else if (footTask->measuredWrench().force().z() > MAX_FOOT_RELEASE_FORCE)
     {
-      LOG_ERROR("Contact pressure is too high to release foot");
+      LOG_ERROR("Contact force is too high to release foot");
       return false;
     }
     sva::PTransformd X_0_f = footTask->surfacePose();

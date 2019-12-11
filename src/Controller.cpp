@@ -608,9 +608,9 @@ namespace lipm_walking
   {
     static bool isInTheAir = false;
     constexpr double CONTACT_THRESHOLD = 30.; // [N]
-    double leftFootPressure = realRobot().forceSensor("LeftFootForceSensor").force().z();
-    double rightFootPressure = realRobot().forceSensor("RightFootForceSensor").force().z();
-    if (leftFootPressure < CONTACT_THRESHOLD && rightFootPressure < CONTACT_THRESHOLD)
+    double leftFootForce = realRobot().forceSensor("LeftFootForceSensor").force().z();
+    double rightFootForce = realRobot().forceSensor("RightFootForceSensor").force().z();
+    if (leftFootForce < CONTACT_THRESHOLD && rightFootForce < CONTACT_THRESHOLD)
     {
       if (!isInTheAir)
       {

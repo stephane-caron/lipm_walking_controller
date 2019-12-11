@@ -51,7 +51,7 @@ namespace lipm_walking
     for (std::string sensorName : sensorNames_)
     {
       const auto & sensor = robot.forceSensor(sensorName);
-      if (sensor.force().z() > 1.) // pressure is more than 1 [N]
+      if (sensor.force().z() > 1.) // normal force is more than 1 [N]
       {
         netWrench_ += sensor.worldWrench(robot);
       }

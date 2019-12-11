@@ -31,14 +31,13 @@ As an example, until version 1.3 of the controller we introduced a modeling erro
 <tr><td><b>Gain</b></td><td><b>Effect of increasing</b></td></tr>
 <tr><td>Foot: <i>CoPx</i></td><td>Improves CoP control but increases sagittal position compliance</td></tr>
 <tr><td>Foot: <i>CoPy</i></td><td>Improves CoP control but increases lateral position compliance</td></tr>
-<tr><td>Legs: <i>DFz</i></td><td>Improves foot pressure tracking in double support, can yield vertical 
-oscillations</td></tr>
+<tr><td>Legs: <i>DFz</i></td><td>Improves foot force difference tracking in double support, can yield vertical oscillations</td></tr>
 <tr><td>Legs: <i>DFz damping</i></td><td>Damps potential oscillations in double support</td></tr>
 <tr><td>CoM: <i>Ax</i></td><td>Improves ZMP control but increases sagittal position compliance</td></tr>
 <tr><td>CoM: <i>Ay</i></td><td>Improves ZMP control but increases lateral position compliance</td></tr>
 </table>
 
-You can debug them with the ``Tracking DCM X/Y`` and ``Tracking DCM-ZMP X/Y`` plots, except for the foot *DFz* admittance which is better checked in ``Foot pressure both``.
+You can debug them with the ``Tracking DCM X/Y`` and ``Tracking DCM-ZMP X/Y`` plots, except for the foot *DFz* admittance which is better checked in ``Foot force both``.
 
 \section tests Standard tests
 
@@ -59,7 +58,7 @@ All logs will be stored in ``/tmp`` until you reboot your machine.
 
 \subsection standing Standing
 
-Standing tests evaluate the performance of disturbance rejection when you push the robot at the trunk. They are useful to debug 
+Standing tests evaluate the performance of disturbance rejection when you push the robot at the trunk.
 
 - Put the robot on the ground in standing posture
 - Push the robot sagitally or laterally until the measured ZMP at ground level is halfway (or all the way) between its rest position and the boundary of the support area

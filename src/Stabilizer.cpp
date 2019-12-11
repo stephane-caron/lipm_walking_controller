@@ -53,7 +53,7 @@ namespace lipm_walking
   constexpr double Stabilizer::MAX_FDC_RY_VEL;
   constexpr double Stabilizer::MAX_FDC_RZ_VEL;
   constexpr double Stabilizer::MAX_ZMPCC_COM_OFFSET;
-  constexpr double Stabilizer::MIN_DS_PRESSURE;
+  constexpr double Stabilizer::MIN_DSP_FZ;
 
   namespace
   {
@@ -113,8 +113,8 @@ namespace lipm_walking
     logger.addLogEntry("stabilizer_dcmIntegrator_timeConstant", [this]() { return dcmIntegrator_.timeConstant(); });
     logger.addLogEntry("stabilizer_dfz_damping", [this]() { return dfzDamping_; });
     logger.addLogEntry("stabilizer_fdqp_weights_ankleTorque", [this]() { return std::pow(fdqpWeights_.ankleTorqueSqrt, 2); });
+    logger.addLogEntry("stabilizer_fdqp_weights_forceRatio", [this]() { return std::pow(fdqpWeights_.forceRatioSqrt, 2); });
     logger.addLogEntry("stabilizer_fdqp_weights_netWrench", [this]() { return std::pow(fdqpWeights_.netWrenchSqrt, 2); });
-    logger.addLogEntry("stabilizer_fdqp_weights_pressure", [this]() { return std::pow(fdqpWeights_.pressureSqrt, 2); });
     logger.addLogEntry("stabilizer_vdc_frequency", [this]() { return vdcFrequency_; });
     logger.addLogEntry("stabilizer_vdc_stiffness", [this]() { return vdcStiffness_; });
     logger.addLogEntry("stabilizer_wrench", [this]() { return distribWrench_; });
@@ -200,6 +200,10 @@ namespace lipm_walking
       Button(
         "Reset CoM integrator",
         [this]() { zmpccIntegrator_.setZero(); }),
+      Checkbox(
+        "Apply CoM admittance only in double support?",
+        [this]() { return zmpccOnlyDS_; },
+        [this]() { zmpccOnlyDS_ = !zmpccOnlyDS_; }),
       ArrayInput(
         "CoM admittance",
         {"Ax", "Ay"},
@@ -209,10 +213,6 @@ namespace lipm_walking
           comAdmittance_.x() = clamp(a.x(), 0., MAX_COM_ADMITTANCE);
           comAdmittance_.y() = clamp(a.y(), 0., MAX_COM_ADMITTANCE);
         }),
-      Checkbox(
-        "Apply CoM admittance only in double support?",
-        [this]() { return zmpccOnlyDS_; },
-        [this]() { zmpccOnlyDS_ = !zmpccOnlyDS_; }),
       NumberInput(
         "CoM integrator leak rate [Hz]",
         [this]() { return zmpccIntegrator_.rate(); },
@@ -260,19 +260,19 @@ namespace lipm_walking
         }),
       ArrayInput(
         "Wrench distribution weights",
-        {"Net wrench", "Ankle", "Pressure"},
+        {"Net wrench", "Ankle torques", "Force ratio"},
         [this]() -> Eigen::Vector3d
         {
           double netWrench = std::pow(fdqpWeights_.netWrenchSqrt, 2);
           double ankleTorque = std::pow(fdqpWeights_.ankleTorqueSqrt, 2);
-          double pressure = std::pow(fdqpWeights_.pressureSqrt, 2);
-          return {netWrench, ankleTorque, pressure};
+          double forceRatio = std::pow(fdqpWeights_.forceRatioSqrt, 2);
+          return {netWrench, ankleTorque, forceRatio};
         },
         [this](const Eigen::Vector3d & weights)
         {
           fdqpWeights_.netWrenchSqrt = std::sqrt(weights(0));
           fdqpWeights_.ankleTorqueSqrt = std::sqrt(weights(1));
-          fdqpWeights_.pressureSqrt = std::sqrt(weights(2));
+          fdqpWeights_.forceRatioSqrt = std::sqrt(weights(2));
         }));
     gui->addElement(
       {"Stabilizer", "Errors"},
@@ -475,21 +475,21 @@ namespace lipm_walking
     double xDist = std::abs(X_c_s.translation().x());
     double yDist = std::abs(X_c_s.translation().y());
     double zDist = std::abs(X_c_s.translation().z());
-    double pressure = footTask->measuredWrench().force().z();
-    return (xDist < 0.03 && yDist < 0.03 && zDist < 0.03 && pressure > 50.);
+    double Fz = footTask->measuredWrench().force().z();
+    return (xDist < 0.03 && yDist < 0.03 && zDist < 0.03 && Fz > 50.);
   }
 
   void Stabilizer::seekTouchdown(std::shared_ptr<mc_tasks::force::CoPTask> footTask)
   {
     constexpr double MAX_VEL = 0.01; // [m] / [s]
-    constexpr double TOUCHDOWN_PRESSURE = 50.;  // [N]
-    constexpr double DESIRED_AFZ = MAX_VEL / TOUCHDOWN_PRESSURE;
-    if (footTask->measuredWrench().force().z() < TOUCHDOWN_PRESSURE)
+    constexpr double TOUCHDOWN_FORCE = 50.;  // [N]
+    constexpr double DESIRED_AFZ = MAX_VEL / TOUCHDOWN_FORCE;
+    if (footTask->measuredWrench().force().z() < TOUCHDOWN_FORCE)
     {
       auto a = footTask->admittance();
       double AFz = clamp(DESIRED_AFZ, 0., 1e-2, "Contact seeking admittance");
       footTask->admittance({a.couple(), {a.force().x(), a.force().y(), AFz}});
-      footTask->targetForce({0., 0., TOUCHDOWN_PRESSURE});
+      footTask->targetForce({0., 0., TOUCHDOWN_FORCE});
     }
   }
 
@@ -521,7 +521,7 @@ namespace lipm_walking
   {
     double LFz = leftFootTask->measuredWrench().force().z();
     double RFz = rightFootTask->measuredWrench().force().z();
-    inTheAir_ = (LFz < MIN_DS_PRESSURE && RFz < MIN_DS_PRESSURE);
+    inTheAir_ = (LFz < MIN_DSP_FZ && RFz < MIN_DSP_FZ);
   }
 
   void Stabilizer::updateZMPFrame()
@@ -548,15 +548,15 @@ namespace lipm_walking
     Eigen::Vector3d n = zmpFrame_.rotation().row(2);
     Eigen::Vector3d p = zmpFrame_.translation();
     const Eigen::Vector3d & force = wrench.force();
-    double pressure = n.dot(force);
-    if (pressure < 1.)
+    double normalForce = n.dot(force);
+    if (normalForce < 1.)
     {
       double lambda = std::pow(pendulum_.omega(), 2);
       return measuredCoM_ + world::gravity / lambda; // default for logging
     }
     const Eigen::Vector3d & moment_0 = wrench.couple();
     Eigen::Vector3d moment_p = moment_0 - p.cross(force);
-    return p + n.cross(moment_p) / pressure;
+    return p + n.cross(moment_p) / normalForce;
   }
 
   void Stabilizer::run()
@@ -651,8 +651,8 @@ namespace lipm_walking
     // -----------
     // CWC X_0_lc* w_l_0 <= 0  -- left foot wrench within contact wrench cone
     // CWC X_0_rc* w_r_0 <= 0  -- right foot wrench within contact wrench cone
-    // (X_0_lc* w_l_0).z() > minPressure  -- minimum left foot contact pressure
-    // (X_0_rc* w_r_0).z() > minPressure  -- minimum right foot contact pressure
+    // (X_0_lc* w_l_0).z() > MIN_DSP_FZ  -- minimum left foot contact force
+    // (X_0_rc* w_r_0).z() > MIN_DSP_FZ  -- minimum right foot contact force
 
     const sva::PTransformd & X_0_lc = leftFootContact.pose;
     const sva::PTransformd & X_0_rc = rightFootContact.pose;
@@ -684,9 +684,9 @@ namespace lipm_walking
 
     // |(1 - lfr) * w_l_lc.force().z() - lfr * w_r_rc.force().z()|^2
     double lfr = leftFootRatio_;
-    auto A_pressure = A.block<1, 12>(18, 0);
-    A_pressure.block<1, 6>(0, 0) = (1 - lfr) * X_0_lc.dualMatrix().bottomRows<1>();
-    A_pressure.block<1, 6>(0, 6) = -lfr * X_0_rc.dualMatrix().bottomRows<1>();
+    auto A_fratio = A.block<1, 12>(18, 0);
+    A_fratio.block<1, 6>(0, 0) = (1 - lfr) * X_0_lc.dualMatrix().bottomRows<1>();
+    A_fratio.block<1, 6>(0, 6) = -lfr * X_0_rc.dualMatrix().bottomRows<1>();
 
     // Apply weights
     A_net *= fdqpWeights_.netWrenchSqrt;
@@ -695,8 +695,8 @@ namespace lipm_walking
     A_rankle *= fdqpWeights_.ankleTorqueSqrt;
     // b_lankle = 0
     // b_rankle = 0
-    A_pressure *= fdqpWeights_.pressureSqrt;
-    // b_pressure = 0
+    A_fratio *= fdqpWeights_.forceRatioSqrt;
+    // b_fratio = 0
 
     Eigen::MatrixXd Q = A.transpose() * A;
     Eigen::VectorXd c = -A.transpose() * b;
@@ -712,12 +712,12 @@ namespace lipm_walking
     // CWC * w_r_rc <= 0
     A_ineq.block<16, 6>(16, 6) = wrenchFaceMatrix_ * X_0_rc.dualMatrix();
     // b_ineq.segment<16>(16) is already zero
-    // w_l_lc.force().z() >= MIN_DS_PRESSURE
+    // w_l_lc.force().z() >= MIN_DSP_FZ
     A_ineq.block<1, 6>(32, 0) = -X_0_lc.dualMatrix().bottomRows<1>();
-    b_ineq(32) = -MIN_DS_PRESSURE;
-    // w_r_rc.force().z() >= MIN_DS_PRESSURE
+    b_ineq(32) = -MIN_DSP_FZ;
+    // w_r_rc.force().z() >= MIN_DSP_FZ
     A_ineq.block<1, 6>(33, 6) = -X_0_rc.dualMatrix().bottomRows<1>();
-    b_ineq(33) = -MIN_DS_PRESSURE;
+    b_ineq(33) = -MIN_DSP_FZ;
 
     qpSolver_.problem(NB_VAR, 0, NB_CONS);
     Eigen::MatrixXd A_eq(0, 0);
