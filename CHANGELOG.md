@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Fixed
+
+- ZMP frame initialization
+
 ## [v1.5] - 2019/12/10
 
 ### Added
