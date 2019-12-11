@@ -112,7 +112,7 @@ namespace lipm_walking
           run();
         }),
       NumberInput(
-        "Init. tangent [deg]",
+        "Initial tangent [deg]",
         [this]() { return -initPose_.theta * 180. / M_PI; },
         [this](double angle)
         {
@@ -120,7 +120,7 @@ namespace lipm_walking
           run();
         }),
       NumberInput(
-        "Scale init. vel.",
+        "Scale initial tangent",
         [this]() { return supportPath_.extraInitVelScaling(); },
         [this](double s)
         {
@@ -128,7 +128,7 @@ namespace lipm_walking
           run();
         }),
       NumberInput(
-        "Scale target vel.",
+        "Scale target tangent",
         [this]() { return supportPath_.extraTargetVelScaling(); },
         [this](double s)
         {
@@ -136,7 +136,8 @@ namespace lipm_walking
           run();
         }),
       ArrayInput(
-        "Walk target (relative)", {"x [m]", "y [m]", "theta [deg]"},
+        "Walk target from current",
+        {"x [m]", "y [m]", "theta [deg]"},
         [this]()
         {
           return targetPose_.vectorDegrees();

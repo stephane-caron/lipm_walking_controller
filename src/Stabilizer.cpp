@@ -201,22 +201,6 @@ namespace lipm_walking
         "Reset CoM integrator",
         [this]() { zmpccIntegrator_.setZero(); }),
       ArrayInput(
-        "Wrench distribution weights",
-        {"Net wrench", "Ankle", "Pressure"},
-        [this]() -> Eigen::Vector3d
-        {
-          double netWrench = std::pow(fdqpWeights_.netWrenchSqrt, 2);
-          double ankleTorque = std::pow(fdqpWeights_.ankleTorqueSqrt, 2);
-          double pressure = std::pow(fdqpWeights_.pressureSqrt, 2);
-          return {netWrench, ankleTorque, pressure};
-        },
-        [this](const Eigen::Vector3d & weights)
-        {
-          fdqpWeights_.netWrenchSqrt = std::sqrt(weights(0));
-          fdqpWeights_.ankleTorqueSqrt = std::sqrt(weights(1));
-          fdqpWeights_.pressureSqrt = std::sqrt(weights(2));
-        }),
-      ArrayInput(
         "CoM admittance",
         {"Ax", "Ay"},
         [this]() { return comAdmittance_; },
@@ -273,9 +257,25 @@ namespace lipm_walking
         {
           vdcFrequency_ = clamp(v(0), 0., 10.);
           vdcStiffness_ = clamp(v(1), 0., 1e4);
+        }),
+      ArrayInput(
+        "Wrench distribution weights",
+        {"Net wrench", "Ankle", "Pressure"},
+        [this]() -> Eigen::Vector3d
+        {
+          double netWrench = std::pow(fdqpWeights_.netWrenchSqrt, 2);
+          double ankleTorque = std::pow(fdqpWeights_.ankleTorqueSqrt, 2);
+          double pressure = std::pow(fdqpWeights_.pressureSqrt, 2);
+          return {netWrench, ankleTorque, pressure};
+        },
+        [this](const Eigen::Vector3d & weights)
+        {
+          fdqpWeights_.netWrenchSqrt = std::sqrt(weights(0));
+          fdqpWeights_.ankleTorqueSqrt = std::sqrt(weights(1));
+          fdqpWeights_.pressureSqrt = std::sqrt(weights(2));
         }));
     gui->addElement(
-      {"Stabilizer", "Debug"},
+      {"Stabilizer", "Errors"},
       Button(
         "Disable stabilizer",
         [this]() { disable(); }),
@@ -291,11 +291,11 @@ namespace lipm_walking
       ArrayLabel("DCM error [mm]",
         {"x", "y"},
         [this]() { return vecFromError(dcmError_); }),
-      ArrayLabel("Foot force difference error [mm]",
-        {"force", "height"},
+      ArrayLabel("Foot force difference error",
+        {"force [N]", "height [mm]"},
         [this]()
         {
-          Eigen::Vector3d dfzError = {dfzForceError_, dfzHeightError_, 0.};
+          Eigen::Vector3d dfzError = {dfzForceError_ / 1000., dfzHeightError_, 0.};
           return vecFromError(dfzError);
         }));
   }
