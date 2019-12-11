@@ -106,13 +106,17 @@ namespace lipm_walking
 
     /** List available contact plans.
      *
+     * \returns keys Names of available contact plans.
+     *
      */
     std::vector<std::string> availablePlans() const
     {
       return plans_.keys();
     }
 
-    /** Name of custom footstep plan.
+    /** Get name of current custom footstep plan.
+     *
+     * \returns name Name of custom plan.
      *
      */
     const std::string & customPlanName() const
@@ -121,6 +125,8 @@ namespace lipm_walking
     }
 
     /** Get current gait as string.
+     *
+     * \returns gait Current gait string.
      *
      */
     std::string gait() const
@@ -168,6 +174,8 @@ namespace lipm_walking
 
     /** Get contact plan.
      *
+     * \returns plan Footstep plan.
+     *
      */
     FootstepPlan getPlan(std::string name)
     {
@@ -182,6 +190,7 @@ namespace lipm_walking
     }
 
     /** Remove GUI panel.
+     *
      */
     void removeGUIElements()
     {
@@ -220,6 +229,8 @@ namespace lipm_walking
     }
 
     /** Get step width.
+     *
+     * \returns width Step width.
      *
      */
     double stepWidth() const
@@ -301,17 +312,18 @@ namespace lipm_walking
     void updateWorldTarget_(const Eigen::Vector3d& desired);
 
   public:
-    unsigned nbIter = 0;
+    bool isShown = false; /**< Is the footstep interpolator tab displayed? */
+    unsigned nbIter = 0; /**< Number of times the interpolator was called */
 
   private:
     FootstepPlan customPlan_;
     Gait gait_ = Gait::Walk;
     HoubaPolynomial<Eigen::Vector2d> supportPath_;
     SE2d initPose_ = {0., 0., 0.};
-    SE2d lastBackwardTarget_ = {-0.5, 0., 0.};
-    SE2d lastForwardTarget_ = {0.5, 0., 0.};
-    SE2d lastLateralTarget_ = {0.0, 0.3, 0.};
-    SE2d targetPose_ = {0.5, 0., 0.};
+    SE2d lastBackwardTarget_ = {-0.5, 0., 0.}; /**< Last target for a custom_backward plan */
+    SE2d lastForwardTarget_ = {0.5, 0., 0.}; /**< Last target for a custom_forward plan */
+    SE2d lastLateralTarget_ = {0.0, 0.3, 0.}; /**< Last target for a custom_lateral plan */
+    SE2d targetPose_ = {0.5, 0., 0.}; /**< Target SE2 transform in the horizontal plane */
     bool startWithRightFootstep_ = true;
     double desiredStepAngle_ = 10. * M_PI / 180.; // [rad]
     double desiredStepLength_ = 0.2; // [m]
@@ -325,9 +337,5 @@ namespace lipm_walking
     std::vector<Eigen::Vector3d> supportPathDisplay_;
     sva::PTransformd worldReference_;
     unsigned nbFootsteps_ = 0;
-
-  private: /* Optional map */
-    bool targetMap_ = false;
-    std::string targetName_;
   };
 }

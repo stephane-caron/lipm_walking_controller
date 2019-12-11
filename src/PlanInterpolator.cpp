@@ -41,7 +41,6 @@ namespace lipm_walking
     using namespace mc_rtc::gui;
     // Ensure that a footstep marker independent from the map is used everytime
     // a plan finishes
-    targetMap_ = false;
     gui_->addElement(
       {"Walking", "Planning"},
       NumberInput(
