@@ -424,6 +424,6 @@ namespace lipm_walking
     sva::ForceVecd measuredWrench_; /**< Net contact wrench measured from sensors */
     sva::MotionVecd contactDamping_;
     sva::MotionVecd contactStiffness_;
-    sva::PTransformd zmpFrame_;
+    sva::PTransformd zmpFrame_ = sva::PTransformd::Identity(); /**< Frame in which the ZMP is taken */
   };
 }
