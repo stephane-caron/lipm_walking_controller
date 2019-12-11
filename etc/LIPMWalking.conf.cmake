@@ -1,5 +1,5 @@
 {
-  "initial_plan": "warmup",
+  "initial_plan": "custom_forward",
   "mpc":
   {
     "weights":

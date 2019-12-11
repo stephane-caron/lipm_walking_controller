@@ -78,6 +78,7 @@ namespace lipm_walking
     ctl.solver().addTask(ctl.pelvisTask);
     ctl.solver().addTask(ctl.torsoTask);
 
+    updatePlan(ctl.plan.name);
     updateTarget(leftFootRatio_);
 
     logger().addLogEntry("support_xmax", [&ctl]() { return std::max(ctl.supportContact().xmax(), ctl.targetContact().xmax()); });
@@ -371,10 +372,10 @@ namespace lipm_walking
     auto & ctl = controller();
     if (name.find("custom") != std::string::npos)
     {
-      if (!ctl.customFootstepPlan)
+      if (!ctl.planInterpolator.isShown)
       {
         ctl.planInterpolator.addGUIElements();
-        ctl.customFootstepPlan = true;
+        ctl.planInterpolator.isShown = true;
       }
       if (name.find("backward") != std::string::npos)
       {
@@ -392,10 +393,10 @@ namespace lipm_walking
     }
     else // new plan is not custom
     {
-      if (ctl.customFootstepPlan)
+      if (ctl.planInterpolator.isShown)
       {
         ctl.planInterpolator.removeGUIElements();
-        ctl.customFootstepPlan = false;
+        ctl.planInterpolator.isShown = false;
       }
       ctl.loadFootstepPlan(name);
     }
