@@ -44,7 +44,7 @@ namespace lipm_walking
 
     if (gui())
     {
-      gui()->removeElement({"Walking", "Controller"}, "Pause walking");
+      gui()->removeElement({"Walking", "Main"}, "Pause walking");
     }
 
     runState(); // don't wait till next cycle to update reference and tasks
@@ -96,7 +96,7 @@ namespace lipm_walking
     {
       using namespace mc_rtc::gui;
       gui()->addElement(
-        {"Walking", "Controller"},
+        {"Walking", "Main"},
         Button(
           "Start standing",
           [this]() { startStanding_ = true; }));
@@ -108,7 +108,7 @@ namespace lipm_walking
   {
     if (startStandingButton_ && gui())
     {
-      gui()->removeElement({"Walking", "Controller"}, "Start standing");
+      gui()->removeElement({"Walking", "Main"}, "Start standing");
       startStandingButton_ = false;
     }
   }

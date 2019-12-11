@@ -188,100 +188,6 @@ namespace lipm_walking
   {
     using namespace mc_rtc::gui;
 
-    gui->addElement(
-      {"Walking", "Controller"},
-      Button(
-        "# EMERGENCY STOP",
-        [this]()
-        {
-          emergencyStop = true;
-          this->interrupt();
-        }),
-      Button(
-        "Reset",
-        [this]() { this->resume("Initial"); }));
-
-    gui->addElement(
-      {"Walking", "Phases"},
-      Label(
-        "Plan name",
-        [this]() { return plan.name; }),
-      NumberInput(
-        "Initial DSP duration [s]",
-        [this]() { return plan.initDSPDuration(); },
-        [this](double duration) { plan.initDSPDuration(duration); }),
-      NumberInput(
-        "SSP duration [s]",
-        [this]() { return plan.singleSupportDuration(); },
-        [this](double duration)
-        {
-          constexpr double T = ModelPredictiveControl::SAMPLING_PERIOD;
-          duration = std::round(duration / T) * T;
-          plan.singleSupportDuration(duration);
-        }),
-      NumberInput(
-        "DSP duration [s]",
-        [this]() { return plan.doubleSupportDuration(); },
-        [this](double duration)
-        {
-          constexpr double T = ModelPredictiveControl::SAMPLING_PERIOD;
-          duration = std::round(duration / T) * T;
-          plan.doubleSupportDuration(duration);
-        }),
-      NumberInput(
-        "Final DSP duration [s]",
-        [this]() { return plan.finalDSPDuration(); },
-        [this](double duration) { plan.finalDSPDuration(duration); }));
-
-    gui->addElement(
-      {"Walking", "CoM"},
-      Label(
-        "Plan name",
-        [this]() { return plan.name; }),
-      NumberInput(
-          "CoM height",
-          [this]() { return plan.comHeight(); },
-          [this](double height)
-          {
-            height = clamp(height, minCoMHeight_, maxCoMHeight_);
-            plan.comHeight(height);
-          }),
-      NumberInput(
-        "Torso pitch [rad]",
-        [this]() { return torsoPitch_; },
-        [this](double pitch)
-        {
-          pitch = clamp(pitch, minTorsoPitch_, maxTorsoPitch_);
-          defaultTorsoPitch_ = pitch;
-          torsoPitch_ = pitch;
-        }));
-
-    gui->addElement(
-      {"Walking", "Swing foot"},
-      Label(
-        "Plan name",
-        [this]() { return plan.name; }),
-      NumberInput(
-        "Swing height [m]",
-        [this]() { return plan.swingHeight(); },
-        [this](double height) { plan.swingHeight(height); }),
-      NumberInput(
-        "Takeoff duration",
-        [this]() { return plan.takeoffDuration(); },
-        [this](double duration) { plan.takeoffDuration(duration); }),
-      NumberInput(
-        "Takeoff pitch [rad]",
-        [this]() { return plan.takeoffPitch(); },
-        [this](double pitch) { plan.takeoffPitch(pitch); }),
-      NumberInput(
-        "Landing duration",
-        [this]() { return plan.landingDuration(); },
-        [this](double duration) { plan.landingDuration(duration); }),
-      NumberInput(
-        "Landing pitch [rad]",
-        [this]() { return plan.landingPitch(); },
-        [this](double pitch) { plan.landingPitch(pitch); }));
-
     constexpr double ARROW_HEAD_DIAM = 0.015;
     constexpr double ARROW_HEAD_LEN = 0.05;
     constexpr double ARROW_SHAFT_DIAM = 0.015;
@@ -334,8 +240,46 @@ namespace lipm_walking
       return polygon;
     };
 
+    constexpr double COM_POINT_SIZE = 0.02;
+    constexpr double DCM_POINT_SIZE = 0.015;
+
     gui->addElement(
-      {"Walking", "Markers", "Contacts"},
+      {"Markers", "CoM"},
+      Arrow(
+        "Pendulum_CoM",
+        pendulumArrowConfig,
+        [this]() -> Eigen::Vector3d
+        {
+          return this->pendulum_.zmp();
+        },
+        [this]() -> Eigen::Vector3d
+        {
+          return this->pendulum_.com();
+        }),
+      Point3D(
+        "Measured_CoM",
+        PointConfig(COLORS.at('g'), COM_POINT_SIZE),
+        [this]()
+        {
+          return realCom_;
+        }),
+      Point3D(
+        "Pendulum_DCM",
+        PointConfig(COLORS.at('y'), DCM_POINT_SIZE),
+        [this]()
+        {
+          return pendulum_.dcm();
+        }),
+      Point3D(
+        "Measured_DCM",
+        PointConfig(COLORS.at('g'), DCM_POINT_SIZE),
+        [this]() -> Eigen::Vector3d
+        {
+          return realCom_ + realComd_ / pendulum().omega();
+        }));
+
+    gui->addElement(
+      {"Markers", "Footsteps"},
       Polygon(
         "SupportContact",
         COLORS.at('g'),
@@ -372,46 +316,8 @@ namespace lipm_walking
           return polygons;
         }));
 
-    constexpr double COM_POINT_SIZE = 0.02;
-    constexpr double DCM_POINT_SIZE = 0.015;
-
     gui->addElement(
-      {"Walking", "Markers", "CoM-DCM"},
-      Arrow(
-        "Pendulum_CoM",
-        pendulumArrowConfig,
-        [this]() -> Eigen::Vector3d
-        {
-          return this->pendulum_.zmp();
-        },
-        [this]() -> Eigen::Vector3d
-        {
-          return this->pendulum_.com();
-        }),
-      Point3D(
-        "Measured_CoM",
-        PointConfig(COLORS.at('g'), COM_POINT_SIZE),
-        [this]()
-        {
-          return realCom_;
-        }),
-      Point3D(
-        "Pendulum_DCM",
-        PointConfig(COLORS.at('y'), DCM_POINT_SIZE),
-        [this]()
-        {
-          return pendulum_.dcm();
-        }),
-      Point3D(
-        "Measured_DCM",
-        PointConfig(COLORS.at('g'), DCM_POINT_SIZE),
-        [this]() -> Eigen::Vector3d
-        {
-          return realCom_ + realComd_ / pendulum().omega();
-        }));
-
-    gui->addElement(
-      {"Walking", "Markers", "Net wrench"},
+      {"Markers", "Net wrench"},
       Point3D(
         "Stabilizer_ZMP",
         PointConfig(COLORS.at('m'), 0.02),
@@ -436,7 +342,7 @@ namespace lipm_walking
         }));
 
     gui->addElement(
-      {"Walking", "Markers", "Foot wrenches"},
+      {"Markers", "Foot wrenches"},
       Point3D(
         "Stabilizer_LeftCoP",
         PointConfig(COLORS.at('m'), 0.01),
@@ -467,6 +373,105 @@ namespace lipm_walking
         {
           return sva::PTransformd(this->robot().copW("RightFootCenter"));
         }));
+
+    gui->addElement(
+      {"Walking", "Main"},
+      Button(
+        "# EMERGENCY STOP",
+        [this]()
+        {
+          LOG_ERROR("EMERGENCY STOP!");
+          emergencyStop = true;
+          this->interrupt();
+        }),
+      Button(
+        "Reset",
+        [this]()
+        {
+          LOG_WARNING("Reset to Initial state");
+          this->resume("Initial");
+        }));
+
+    gui->addElement(
+      {"Walking", "CoM"},
+      Label(
+        "Plan name",
+        [this]() { return plan.name; }),
+      NumberInput(
+          "CoM height [m]",
+          [this]() { return plan.comHeight(); },
+          [this](double height)
+          {
+            height = clamp(height, minCoMHeight_, maxCoMHeight_);
+            plan.comHeight(height);
+          }),
+      NumberInput(
+        "Torso pitch [rad]",
+        [this]() { return torsoPitch_; },
+        [this](double pitch)
+        {
+          pitch = clamp(pitch, minTorsoPitch_, maxTorsoPitch_);
+          defaultTorsoPitch_ = pitch;
+          torsoPitch_ = pitch;
+        }));
+
+    gui->addElement(
+      {"Walking", "Swing"},
+      Label(
+        "Plan name",
+        [this]() { return plan.name; }),
+      NumberInput(
+        "Swing height [m]",
+        [this]() { return plan.swingHeight(); },
+        [this](double height) { plan.swingHeight(height); }),
+      NumberInput(
+        "Takeoff duration [s]",
+        [this]() { return plan.takeoffDuration(); },
+        [this](double duration) { plan.takeoffDuration(duration); }),
+      NumberInput(
+        "Takeoff pitch [rad]",
+        [this]() { return plan.takeoffPitch(); },
+        [this](double pitch) { plan.takeoffPitch(pitch); }),
+      NumberInput(
+        "Landing duration [s]",
+        [this]() { return plan.landingDuration(); },
+        [this](double duration) { plan.landingDuration(duration); }),
+      NumberInput(
+        "Landing pitch [rad]",
+        [this]() { return plan.landingPitch(); },
+        [this](double pitch) { plan.landingPitch(pitch); }));
+
+    gui->addElement(
+      {"Walking", "Timings"},
+      Label(
+        "Plan name",
+        [this]() { return plan.name; }),
+      NumberInput(
+        "Initial DSP duration [s]",
+        [this]() { return plan.initDSPDuration(); },
+        [this](double duration) { plan.initDSPDuration(duration); }),
+      NumberInput(
+        "SSP duration [s]",
+        [this]() { return plan.singleSupportDuration(); },
+        [this](double duration)
+        {
+          constexpr double T = ModelPredictiveControl::SAMPLING_PERIOD;
+          duration = std::round(duration / T) * T;
+          plan.singleSupportDuration(duration);
+        }),
+      NumberInput(
+        "DSP duration [s]",
+        [this]() { return plan.doubleSupportDuration(); },
+        [this](double duration)
+        {
+          constexpr double T = ModelPredictiveControl::SAMPLING_PERIOD;
+          duration = std::round(duration / T) * T;
+          plan.doubleSupportDuration(duration);
+        }),
+      NumberInput(
+        "Final DSP duration [s]",
+        [this]() { return plan.finalDSPDuration(); },
+        [this](double duration) { plan.finalDSPDuration(duration); }));
   }
 
   void Controller::reset(const mc_control::ControllerResetData & data)
@@ -583,7 +588,7 @@ namespace lipm_walking
       {
         LOG_WARNING("Cannot pause on uneven ground, will pause later");
       }
-      gui()->removeElement({"Walking", "Controller"}, "Pause walking");
+      gui()->removeElement({"Walking", "Main"}, "Pause walking");
       pauseWalkingRequested = true;
     }
     else if (pauseWalkingRequested)
@@ -594,7 +599,7 @@ namespace lipm_walking
     }
     else // (!pauseWalkingRequested)
     {
-      gui()->removeElement({"Walking", "Controller"}, "Pause walking");
+      gui()->removeElement({"Walking", "Main"}, "Pause walking");
       pauseWalking = true;
     }
   }

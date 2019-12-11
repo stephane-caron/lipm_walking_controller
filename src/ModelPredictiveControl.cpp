@@ -86,7 +86,7 @@ namespace lipm_walking
     using namespace mc_rtc::gui;
     gui->addElement(
       {"Walking", "CoM"},
-      ArrayInput("MPC cost weights",
+      ArrayInput("MPC QP cost weights",
         {"jerk", "vel_x", "vel_y", "zmp"},
         [this]()
         {

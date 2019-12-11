@@ -39,27 +39,35 @@ namespace lipm_walking
   void PlanInterpolator::addGUIElements()
   {
     using namespace mc_rtc::gui;
+
     gui_->addElement(
-      {"Walking", "Planning"},
-      NumberInput(
-        "Initial angle [deg]",
-        [this]() { return -initPose_.theta * 180. / M_PI; },
-        [this](double angle)
+      {"Markers", "Footsteps"},
+      Trajectory(
+        "Support_Path",
+        [this]() -> const std::vector<Eigen::Vector3d> & { return supportPathDisplay_; }),
+      XYTheta(
+        "World target [m, rad]",
+        [this]() -> Eigen::VectorXd
         {
-          initPose_.theta = clamp(-angle * M_PI / 180., -2 * M_PI, 2 * M_PI);
-          run();
-        }),
-      ArrayInput(
-        "Local target", {"x [m]", "y [m]", "theta [deg]"},
-        [this]()
-        {
-          return targetPose_.vectorDegrees();
+          Eigen::Vector3d targetLocal;
+          targetLocal << targetPose_.pos(), 0.;
+          Eigen::Matrix3d rotLocal = mc_rbdyn::rpyToMat({0.,0.,targetPose_.theta});
+          sva::PTransformd targetWorld = sva::PTransformd(rotLocal, targetLocal) * worldReference_;
+          double thetaWorld = mc_rbdyn::rpyFromMat(targetWorld.rotation()).z();
+          Eigen::VectorXd vec(4);
+          vec << floorn(targetWorld.translation().x(), 4), floorn(targetWorld.translation().y(), 4), floorn(thetaWorld,4), worldReference_.translation().z();
+          return vec;
         },
-        [this](const Eigen::Vector3d & desired)
+        [this](const Eigen::VectorXd & desired)
         {
-          updateLocalTarget_(SE2d(desired.x(), desired.y(), desired.z() * M_PI / 180.));
-          run();
-        }),
+          updateWorldTarget_(desired.head<3>());
+        }));
+
+    gui_->addElement(
+      {"Walking", "Footsteps"},
+      Label(
+        "Plan name",
+        [this]() { return customPlan_.name; }),
       ComboInput(
         "Gait",
         {"Walk", "Shuffle", "Turn"},
@@ -104,6 +112,14 @@ namespace lipm_walking
           run();
         }),
       NumberInput(
+        "Init. tangent [deg]",
+        [this]() { return -initPose_.theta * 180. / M_PI; },
+        [this](double angle)
+        {
+          initPose_.theta = clamp(-angle * M_PI / 180., -2 * M_PI, 2 * M_PI);
+          run();
+        }),
+      NumberInput(
         "Scale init. vel.",
         [this]() { return supportPath_.extraInitVelScaling(); },
         [this](double s)
@@ -119,6 +135,17 @@ namespace lipm_walking
           supportPath_.extraTargetVelScaling(s);
           run();
         }),
+      ArrayInput(
+        "Walk target (relative)", {"x [m]", "y [m]", "theta [deg]"},
+        [this]()
+        {
+          return targetPose_.vectorDegrees();
+        },
+        [this](const Eigen::Vector3d & desired)
+        {
+          updateLocalTarget_(SE2d(desired.x(), desired.y(), desired.z() * M_PI / 180.));
+          run();
+        }),
       Label(
         "Number of steps",
         [this]() { return nbFootsteps_; }),
@@ -131,30 +158,6 @@ namespace lipm_walking
       Label(
         "Total length [m]",
         [this]() { return std::round(supportPath_.arcLength(0., 1.) * 1000.) / 1000.; }));
-    gui_->addElement(
-      {"Walking", "Advanced", "Markers", "Planning"},
-      Trajectory(
-        "Support_Path",
-        [this]() -> const std::vector<Eigen::Vector3d> & { return supportPathDisplay_; }));
-    gui_->addElement(
-      {"Walking", "Planning"},
-      XYTheta(
-        "World target [m, rad]",
-        [this]() -> Eigen::VectorXd
-        {
-          Eigen::Vector3d targetLocal;
-          targetLocal << targetPose_.pos(), 0.;
-          Eigen::Matrix3d rotLocal = mc_rbdyn::rpyToMat({0.,0.,targetPose_.theta});
-          sva::PTransformd targetWorld = sva::PTransformd(rotLocal, targetLocal) * worldReference_;
-          double thetaWorld = mc_rbdyn::rpyFromMat(targetWorld.rotation()).z();
-          Eigen::VectorXd vec(4);
-          vec << floorn(targetWorld.translation().x(), 4), floorn(targetWorld.translation().y(), 4), floorn(thetaWorld,4), worldReference_.translation().z();
-          return vec;
-        },
-        [this](const Eigen::VectorXd & desired)
-        {
-          updateWorldTarget_(desired.head<3>());
-        }));
   }
 
   void PlanInterpolator::updateWorldTarget_(const Eigen::Vector3d& desired)

@@ -93,15 +93,15 @@ namespace lipm_walking
     if (gui())
     {
       using namespace mc_rtc::gui;
-      gui()->removeElement({"Walking", "Controller"}, "Pause walking");
+      gui()->removeElement({"Walking", "Main"}, "Pause walking");
       gui()->addElement(
-        {"Walking", "Controller"},
+        {"Walking", "Main"},
         ComboInput("Footstep plan",
           ctl.planInterpolator.availablePlans(),
           [&ctl]() { return ctl.plan.name; },
           [this](const std::string & name) { updatePlan(name); }));
       gui()->addElement(
-        {"Walking", "Controller"},
+        {"Walking", "Main"},
         Button(
           (supportContact.id == 0) ? "Start walking" : "Resume walking",
           [this]() { startWalking(); }));
@@ -169,11 +169,11 @@ namespace lipm_walking
     if (gui())
     {
       gui()->removeCategory({"Standing"});
-      gui()->removeElement({"Walking", "Controller"}, "Footstep plan");
-      gui()->removeElement({"Walking", "Controller"}, "Gait");
-      gui()->removeElement({"Walking", "Controller"}, "Go to middle");
-      gui()->removeElement({"Walking", "Controller"}, "Resume walking");
-      gui()->removeElement({"Walking", "Controller"}, "Start walking");
+      gui()->removeElement({"Walking", "Main"}, "Footstep plan");
+      gui()->removeElement({"Walking", "Main"}, "Gait");
+      gui()->removeElement({"Walking", "Main"}, "Go to middle");
+      gui()->removeElement({"Walking", "Main"}, "Resume walking");
+      gui()->removeElement({"Walking", "Main"}, "Start walking");
     }
   }
 
@@ -239,10 +239,10 @@ namespace lipm_walking
     {
       if (gui())
       {
-        gui()->removeElement({"Walking", "Controller"}, "Resume walking");
-        gui()->removeElement({"Walking", "Controller"}, "Start walking");
+        gui()->removeElement({"Walking", "Main"}, "Resume walking");
+        gui()->removeElement({"Walking", "Main"}, "Start walking");
         gui()->addElement(
-            {"Walking", "Controller"},
+            {"Walking", "Main"},
             mc_rtc::gui::Button("Start walking", [this]() { startWalking(); }));
       }
       planChanged_ = false;
@@ -361,7 +361,7 @@ namespace lipm_walking
     }
     startWalking_ = true;
     gui()->addElement(
-      {"Walking", "Controller"},
+      {"Walking", "Main"},
       mc_rtc::gui::Button(
         "Pause walking",
         [&ctl]() { ctl.pauseWalkingCallback(/* verbose = */ true); }));
