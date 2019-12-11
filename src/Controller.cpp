@@ -669,7 +669,7 @@ namespace lipm_walking
     planInterpolator.updateSupportPath(X_0_lf, X_0_rf);
     plan.rewind();
     torsoPitch_ = (plan.hasTorsoPitch()) ? plan.torsoPitch() : defaultTorsoPitch_;
-    LOG_INFO("Loaded footstep plan \"" << name << "\"");
+    LOG_INFO(action << "footstep plan \"" << name << "\"");
   }
 
   void Controller::startLogSegment(const std::string & label)
