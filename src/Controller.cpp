@@ -646,10 +646,10 @@ namespace lipm_walking
 
   void Controller::loadFootstepPlan(std::string name)
   {
-    bool loadIsUpdate = (plan.name == name);
+    bool loadingNewPlan = (plan.name != name);
     double initHeight = (plan.name.length() > 0) ? plan.supportContact().p().z() : 0.;
     FootstepPlan defaultPlan = planInterpolator.getPlan(name);
-    if (!loadIsUpdate)
+    if (loadingNewPlan)
     {
       plan = defaultPlan;
       plan.name = name;
@@ -659,7 +659,7 @@ namespace lipm_walking
         mpc_.configure(plan.mpcConfig);
       }
     }
-    else // (loadIsUpdate)
+    else // only reload contacts
     {
       plan.resetContacts(defaultPlan.contacts());
     }
@@ -671,15 +671,9 @@ namespace lipm_walking
     planInterpolator.updateSupportPath(X_0_lf, X_0_rf);
     plan.rewind();
     torsoPitch_ = (plan.hasTorsoPitch()) ? plan.torsoPitch() : defaultTorsoPitch_;
-    if (!loadIsUpdate)
+    if (loadingNewPlan)
     {
       LOG_INFO("Loaded footstep plan \"" << name << "\"");
-      alreadyLoggedPlanUpdate_ = false;
-    }
-    else if (!alreadyLoggedPlanUpdate_)
-    {
-      LOG_INFO("Updated footstep plan \"" << name << "\"");
-      alreadyLoggedPlanUpdate_ = true;
     }
   }
 

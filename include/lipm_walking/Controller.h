@@ -343,7 +343,6 @@ namespace lipm_walking
     Pendulum pendulum_; /**< Holds the reference state (CoM position, velocity, ZMP, ...) from the walking pattern */
     Sole sole_; /**< Sole dimensions of the robot model */
     Stabilizer stabilizer_; /**< Balance feedback control component that updates task targets */
-    bool alreadyLoggedPlanUpdate_ = false; /**< Boolean stored to avoid repeating plan update messages */
     bool leftFootRatioJumped_ = false; /**< Flag used to avoid discontinuous CoM velocity updates */
     double ctlTime_ = 0.; /**< Controller time */
     double defaultTorsoPitch_ = 0.; /**< Default torso pitch angle, in [rad] */
