@@ -567,56 +567,56 @@
         "contacts":
         [
           {
-            "pose": { "translation": [-0.04,  0.09, 0.000] },
+            "pose": { "translation": [-0.02,  0.105, 0.000] },
             "surface": "LeftFootCenter"
           },
           {
-            "pose": { "translation": [-0.04, -0.09, 0.000] },
+            "pose": { "translation": [-0.02, -0.105, 0.000] },
             "surface": "RightFootCenter",
             "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
           },
           {
-            "pose": { "translation": [0.24,   0.09, 0.185] },
+            "pose": { "translation": [0.24,   0.105, 0.185] },
             "surface": "LeftFootCenter",
             "swing": { "takeoff_offset": [-0.02, 0.0, 0.0] }
           },
           {
-            "pose": { "translation": [0.24,  -0.09, 0.185] },
+            "pose": { "translation": [0.24,  -0.105, 0.185] },
             "surface": "RightFootCenter",
             "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
           },
           {
-            "pose": { "translation": [0.48,   0.09, 0.370] },
+            "pose": { "translation": [0.48,   0.105, 0.370] },
             "surface": "LeftFootCenter",
             "swing": { "takeoff_offset": [-0.02, 0.0, 0.0] }
           },
           {
-            "pose": { "translation": [0.48,  -0.09, 0.370] },
+            "pose": { "translation": [0.48,  -0.105, 0.370] },
             "surface": "RightFootCenter",
             "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
           },
           {
-            "pose": { "translation": [0.72,   0.09, 0.555] },
+            "pose": { "translation": [0.74,   0.105, 0.555] },
             "surface": "LeftFootCenter",
             "swing": { "takeoff_offset": [-0.02, 0.0, 0.0] }
           },
           {
-            "pose": { "translation": [0.72,  -0.09, 0.555] },
+            "pose": { "translation": [0.74,  -0.105, 0.555] },
             "surface": "RightFootCenter",
             "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
           },
           {
-            "pose": { "translation": [0.96,   0.09, 0.740] },
+            "pose": { "translation": [1.0,   0.105, 0.740] },
             "surface": "LeftFootCenter",
             "swing": { "height": 0.2, "takeoff_offset": [-0.02, 0.0, 0.0] }
           },
           {
-            "pose": { "translation": [0.96,  -0.09, 0.740] },
+            "pose": { "translation": [1.0,  -0.105, 0.740] },
             "surface": "RightFootCenter",
             "swing": { "height": 0.2, "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
           },
-          { "pose": { "translation": [1.20,   0.09, 0.885] }, "surface": "LeftFootCenter"  },
-          { "pose": { "translation": [1.20,  -0.09, 0.885] }, "surface": "RightFootCenter" }
+          { "pose": { "translation": [1.25,   0.105, 0.885] }, "surface": "LeftFootCenter"  },
+          { "pose": { "translation": [1.25,  -0.105, 0.885] }, "surface": "RightFootCenter" }
         ],
         "mpc":
         {
