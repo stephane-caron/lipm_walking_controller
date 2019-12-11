@@ -85,6 +85,11 @@ namespace lipm_walking
      */
     void configure(const mc_rtc::Configuration & config);
 
+    /** Remove GUI panel.
+     *
+     */
+    void removeGUIElements();
+
     /** Generate a new footstep plan.
      *
      */
@@ -187,15 +192,6 @@ namespace lipm_walking
       {
         return plans_(name);
       }
-    }
-
-    /** Remove GUI panel.
-     *
-     */
-    void removeGUIElements()
-    {
-      gui_->removeCategory({"Walking", "Planning"});
-      gui_->removeCategory({"Walking", "Advanced", "Markers", "Planning"});
     }
 
     /** Restore last backward target.
