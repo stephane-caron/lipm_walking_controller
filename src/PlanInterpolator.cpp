@@ -65,7 +65,7 @@ namespace lipm_walking
         }),
       ComboInput(
         "Gait",
-        {"Sagittal", "Lateral", "InPlace"},
+        {"Walk", "Shuffle", "Turn"},
         [this]() { return gait(); },
         [this](const std::string & dir) { gait(dir); }),
       ComboInput(
@@ -188,11 +188,11 @@ namespace lipm_walking
     double absY = std::abs(targetPose_.y);
     if (absX > 2. * absY)
     {
-      gait_ = Gait::Sagittal;
+      gait_ = Gait::Walk;
     }
     else // (absY >= 0.5 * absX)
     {
-      gait_ = Gait::Lateral;
+      gait_ = Gait::Shuffle;
     }
   }
 
@@ -231,18 +231,18 @@ namespace lipm_walking
   {
     if (targetPose_.pos().norm() < 2e-3)
     {
-      if (gait_ != Gait::InPlace)
+      if (gait_ != Gait::Turn)
       {
         extraStepWidth_ = IN_PLACE_EXTRA_STEP_WIDTH;
-        gait_ = Gait::InPlace;
+        gait_ = Gait::Turn;
       }
     }
-    else if (gait_ == Gait::InPlace)
+    else if (gait_ == Gait::Turn)
     {
       extraStepWidth_ = DEFAULT_EXTRA_STEP_WIDTH;
-      gait_ = Gait::Lateral;
+      gait_ = Gait::Shuffle;
     }
-    if (gait_ == Gait::Sagittal)
+    if (gait_ == Gait::Walk)
     {
       double dx = targetPose_.x;
       if (dx < 0. && customPlan_.name != "custom_backward")
@@ -255,30 +255,30 @@ namespace lipm_walking
         desiredStepLength_ = plans_("custom_forward")("step_length");
         restoreDefaults();
       }
-      runSagittal_();
+      runWalking_();
     }
-    else if (gait_ == Gait::Lateral)
+    else if (gait_ == Gait::Shuffle)
     {
       if (customPlan_.name != "custom_lateral")
       {
         desiredStepLength_ = plans_("custom_lateral")("step_length");
         restoreDefaults();
       }
-      runLateral_();
+      runShuffling_();
     }
-    else // (gait_ == Gait::InPlace)
+    else // (gait_ == Gait::Turn)
     {
       if (customPlan_.name != "custom_lateral")
       {
         desiredStepLength_ = plans_("custom_lateral")("step_length");
         extraStepWidth_ = IN_PLACE_EXTRA_STEP_WIDTH;
       }
-      runInPlace_();
+      runTurning_();
     }
     nbIter++;
   }
 
-  void PlanInterpolator::runSagittal_()
+  void PlanInterpolator::runWalking_()
   {
     bool goingBackward = (targetPose_.pos().x() < 0.);
     if (goingBackward)
@@ -397,7 +397,7 @@ namespace lipm_walking
     }
   }
 
-  void PlanInterpolator::runLateral_()
+  void PlanInterpolator::runShuffling_()
   {
     customPlan_ = plans_("custom_lateral");
     customPlan_.name = "custom_lateral";
@@ -461,7 +461,7 @@ namespace lipm_walking
     stepLength_ = stepLength;
   }
 
-  void PlanInterpolator::runInPlace_()
+  void PlanInterpolator::runTurning_()
   {
     customPlan_ = plans_("custom_lateral");
     customPlan_.name = "custom_lateral";

@@ -92,19 +92,13 @@ namespace lipm_walking
     if (gui())
     {
       using namespace mc_rtc::gui;
-      auto & interpolator = ctl.planInterpolator;
       gui()->removeElement({"Walking", "Controller"}, "Pause walking");
       gui()->addElement(
         {"Walking", "Controller"},
         ComboInput("Footstep plan",
           ctl.planInterpolator.availablePlans(),
           [&ctl]() { return ctl.plan.name; },
-          [this](const std::string & name) { updatePlan(name); }),
-        ComboInput(
-          "Gait",
-          {"Sagittal", "Lateral", "InPlace"},
-          [&interpolator]() { return interpolator.gait(); },
-          [&interpolator](const std::string & dir) { interpolator.gait(dir); }));
+          [this](const std::string & name) { updatePlan(name); }));
       gui()->addElement(
         {"Walking", "Controller"},
         Button(
