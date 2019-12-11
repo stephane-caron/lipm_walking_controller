@@ -39,8 +39,6 @@ namespace lipm_walking
   void PlanInterpolator::addGUIElements()
   {
     using namespace mc_rtc::gui;
-    // Ensure that a footstep marker independent from the map is used everytime
-    // a plan finishes
     gui_->addElement(
       {"Walking", "Planning"},
       NumberInput(
