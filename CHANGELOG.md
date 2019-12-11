@@ -2,7 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [v1.6] - 2019/12/11
+
+### Added
+
+- Footstep interpolator
 
 ### Fixed
 

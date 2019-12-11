@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <package>
     <name>lipm_walking_controller</name>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
     <description>Walking controller based on linear inverted pendulum tracking</description>
     <maintainer email="stephane.caron@lirmm.fr">Stéphane Caron</maintainer>
-    <license>LGPLv3</license>
+    <license>BSD</license>
     <url type="repository"></url>
     <buildtool_depend>catkin</buildtool_depend>
     <build_depend>geometry_msgs</build_depend>
