@@ -188,6 +188,8 @@ namespace lipm_walking
 
     /** Get contact state.
      *
+     * \returns contactState Contact state.
+     *
      */
     ContactState contactState()
     {
@@ -258,7 +260,9 @@ namespace lipm_walking
           -mu, -mu,  +1,  -Y,  -X, -(X + Y) * mu;
     }
 
-    /** ZMP target after force distribution.
+    /** ZMP target after wrench distribution.
+     *
+     * \returns zmp ZMP target in the inertial frame.
      *
      */
     Eigen::Vector3d zmp() const
