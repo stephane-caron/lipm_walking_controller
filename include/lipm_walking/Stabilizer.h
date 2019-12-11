@@ -363,6 +363,8 @@ namespace lipm_walking
 
     /** Get 6D contact admittance vector from 2D CoP admittance.
      *
+     * \returns contactAdmittance Admittance of contact task.
+     *
      */
     sva::ForceVecd contactAdmittance()
     {
@@ -377,28 +379,28 @@ namespace lipm_walking
     std::shared_ptr<mc_tasks::force::CoPTask> rightFootTask; /**< Right foot hybrid position/force control task */
 
   private:
-    ContactState contactState_ = ContactState::DoubleSupport;
+    ContactState contactState_ = ContactState::DoubleSupport; /**< Desired contact state */
     Eigen::Matrix<double, 16, 6> wrenchFaceMatrix_; /**< Matrix of single-contact wrench cone inequalities */
     Eigen::QuadProgDense qpSolver_; /**< Least-squares solver for wrench distribution */
     Eigen::Vector2d comAdmittance_ = Eigen::Vector2d::Zero(); /**< Admittance gains for CoM admittance control */
     Eigen::Vector2d copAdmittance_ = Eigen::Vector2d::Zero(); /**< Admittance gains for foot damping control */
-    Eigen::Vector3d comStiffness_ = {1000., 1000., 100.}; /**< Stiffness of CoM IK task */
-    Eigen::Vector3d dcmAverageError_ = Eigen::Vector3d::Zero();
-    Eigen::Vector3d dcmError_ = Eigen::Vector3d::Zero();
-    Eigen::Vector3d dcmVelError_ = Eigen::Vector3d::Zero();
-    Eigen::Vector3d measuredCoM_;
-    Eigen::Vector3d measuredCoMd_;
-    Eigen::Vector3d measuredZMP_;
-    Eigen::Vector3d zmpError_ = Eigen::Vector3d::Zero();
-    Eigen::Vector3d zmpccCoMAccel_ = Eigen::Vector3d::Zero();
-    Eigen::Vector3d zmpccCoMOffset_ = Eigen::Vector3d::Zero();
-    Eigen::Vector3d zmpccCoMVel_ = Eigen::Vector3d::Zero();
-    Eigen::Vector3d zmpccError_ = Eigen::Vector3d::Zero();
+    Eigen::Vector3d comStiffness_ = {1000., 1000., 100.}; /**< Proportional gain of CoM IK task */
+    Eigen::Vector3d dcmAverageError_ = Eigen::Vector3d::Zero(); /**< DCM average error used to compute ZMP integral feedback */
+    Eigen::Vector3d dcmError_ = Eigen::Vector3d::Zero(); /**< DCM error used to compute ZMP proportional feedback */
+    Eigen::Vector3d dcmVelError_ = Eigen::Vector3d::Zero(); /**< DCM derivative error used to compute ZMP derivative feedback */
+    Eigen::Vector3d measuredCoM_ = Eigen::Vector3d::Zero(); /**< Estimated CoM position */
+    Eigen::Vector3d measuredCoMd_ = Eigen::Vector3d::Zero(); /**< Estimated CoM velocity */
+    Eigen::Vector3d measuredZMP_ = Eigen::Vector3d::Zero(); /**< Estimated ZMP position */
+    Eigen::Vector3d zmpError_ = Eigen::Vector3d::Zero(); /**< Error between reference and measured ZMP */
+    Eigen::Vector3d zmpccCoMAccel_ = Eigen::Vector3d::Zero(); /**< Additional CoM acceleration from ZMPCC */
+    Eigen::Vector3d zmpccCoMOffset_ = Eigen::Vector3d::Zero(); /**< Additional CoM position offset from ZMPCC */
+    Eigen::Vector3d zmpccCoMVel_ = Eigen::Vector3d::Zero(); /**< Additional CoM velocity from ZMPCC */
+    Eigen::Vector3d zmpccError_ = Eigen::Vector3d::Zero(); /**< Error between distributed and measured ZMP */
     Eigen::Vector4d polePlacement_ = {-10., -5., -1., 10.}; /**< Pole placement with ZMP delay (Morisawa et al., 2014) */
-    ExponentialMovingAverage dcmIntegrator_;
-    FDQPWeights fdqpWeights_;
-    LeakyIntegrator zmpccIntegrator_;
-    StationaryOffsetFilter dcmDerivator_;
+    ExponentialMovingAverage dcmIntegrator_; /**< Moving average (a.k.a. leaky integrator) of the DCM error */
+    FDQPWeights fdqpWeights_; /**< Weights of the wrench distribution quadratic program */
+    LeakyIntegrator zmpccIntegrator_; /**< Leaky integrator for the CoM offset added by ZMPCC */
+    StationaryOffsetFilter dcmDerivator_; /**< Filter used to evaluate the derivative of the DCM error */
     bool inTheAir_ = false; /**< Is the robot in the air? */
     bool zmpccOnlyDS_ = true; /**< Apply CoM admittance control only in double support? */
     const Pendulum & pendulum_; /**< Reference to desired reduced-model state */
@@ -415,7 +417,7 @@ namespace lipm_walking
     double dt_ = 0.005; /**< Controller cycle in [s] */
     double leftFootRatio_ = 0.5; /**< Weight distribution ratio (0: all weight on right foot, 1: all on left foot) */
     double mass_ = 38.; /**< Robot mass in [kg] */
-    double runTime_ = 0.;
+    double runTime_ = 0.; /**< Performance of the run() function in [ms] */
     double swingFootStiffness_ = 2000.; /**< Stiffness of swing foot IK task */
     double swingFootWeight_ = 500.; /**< Weight of swing foot IK task */
     double vdcFrequency_ = 1.; /**< Frequency used in double-support vertical drift compensation */
@@ -424,10 +426,10 @@ namespace lipm_walking
     Sole sole_; /**< Sole dimensions of the robot model */
     mc_rtc::Configuration config_; /**< Stabilizer configuration dictionary */
     std::vector<std::string> comActiveJoints_; /**< Joints used by CoM IK task */
-    sva::ForceVecd distribWrench_ = sva::ForceVecd::Zero();
-    sva::ForceVecd measuredWrench_; /**< Net contact wrench measured from sensors */
-    sva::MotionVecd contactDamping_;
-    sva::MotionVecd contactStiffness_;
+    sva::ForceVecd distribWrench_ = sva::ForceVecd::Zero(); /**< Target net contact wrench after wrench distribution */
+    sva::ForceVecd measuredWrench_ = sva::ForceVecd::Zero(); /**< Net contact wrench measured from sensors */
+    sva::MotionVecd contactDamping_ = sva::MotionVecd::Zero(); /**< Derivative gain of contact IK task */
+    sva::MotionVecd contactStiffness_ = sva::MotionVecd::Zero(); /**< Proportional gain of contact IK task */
     sva::PTransformd zmpFrame_ = sva::PTransformd::Identity(); /**< Frame in which the ZMP is taken */
   };
 }
