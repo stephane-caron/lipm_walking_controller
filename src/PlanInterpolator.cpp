@@ -160,6 +160,13 @@ namespace lipm_walking
         [this]() { return std::round(supportPath_.arcLength(0., 1.) * 1000.) / 1000.; }));
   }
 
+  void PlanInterpolator::removeGUIElements()
+  {
+    gui_->removeCategory({"Walking", "Footsteps"});
+    gui_->removeElement({"Markers", "Footsteps"}, "Support_Path");
+    gui_->removeElement({"Markers", "Footsteps"}, "World target [m, rad]");
+  }
+
   void PlanInterpolator::updateWorldTarget_(const Eigen::Vector3d& desired)
   {
     Eigen::Vector3d posWorld;
