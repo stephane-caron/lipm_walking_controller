@@ -41,7 +41,7 @@ You can debug them with the ``Tracking DCM X/Y`` and ``Tracking DCM-ZMP X/Y`` pl
 
 \section tests Standard tests
 
-Our evaluation of controller performance is largely based on plotting DCM and ZMP trajectories. Plots discussed below are distributed in a custom plot configuration for ``mc_log_ui`` that you can install as follows:
+We mainly evaluate controller performance by plotting DCM and ZMP trajectories. All plots discussed below are distributed in a plot configuration for ``mc_log_ui`` that you can install as follows:
 
 \code
 ayumi:~$ mkdir -p ~/.config/mc_log_ui
@@ -54,52 +54,76 @@ Open the plotting GUI for the last run of the controller by:
 ayumi:~$ mc_log_ui /tmp/mc-control-LIPMWalking-latest.bin
 \endcode
 
-All logs will be stored in ``/tmp`` until you reboot your machine.
+By default, mc_rtc stores all your controller logs in ``/tmp``. They will stay there until you reboot your machine.
 
 \subsection standing Standing
 
-Standing tests evaluate the performance of disturbance rejection when you push the robot at the trunk.
+Standing tests evaluate the performance of disturbance rejection when you push the robot around.
 
 - Put the robot on the ground in standing posture
-- Push the robot sagitally or laterally until the measured ZMP at ground level is halfway (or all the way) between its rest position and the boundary of the support area
+- Push the robot sagitally or laterally so that the measured ZMP at ground level lies between its rest position and the boundary of the support area
 - Stop pushing
 - Observe how the DCM returns to equilibrium
 
-Here is an example from a Choreonoid simulation of the HRP-4 robot model:
+Here is an example from a Choreonoid simulation of the HRP-4 model:
 
-<img src="https://raw.githubusercontent.com/wiki/stephane-caron/lipm_walking_controller/img/sim_dcm_pi_1_10.png" width="49%" align="left">
-<img src="https://raw.githubusercontent.com/wiki/stephane-caron/lipm_walking_controller/img/sim_dcm_pi_2_5.png" width="49%" align="left">
+<img src="/images/plots/sim_hrp4_dcm_pi_1_10.png" width="49%" align="left">
+<img src="/images/plots/sim_hrp4_dcm_pi_2_5.png" width="49%" align="left">
 <div style="clear: both"></div>
 
-In the left plot, DCM proportional and integral gains were set to ``P=1`` and ``I=10``, and we see that the DCM is overdamped. In the right plot, gains were set to ``P=2`` and ``I=5``, yielding a better performance (the DCM is only slightly underdamped). Note that the choice of PID gains for DCM tracking is affected by admittances: larger admittances tend to increase overshoot, but also decrease return time. To address this, [Kajita et al.](https://doi.org/10.1109/IROS.2010.5651082) chose to collectively model the performance of force control by a first order lag (whose time constant depends on all admittance gains).
+On the left-hand plot, DCM proportional and integral gains were set to ``P=1`` and ``I=10``, and we see that the DCM is overdamped. On the right-hand plot, gains were set to ``P=2`` and ``I=5``, yielding a better performance (the DCM is only slightly underdamped). Note that the choice of PID gains for DCM tracking is affected by admittances: larger admittances tend to increase overshoot, but also decrease return time. To address this, [Kajita et al.](https://doi.org/10.1109/IROS.2010.5651082) chose to collectively model the performance of force control by a first order lag (whose time constant depends on all admittance gains). [Morisawa et al.](https://doi.org/10.1109/SII.2014.7028007) use this model for gain tuning. Since v1.2 of the controller, you can try it in the ``Stabilizer`` → ``Advanced`` → ``DCM pole placement`` input of the GUI.
 
-\subsection ahisubmi Walking in place
+\subsection ashibumi Walking in place
 
-Walking in place evaluates the lateral walking performance and is cheap to reproduce. It corresponds to the _ashibumi_ plan in the controller (from Japanese 足踏み which means "walking in place"; it has the benefit of beginning with an 'a' so that the plan appears first in the list). Use it to evaluate the effect of different feedback gains on lateral DCM tracking performance over several walking cycles. Let us consider two examples.
+Walking in place evaluates the lateral walking performance and is cheap to reproduce. It corresponds to the ``ashibumi`` plan loaded from configuration file (from Japanese 足踏み which means "walking in place"; it has the benefit of beginning with an 'a' so that the plan appears first in the list). Use it to evaluate the effect of different feedback gains on lateral DCM tracking performance over several walking cycles. Here are two examples.
 
-### Increasing foot CoP admittance
+### Increasing foot CoP admittances
 
-Here are two plots ran on the HRP-4 hardware where we increased the ankle CoP admittance from ``0.01`` to ``0.02``:
+Here are two plots ran on the HRP-4 hardware where we increased ankle CoP admittances from ``0.01`` to ``0.02``:
 
-<img src="https://raw.githubusercontent.com/wiki/stephane-caron/lipm_walking_controller/img/hrp4_increase_cop_adm_01.png" width="49%" align="left">
-<img src="https://raw.githubusercontent.com/wiki/stephane-caron/lipm_walking_controller/img/hrp4_increase_cop_adm_02.png" width="49%" align="left">
+<img src="/images/plots/hrp4_increase_cop_adm_01.png" width="49%" align="left">
+<img src="/images/plots/hrp4_increase_cop_adm_02.png" width="49%" align="left">
 <div style="clear: both"></div>
 
 You can see that the force tracking is improved (green ``realRobot_zmp_y`` curve is closer to its violet ``stabilizer_zmp_y`` target), however DCM tracking degrades, and as a consequence the stabilizer ZMP target shifts further away from the blue reference ``pendulum_zmp_y`` from the motion plan. Since our ultimate goal is to control the DCM, the first setting is better than the second one.
 
-### Increasing DCM gain
+### Increasing the DCM proportional gain
 
-Here are two plots ran on the HRP-4 hardware where we increased the proportional gain of DCM tracking from ``1`` to ``2``:
+Here are two plots ran on the HRP-4 hardware (v1.0 of the controller) where we increased the proportional gain of DCM tracking from ``1`` to ``2``:
 
-<img src="https://raw.githubusercontent.com/wiki/stephane-caron/lipm_walking_controller/img/hrp4_increase_dcm_k_1.png" width="49%" align="left">
-<img src="https://raw.githubusercontent.com/wiki/stephane-caron/lipm_walking_controller/img/hrp4_increase_dcm_k_2.png" width="49%" align="left">
+<img src="/images/plots/hrp4_increase_dcm_k_1.png" width="49%" align="left">
+<img src="/images/plots/hrp4_increase_dcm_k_2.png" width="49%" align="left">
 <div style="clear: both"></div>
 
 Although DCM tracking is improved at the beginning of the first step, we can see that the performance is _degraded_ in the long run for the higher DCM gain. After a couple of steps, DCM tracking performance is roughly the same, at the cost of much larger ZMP targets (``stabilizer_zmp_y`` violet curve). We see also in the spikes in measured ZMP (``realRobot_zmp_y`` green curve) that the second setting yields larger touchdown impacts.
 
 \subsection forward Walking forward
 
-...
+Walking forward is the last test in our pipeline. It corresponds to the ``walk_forward_100cm`` plan loaded from the configuration file.
+
+### Increasing the DCM integral gain
+
+Here are two plots from a Choreonoid simulation of HRP-2Kai (v1.6 of the controller) where we increased the integral gain of DCM tracking from ``20`` (left) to ``42`` (right):
+
+<img src="/images/plots/sim_hrp2_increase_integral_20_x.png" width="49%" align="left">
+<img src="/images/plots/sim_hrp2_increase_integral_42_x.png" width="49%" align="left">
+<div style="clear: both"></div>
+
+Performance is better on the right-hand side, with both the DCM and ZMP closer to their references. Having the ZMP closer to the ankle frame (which is offset backward from the sole center) is also better to minimize deflection of the flexibility, which in turns reduces our kinematic tracking error and eventually reduces impact.
+
+Here are plots in the lateral direction from the same simulation, walking three meters forward this time:
+
+<img src="/images/plots/sim_hrp2_increase_integral_20_y.png" width="49%" align="left">
+<img src="/images/plots/sim_hrp2_increase_integral_42_y.png" width="49%" align="left">
+<div style="clear: both"></div>
+
+During the first steps the performance seems slightly degraded, as with a higher integral gain the integrator converges to its steady state behavior faster. We can check this by plotting its error curve:
+
+<img src="/images/plots/sim_hrp2_increase_integral_20_error.png" width="49%" align="left">
+<img src="/images/plots/sim_hrp2_increase_integral_42_error.png" width="49%" align="left">
+<div style="clear: both"></div>
+
+Note that this behavior is general: the integrator "eats up" all our unmodeled effects, so while standing it will converge to a stationary value, and while walking it will drift step by step until reaching repeating oscillations. Overall, our performance loss is only transient and the overall lateral walking performance is not degraded with the higher integral gain. We can conclude that it is thus a better choice for this simulation.
 
 \section optional Optional tunings
 
