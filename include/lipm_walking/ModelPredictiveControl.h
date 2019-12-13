@@ -104,12 +104,12 @@ namespace lipm_walking
      */
     void phaseDurations(double initSupportDuration, double doubleSupportDuration, double targetSupportDuration);
 
-    /** Solve the model predictive control problem.
+    /** Build and solve the model predictive control quadratic program.
      *
      * \returns solutionFound Did the solver find a solution?
      *
      */
-    bool solve();
+    bool buildAndSolve();
 
     /** Set CoM height.
      *

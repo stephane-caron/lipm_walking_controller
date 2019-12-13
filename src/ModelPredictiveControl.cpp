@@ -333,7 +333,7 @@ namespace lipm_walking
     zmpCost_->autoSpan(); // repeat zmpFromState
   }
 
-  bool ModelPredictiveControl::solve()
+  bool ModelPredictiveControl::buildAndSolve()
   {
     using namespace std::chrono;
     auto startTime = high_resolution_clock::now();

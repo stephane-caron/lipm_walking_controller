@@ -697,7 +697,7 @@ namespace lipm_walking
   {
     mpc_.initState(pendulum());
     mpc_.comHeight(plan.comHeight());
-    if (mpc_.solve())
+    if (mpc_.buildAndSolve())
     {
       preview = mpc_.solution();
       return true;
