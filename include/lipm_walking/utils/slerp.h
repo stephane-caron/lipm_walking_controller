@@ -31,25 +31,27 @@
 
 namespace utils
 {
-  /** Spherical linear interpolation between two rotation matrices.
-   *
-   * \param from First rotation matrix.
-   *
-   * \param to Second rotation matrix.
-   *
-   * \param t Interpolation index.
-   *
-   * \returns R Interpolation between those two matrices.
-   *
-   * See <https://en.wikipedia.org/wiki/Slerp>.
-   *
-   */
-  inline Eigen::Matrix3d slerp(const Eigen::Matrix3d & from, const Eigen::Matrix3d & to, double t)
-  {
-    Eigen::Quaterniond qFrom(from);
-    Eigen::Quaterniond qTo(to);
-    return qFrom.slerp(t, qTo).toRotationMatrix();
-  }
+
+/** Spherical linear interpolation between two rotation matrices.
+ *
+ * \param from First rotation matrix.
+ *
+ * \param to Second rotation matrix.
+ *
+ * \param t Interpolation index.
+ *
+ * \returns R Interpolation between those two matrices.
+ *
+ * See <https://en.wikipedia.org/wiki/Slerp>.
+ *
+ */
+inline Eigen::Matrix3d slerp(const Eigen::Matrix3d & from, const Eigen::Matrix3d & to, double t)
+{
+  Eigen::Quaterniond qFrom(from);
+  Eigen::Quaterniond qTo(to);
+  return qFrom.slerp(t, qTo).toRotationMatrix();
 }
+
+} // namespace utils
 
 using utils::slerp;

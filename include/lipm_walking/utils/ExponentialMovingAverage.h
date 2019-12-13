@@ -31,152 +31,154 @@
 
 namespace utils
 {
-  /** Exponential Moving Average.
+
+/** Exponential Moving Average.
+ *
+ * This filter can be seen as an integrator:
+ *
+ * \f[
+ *    y(t) = \frac{1}{T} \int_{\tau=0}^t x(\tau) e^{(\tau - t) / T} {\rm
+ *    d}{\tau}
+ * \f]
+ *
+ * with \f$T > 0\f$ a reset period acting as anti-windup. It can also
+ * (informally) be interpreted as the average value of the input signal
+ * \f$x(t)\f$ over the last \f$T\f$ seconds. Formally, it represents the
+ * amount of time for the smoothed response of a unit input to reach \f$1-1/e
+ * \ (\approx 63\%)\f$ of the original signal.
+ *
+ * See <https://en.wikipedia.org/wiki/Exponential_smoothing>. It is
+ * equivalent to a [low-pass
+ * filter](https://en.wikipedia.org/wiki/Low-pass_filter) applied to the
+ * integral of the input signal.
+ *
+ */
+struct ExponentialMovingAverage
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  /** Constructor.
    *
-   * This filter can be seen as an integrator:
+   * \param dt Time in [s] between two readings.
    *
-   * \f[
-   *    y(t) = \frac{1}{T} \int_{\tau=0}^t x(\tau) e^{(\tau - t) / T} {\rm
-   *    d}{\tau}
-   * \f]
+   * \param timeConstant Informally, length of the recent-past window, in [s].
    *
-   * with \f$T > 0\f$ a reset period acting as anti-windup. It can also
-   * (informally) be interpreted as the average value of the input signal
-   * \f$x(t)\f$ over the last \f$T\f$ seconds. Formally, it represents the
-   * amount of time for the smoothed response of a unit input to reach \f$1-1/e
-   * \ (\approx 63\%)\f$ of the original signal.
-   *
-   * See <https://en.wikipedia.org/wiki/Exponential_smoothing>. It is
-   * equivalent to a [low-pass
-   * filter](https://en.wikipedia.org/wiki/Low-pass_filter) applied to the
-   * integral of the input signal.
+   * \param initValue Initial value of the output average.
    *
    */
-  struct ExponentialMovingAverage
+  ExponentialMovingAverage(double dt, double timeConstant, const Eigen::Vector3d & initValue = Eigen::Vector3d::Zero())
+  : dt_(dt)
   {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    average_ = initValue;
+    rawValue_ = initValue;
+    this->timeConstant(timeConstant);
+  }
 
-    /** Constructor.
-     *
-     * \param dt Time in [s] between two readings.
-     *
-     * \param timeConstant Informally, length of the recent-past window, in [s].
-     *
-     * \param initValue Initial value of the output average.
-     *
-     */
-    ExponentialMovingAverage(double dt, double timeConstant, const Eigen::Vector3d & initValue = Eigen::Vector3d::Zero())
-      : dt_(dt)
+  /** Append a new reading to the series.
+   *
+   * \param value New value.
+   *
+   */
+  void append(const Eigen::Vector3d & value)
+  {
+    average_ += alpha_ * (value - average_);
+    rawValue_ = value;
+    if(saturation_ > 0.)
     {
-      average_ = initValue;
-      rawValue_ = initValue;
-      this->timeConstant(timeConstant);
+      saturate_();
     }
+  }
 
-    /** Append a new reading to the series.
-     *
-     * \param value New value.
-     *
-     */
-    void append(const Eigen::Vector3d & value)
+  /** Evaluate the smoothed statistic.
+   *
+   */
+  const Eigen::Vector3d & eval() const
+  {
+    return average_;
+  }
+
+  /** Last raw value provided to the integrator.
+   *
+   */
+  const Eigen::Vector3d & raw() const
+  {
+    return rawValue_;
+  }
+
+  /** Reset average to zero.
+   *
+   */
+  inline void reset()
+  {
+    return setZero();
+  }
+
+  /** Set output saturation; disable by providing a negative value.
+   *
+   * \param limit Output will saturate between -limit and +limit.
+   *
+   */
+  void saturation(double limit)
+  {
+    saturation_ = limit;
+  }
+
+  /** Reset average to zero.
+   *
+   */
+  void setZero()
+  {
+    average_.setZero();
+  }
+
+  /** Get time constant of the filter.
+   *
+   */
+  double timeConstant() const
+  {
+    return timeConstant_;
+  }
+
+  /** Update time constant.
+   *
+   * \param T New time constant of the filter.
+   *
+   */
+  void timeConstant(double T)
+  {
+    T = std::max(T, 2 * dt_); // Nyquist–Shannon sampling theorem
+    alpha_ = 1. - std::exp(-dt_ / T);
+    timeConstant_ = T;
+  }
+
+private:
+  /** Saturate averaged values.
+   *
+   */
+  void saturate_()
+  {
+    for(unsigned i = 0; i < 3; i++)
     {
-      average_ += alpha_ * (value - average_);
-      rawValue_ = value;
-      if (saturation_ > 0.)
+      if(average_(i) < -saturation_)
       {
-        saturate_();
+        average_(i) = -saturation_;
+      }
+      else if(average_(i) > saturation_)
+      {
+        average_(i) = saturation_;
       }
     }
+  }
 
-    /** Evaluate the smoothed statistic.
-     *
-     */
-    const Eigen::Vector3d & eval() const
-    {
-      return average_;
-    }
+protected:
+  Eigen::Vector3d average_ = Eigen::Vector3d::Zero();
+  Eigen::Vector3d rawValue_ = Eigen::Vector3d::Zero();
+  double alpha_;
+  double dt_;
+  double saturation_ = -1.;
+  double timeConstant_;
+};
 
-    /** Last raw value provided to the integrator.
-     *
-     */
-    const Eigen::Vector3d & raw() const
-    {
-      return rawValue_;
-    }
-
-    /** Reset average to zero.
-     *
-     */
-    inline void reset()
-    {
-      return setZero();
-    }
-
-    /** Set output saturation; disable by providing a negative value.
-     *
-     * \param limit Output will saturate between -limit and +limit.
-     *
-     */
-    void saturation(double limit)
-    {
-      saturation_ = limit;
-    }
-
-    /** Reset average to zero.
-     *
-     */
-    void setZero()
-    {
-      average_.setZero();
-    }
-
-    /** Get time constant of the filter.
-     *
-     */
-    double timeConstant() const
-    {
-      return timeConstant_;
-    }
-
-    /** Update time constant.
-     *
-     * \param T New time constant of the filter.
-     *
-     */
-    void timeConstant(double T)
-    {
-      T = std::max(T, 2 * dt_); // Nyquist–Shannon sampling theorem
-      alpha_ = 1. - std::exp(-dt_ / T);
-      timeConstant_ = T;
-    }
-
-  private:
-    /** Saturate averaged values.
-     *
-     */
-    void saturate_()
-    {
-      for (unsigned i = 0; i < 3; i++)
-      {
-        if (average_(i) < -saturation_)
-        {
-          average_(i) = -saturation_;
-        }
-        else if (average_(i) > saturation_)
-        {
-          average_(i) = saturation_;
-        }
-      }
-    }
-
-  protected:
-    Eigen::Vector3d average_ = Eigen::Vector3d::Zero();
-    Eigen::Vector3d rawValue_ = Eigen::Vector3d::Zero();
-    double alpha_;
-    double dt_;
-    double saturation_ = -1.;
-    double timeConstant_;
-  };
-}
+} // namespace utils
 
 using utils::ExponentialMovingAverage;

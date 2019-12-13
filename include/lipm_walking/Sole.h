@@ -31,44 +31,49 @@
 
 namespace lipm_walking
 {
-  /** Foot sole properties.
-   *
-   */
-  struct Sole
-  {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    Eigen::Vector2d leftAnkleOffset = Eigen::Vector2d::Zero(); /**< Offset from center to ankle frames in the left sole frame */
-    double friction = 0.7; /**< Friction coefficient */
-    double halfLength = 0.112; /**< Half-length of the sole in [m] */
-    double halfWidth = 0.065; /**< Half-width of the sole in [m]*/
-  };
-}
+/** Foot sole properties.
+ *
+ */
+struct Sole
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  Eigen::Vector2d leftAnkleOffset =
+      Eigen::Vector2d::Zero(); /**< Offset from center to ankle frames in the left sole frame */
+  double friction = 0.7; /**< Friction coefficient */
+  double halfLength = 0.112; /**< Half-length of the sole in [m] */
+  double halfWidth = 0.065; /**< Half-width of the sole in [m]*/
+};
+
+} // namespace lipm_walking
 
 /** Framework namespace, only used to add a configuration loader.
  *
  */
 namespace mc_rtc
 {
-  template<>
-  struct ConfigurationLoader<lipm_walking::Sole>
-  {
-    static lipm_walking::Sole load(const mc_rtc::Configuration & config)
-    {
-      lipm_walking::Sole sole;
-      config("friction", sole.friction);
-      config("half_length", sole.halfLength);
-      config("half_width", sole.halfWidth);
-      return sole;
-    }
 
-    static mc_rtc::Configuration save(const lipm_walking::Sole & sole)
-    {
-      mc_rtc::Configuration config;
-      config.add("friction", sole.friction);
-      config.add("half_length", sole.halfLength);
-      config.add("half_width", sole.halfWidth);
-      return config;
-    }
-  };
-}
+template<>
+struct ConfigurationLoader<lipm_walking::Sole>
+{
+  static lipm_walking::Sole load(const mc_rtc::Configuration & config)
+  {
+    lipm_walking::Sole sole;
+    config("friction", sole.friction);
+    config("half_length", sole.halfLength);
+    config("half_width", sole.halfWidth);
+    return sole;
+  }
+
+  static mc_rtc::Configuration save(const lipm_walking::Sole & sole)
+  {
+    mc_rtc::Configuration config;
+    config.add("friction", sole.friction);
+    config.add("half_length", sole.halfLength);
+    config.add("half_width", sole.halfWidth);
+    return config;
+  }
+};
+
+} // namespace mc_rtc

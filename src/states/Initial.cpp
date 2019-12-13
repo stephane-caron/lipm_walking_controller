@@ -29,89 +29,87 @@
 
 namespace lipm_walking
 {
-  void states::Initial::start()
+
+void states::Initial::start()
+{
+  auto & ctl = controller();
+
+  postureTaskIsActive_ = true;
+  postureTaskWasActive_ = true;
+  startStandingButton_ = false;
+  startStanding_ = false;
+
+  ctl.internalReset();
+
+  logger().addLogEntry("walking_phase", []() { return -2.; });
+
+  if(gui())
   {
-    auto & ctl = controller();
-
-    postureTaskIsActive_ = true;
-    postureTaskWasActive_ = true;
-    startStandingButton_ = false;
-    startStanding_ = false;
-
-    ctl.internalReset();
-
-    logger().addLogEntry("walking_phase", []() { return -2.; });
-
-    if (gui())
-    {
-      gui()->removeElement({"Walking", "Main"}, "Pause walking");
-    }
-
-    runState(); // don't wait till next cycle to update reference and tasks
+    gui()->removeElement({"Walking", "Main"}, "Pause walking");
   }
 
-  void states::Initial::teardown()
-  {
-    logger().removeLogEntry("walking_phase");
+  runState(); // don't wait till next cycle to update reference and tasks
+}
 
-    if (gui())
-    {
-      hideStartStandingButton();
-    }
-  }
+void states::Initial::teardown()
+{
+  logger().removeLogEntry("walking_phase");
 
-  void states::Initial::runState()
+  if(gui())
   {
-    auto & ctl = controller();
-    postureTaskIsActive_ = (ctl.postureTask->speed().norm() > 1e-2);
-    if (postureTaskIsActive_)
-    {
-      hideStartStandingButton();
-      postureTaskWasActive_ = true;
-    }
-    else if (postureTaskWasActive_)
-    {
-      ctl.internalReset();
-      postureTaskWasActive_ = false;
-    }
-    else
-    {
-      showStartStandingButton();
-    }
-  }
-
-  bool states::Initial::checkTransitions()
-  {
-    if (startStanding_ && !postureTaskIsActive_)
-    {
-      output("Standing");
-      return true;
-    }
-    return false;
-  }
-
-  void states::Initial::showStartStandingButton()
-  {
-    if (!startStandingButton_ && gui())
-    {
-      using namespace mc_rtc::gui;
-      gui()->addElement(
-        {"Walking", "Main"},
-        Button(
-          "Start standing",
-          [this]() { startStanding_ = true; }));
-      startStandingButton_ = true;
-    }
-  }
-
-  void states::Initial::hideStartStandingButton()
-  {
-    if (startStandingButton_ && gui())
-    {
-      gui()->removeElement({"Walking", "Main"}, "Start standing");
-      startStandingButton_ = false;
-    }
+    hideStartStandingButton();
   }
 }
+
+void states::Initial::runState()
+{
+  auto & ctl = controller();
+  postureTaskIsActive_ = (ctl.postureTask->speed().norm() > 1e-2);
+  if(postureTaskIsActive_)
+  {
+    hideStartStandingButton();
+    postureTaskWasActive_ = true;
+  }
+  else if(postureTaskWasActive_)
+  {
+    ctl.internalReset();
+    postureTaskWasActive_ = false;
+  }
+  else
+  {
+    showStartStandingButton();
+  }
+}
+
+bool states::Initial::checkTransitions()
+{
+  if(startStanding_ && !postureTaskIsActive_)
+  {
+    output("Standing");
+    return true;
+  }
+  return false;
+}
+
+void states::Initial::showStartStandingButton()
+{
+  if(!startStandingButton_ && gui())
+  {
+    using namespace mc_rtc::gui;
+    gui()->addElement({"Walking", "Main"}, Button("Start standing", [this]() { startStanding_ = true; }));
+    startStandingButton_ = true;
+  }
+}
+
+void states::Initial::hideStartStandingButton()
+{
+  if(startStandingButton_ && gui())
+  {
+    gui()->removeElement({"Walking", "Main"}, "Start standing");
+    startStandingButton_ = false;
+  }
+}
+
+} // namespace lipm_walking
 
 EXPORT_SINGLE_STATE("Initial", lipm_walking::states::Initial)

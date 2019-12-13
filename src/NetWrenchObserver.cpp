@@ -29,43 +29,39 @@
 
 namespace lipm_walking
 {
-  NetWrenchObserver::NetWrenchObserver()
-    : sensorNames_({"LeftFootForceSensor", "RightFootForceSensor"})
-  {
-  }
 
-  NetWrenchObserver::NetWrenchObserver(const std::vector<std::string> & sensorNames)
-    : sensorNames_(sensorNames)
-  {
-  }
+NetWrenchObserver::NetWrenchObserver() : sensorNames_({"LeftFootForceSensor", "RightFootForceSensor"}) {}
 
-  void NetWrenchObserver::update(const mc_rbdyn::Robot & robot, const Contact & contact)
-  {
-    updateNetWrench(robot);
-    updateNetZMP(contact);
-  }
+NetWrenchObserver::NetWrenchObserver(const std::vector<std::string> & sensorNames) : sensorNames_(sensorNames) {}
 
-  void NetWrenchObserver::updateNetWrench(const mc_rbdyn::Robot & robot)
+void NetWrenchObserver::update(const mc_rbdyn::Robot & robot, const Contact & contact)
+{
+  updateNetWrench(robot);
+  updateNetZMP(contact);
+}
+
+void NetWrenchObserver::updateNetWrench(const mc_rbdyn::Robot & robot)
+{
+  netWrench_ = sva::ForceVecd::Zero();
+  for(std::string sensorName : sensorNames_)
   {
-    netWrench_ = sva::ForceVecd::Zero();
-    for (std::string sensorName : sensorNames_)
+    const auto & sensor = robot.forceSensor(sensorName);
+    if(sensor.force().z() > 1.) // normal force is more than 1 [N]
     {
-      const auto & sensor = robot.forceSensor(sensorName);
-      if (sensor.force().z() > 1.) // normal force is more than 1 [N]
-      {
-        netWrench_ += sensor.worldWrench(robot);
-      }
-    }
-  }
-
-  void NetWrenchObserver::updateNetZMP(const Contact & contact)
-  {
-    const Eigen::Vector3d & force = netWrench_.force();
-    const Eigen::Vector3d & moment_0 = netWrench_.couple();
-    Eigen::Vector3d moment_p = moment_0 - contact.p().cross(force);
-    if (force.dot(force) > 42.) // force norm is more than 5 [N]
-    {
-      netZMP_ = contact.p() + contact.normal().cross(moment_p) / contact.normal().dot(force);
+      netWrench_ += sensor.worldWrench(robot);
     }
   }
 }
+
+void NetWrenchObserver::updateNetZMP(const Contact & contact)
+{
+  const Eigen::Vector3d & force = netWrench_.force();
+  const Eigen::Vector3d & moment_0 = netWrench_.couple();
+  Eigen::Vector3d moment_p = moment_0 - contact.p().cross(force);
+  if(force.dot(force) > 42.) // force norm is more than 5 [N]
+  {
+    netZMP_ = contact.p() + contact.normal().cross(moment_p) / contact.normal().dot(force);
+  }
+}
+
+} // namespace lipm_walking

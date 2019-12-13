@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2018-2019, CNRS-UM LIRMM
  * All rights reserved.
  *
@@ -29,73 +29,76 @@
 
 #include <SpaceVecAlg/SpaceVecAlg>
 
-#include <lipm_walking/Pendulum.h>
 #include <lipm_walking/Contact.h>
+#include <lipm_walking/Pendulum.h>
 
 namespace lipm_walking
 {
-  /** Observe net contact wrench from force/torque measurements.
+
+/** Observe net contact wrench from force/torque measurements.
+ *
+ */
+struct NetWrenchObserver
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  /** Empty constructor.
    *
    */
-  struct NetWrenchObserver
+  NetWrenchObserver();
+
+  /** Constructor from list of sensor names.
+   *
+   * \param sensorNames Identifiers of end-effector force-torque sensors.
+   *
+   */
+  NetWrenchObserver(const std::vector<std::string> & sensorNames);
+
+  /** Update estimates based on the sensed net contact wrench.
+   *
+   * \param robot Robot state.
+   *
+   * \param contact Support contact frame.
+   *
+   */
+  void update(const mc_rbdyn::Robot & robot, const Contact & contact);
+
+  /** Net contact wrench.
+   *
+   */
+  const sva::ForceVecd & wrench()
   {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    return netWrench_;
+  }
 
-    /** Empty constructor.
-     *
-     */
-    NetWrenchObserver();
+  /** Zero-tilting moment point in the latest contact frame.
+   *
+   */
+  const Eigen::Vector3d & zmp()
+  {
+    return netZMP_;
+  }
 
-    /** Constructor from list of sensor names.
-     *
-     * \param sensorNames Identifiers of end-effector force-torque sensors.
-     *
-     */
-    NetWrenchObserver(const std::vector<std::string> & sensorNames);
+private:
+  /** Update net wrench estimate from robot sensors.
+   *
+   * \param robot Robot state.
+   *
+   */
+  void updateNetWrench(const mc_rbdyn::Robot & robot);
 
-    /** Update estimates based on the sensed net contact wrench.
-     *
-     * \param robot Robot state.
-     *
-     * \param contact Support contact frame.
-     *
-     */
-    void update(const mc_rbdyn::Robot & robot, const Contact & contact);
+  /** Update ZMP of the net wrench.
+   *
+   * \param contact Frame that defines the ZMP plane.
+   *
+   */
+  void updateNetZMP(const Contact & contact);
 
-    /** Net contact wrench.
-     *
-     */
-    const sva::ForceVecd & wrench()
-    {
-      return netWrench_;
-    }
+private:
+  Eigen::Vector3d netZMP_; /**< Net wrench ZMP in the contact frame */
+  std::vector<std::string> sensorNames_ = {"LeftFootForceSensor",
+                                           "RightFootForceSensor"}; /**< List of force/torque sensors */
+  sva::ForceVecd netWrench_; /**< Net contact wrench */
+};
 
-    /** Zero-tilting moment point in the latest contact frame.
-     *
-     */
-    const Eigen::Vector3d & zmp()
-    {
-      return netZMP_;
-    }
-
-  private:
-    /** Update net wrench estimate from robot sensors.
-     *
-     * \param robot Robot state.
-     *
-     */
-    void updateNetWrench(const mc_rbdyn::Robot & robot);
-
-    /** Update ZMP of the net wrench.
-     *
-     * \param contact Frame that defines the ZMP plane.
-     *
-     */
-    void updateNetZMP(const Contact & contact);
-
-  private:
-    Eigen::Vector3d netZMP_; /**< Net wrench ZMP in the contact frame */
-    std::vector<std::string> sensorNames_ = {"LeftFootForceSensor", "RightFootForceSensor"}; /**< List of force/torque sensors */
-    sva::ForceVecd netWrench_; /**< Net contact wrench */
-  };
-}
+} // namespace lipm_walking

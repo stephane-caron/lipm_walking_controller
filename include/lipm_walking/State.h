@@ -31,116 +31,116 @@
 
 namespace lipm_walking
 {
-  /** Convenience wrapper for FSM states.
+
+/** Convenience wrapper for FSM states.
+ *
+ */
+struct State : mc_control::fsm::State
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  /** No configuration by default.
    *
    */
-  struct State : mc_control::fsm::State
+  void configure(const mc_rtc::Configuration &) override {}
+
+  /** Get controller.
+   *
+   * \returns controller Reference to controller.
+   *
+   */
+  Controller & controller()
   {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    return *controller_;
+  }
 
-    /** No configuration by default.
-     *
-     */
-    void configure(const mc_rtc::Configuration &) override
+  /** Get GUI handle.
+   *
+   * \returns gui GUI handle.
+   *
+   */
+  std::shared_ptr<mc_rtc::gui::StateBuilder> gui()
+  {
+    return controller_->gui();
+  }
+
+  /** Get logger.
+   *
+   * \returns logger Reference to logger.
+   *
+   */
+  mc_rtc::Logger & logger()
+  {
+    return controller_->logger();
+  }
+
+  /** Get pendulum reference.
+   *
+   * \returns pendulum Reference to pendulum state.
+   *
+   */
+  Pendulum & pendulum()
+  {
+    return controller_->pendulum();
+  }
+
+  /** Get footstep plan.
+   *
+   * \returns plan Reference to footstep plan.
+   *
+   */
+  FootstepPlan & plan()
+  {
+    return controller_->plan;
+  }
+
+  /** Main function.
+   *
+   */
+  bool run(mc_control::fsm::Controller &) override
+  {
+    if(checkTransitions())
     {
+      return true;
     }
+    runState();
+    return false;
+  }
 
-    /** Get controller.
-     *
-     * \returns controller Reference to controller.
-     *
-     */
-    Controller & controller()
-    {
-      return *controller_;
-    }
+  /** Get stabilizer.
+   *
+   * \returns stabilizer Reference to stabilizer.
+   *
+   */
+  Stabilizer & stabilizer()
+  {
+    return controller_->stabilizer();
+  }
 
-    /** Get GUI handle.
-     *
-     * \returns gui GUI handle.
-     *
-     */
-    std::shared_ptr<mc_rtc::gui::StateBuilder> gui()
-    {
-      return controller_->gui();
-    }
+  /** Start function.
+   *
+   */
+  void start(mc_control::fsm::Controller & controller) override
+  {
+    controller_ = &static_cast<Controller &>(controller);
+    start();
+  }
 
-    /** Get logger.
-     *
-     * \returns logger Reference to logger.
-     *
-     */
-    mc_rtc::Logger & logger()
-    {
-      return controller_->logger();
-    }
+  /** Teardown function.
+   *
+   */
+  void teardown(mc_control::fsm::Controller &) override
+  {
+    teardown();
+  }
 
-    /** Get pendulum reference.
-     *
-     * \returns pendulum Reference to pendulum state.
-     *
-     */
-    Pendulum & pendulum()
-    {
-      return controller_->pendulum();
-    }
+  virtual bool checkTransitions() = 0;
+  virtual void runState() = 0;
+  virtual void start() = 0;
+  virtual void teardown() = 0;
 
-    /** Get footstep plan.
-     *
-     * \returns plan Reference to footstep plan.
-     *
-     */
-    FootstepPlan & plan()
-    {
-      return controller_->plan;
-    }
+protected:
+  Controller * controller_ = nullptr;
+};
 
-    /** Main function.
-     *
-     */
-    bool run(mc_control::fsm::Controller &) override
-    {
-      if (checkTransitions())
-      {
-        return true;
-      }
-      runState();
-      return false;
-    }
-
-    /** Get stabilizer.
-     *
-     * \returns stabilizer Reference to stabilizer.
-     *
-     */
-    Stabilizer & stabilizer()
-    {
-      return controller_->stabilizer();
-    }
-
-    /** Start function.
-     *
-     */
-    void start(mc_control::fsm::Controller & controller) override
-    {
-      controller_ = &static_cast<Controller&>(controller);
-      start();
-    }
-
-    /** Teardown function.
-     *
-     */
-    void teardown(mc_control::fsm::Controller &) override
-    {
-      teardown();
-    }
-
-    virtual bool checkTransitions() = 0;
-    virtual void runState() = 0;
-    virtual void start() = 0;
-    virtual void teardown() = 0;
-
-  protected:
-    Controller * controller_ = nullptr;
-  };
-}
+} // namespace lipm_walking

@@ -31,57 +31,61 @@
 #include <mc_control/fsm/State.h>
 
 #include <lipm_walking/Controller.h>
-#include <lipm_walking/SwingFoot.h>
 #include <lipm_walking/State.h>
+#include <lipm_walking/SwingFoot.h>
 
 namespace lipm_walking
 {
-  namespace states
-  {
-    /** Single support phase while walking.
-     *
-     */
-    struct SingleSupport : State
-    {
-      /** Start state.
-       *
-       */
-      void start() override;
 
-      /** Teardown state.
-       *
-       */
-      void teardown() override;
+namespace states
+{
 
-      /** Check transitions at beginning of control cycle.
-       *
-       */
-      bool checkTransitions() override;
+/** Single support phase while walking.
+ *
+ */
+struct SingleSupport : State
+{
+  /** Start state.
+   *
+   */
+  void start() override;
 
-      /** Main state function, called if no transition at this cycle.
-       *
-       */
-      void runState() override;
+  /** Teardown state.
+   *
+   */
+  void teardown() override;
 
-      /** Update swing foot target.
-       *
-       */
-      void updateSwingFoot();
+  /** Check transitions at beginning of control cycle.
+   *
+   */
+  bool checkTransitions() override;
 
-      /** Update horizontal MPC preview.
-       *
-       */
-      void updatePreview();
+  /** Main state function, called if no transition at this cycle.
+   *
+   */
+  void runState() override;
 
-    private:
-      SwingFoot swingFoot_; /**< Swing foot trajectory interpolator */
-      bool hasUpdatedMPCOnce_; /**< Has the walking pattern been updated since the beginning of the SSP? */
-      double duration_; /**< Total duration of the SSP in [s] */
-      double remTime_; /**< Time remainin guntil the end of the phase */
-      double stateTime_; /** Time since the beginning of the SSP */
-      double timeSinceLastPreviewUpdate_; /**< Time count used to schedule MPC udpates, in [s] */
-      std::shared_ptr<mc_tasks::force::CoPTask> supportFootTask; /**< Current support foot task from the stabilizer */
-      std::shared_ptr<mc_tasks::force::CoPTask> swingFootTask; /**< Current swing foot task from the stabilizer */
-    };
-  }
-}
+  /** Update swing foot target.
+   *
+   */
+  void updateSwingFoot();
+
+  /** Update horizontal MPC preview.
+   *
+   */
+  void updatePreview();
+
+private:
+  SwingFoot swingFoot_; /**< Swing foot trajectory interpolator */
+  bool hasUpdatedMPCOnce_; /**< Has the walking pattern been updated since the beginning of the SSP? */
+  double duration_; /**< Total duration of the SSP in [s] */
+  double remTime_; /**< Time remainin guntil the end of the phase */
+  double stateTime_; /** Time since the beginning of the SSP */
+  double timeSinceLastPreviewUpdate_; /**< Time count used to schedule MPC udpates, in [s] */
+  std::shared_ptr<mc_tasks::force::CoPTask> supportFootTask; /**< Current support foot task from the stabilizer */
+  std::shared_ptr<mc_tasks::force::CoPTask> swingFootTask; /**< Current swing foot task from the stabilizer */
+};
+
+} // namespace states
+
+} // namespace lipm_walking

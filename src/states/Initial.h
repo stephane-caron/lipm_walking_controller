@@ -35,51 +35,55 @@
 
 namespace lipm_walking
 {
-  /** States of the controller's finite state machine.
+
+/** States of the controller's finite state machine.
+ *
+ */
+namespace states
+{
+
+/** Hold posture and check contacts.
+ *
+ */
+struct Initial : State
+{
+  /** Start state.
    *
    */
-  namespace states
-  {
-    /** Hold posture and check contacts.
-     *
-     */
-    struct Initial : State
-    {
-      /** Start state.
-       *
-       */
-      void start() override;
+  void start() override;
 
-      /** Teardown state.
-       *
-       */
-      void teardown() override;
+  /** Teardown state.
+   *
+   */
+  void teardown() override;
 
-      /** Check transitions at beginning of control cycle.
-       *
-       */
-      bool checkTransitions() override;
+  /** Check transitions at beginning of control cycle.
+   *
+   */
+  bool checkTransitions() override;
 
-      /** Main state function, called if no transition at this cycle.
-       *
-       */
-      void runState() override;
+  /** Main state function, called if no transition at this cycle.
+   *
+   */
+  void runState() override;
 
-      /** Add "Start standing" transition button to GUI.
-       *
-       */
-      void showStartStandingButton();
+  /** Add "Start standing" transition button to GUI.
+   *
+   */
+  void showStartStandingButton();
 
-      /** Remove "Start standing" transition button from GUI.
-       *
-       */
-      void hideStartStandingButton();
+  /** Remove "Start standing" transition button from GUI.
+   *
+   */
+  void hideStartStandingButton();
 
-    private:
-      bool postureTaskIsActive_; /**< Is the posture task active? */
-      bool postureTaskWasActive_; /**< Was the posture task active at previous run()? */
-      bool startStandingButton_; /**< Is the "Start standing" button displayed in the GUI? */
-      bool startStanding_; /**< Has the user clicked on "Start standing"? */
-    };
-  }
-}
+private:
+  bool postureTaskIsActive_; /**< Is the posture task active? */
+  bool postureTaskWasActive_; /**< Was the posture task active at previous run()? */
+  bool startStandingButton_; /**< Is the "Start standing" button displayed in the GUI? */
+  bool startStanding_; /**< Has the user clicked on "Start standing"? */
+};
+
+} // namespace states
+
+} // namespace lipm_walking

@@ -27,94 +27,96 @@
 
 #pragma once
 
-#include <SpaceVecAlg/SpaceVecAlg>
 #include <mc_rbdyn/rpy_utils.h>
+
+#include <SpaceVecAlg/SpaceVecAlg>
 
 namespace utils
 {
-  /** SE2 transform.
+
+/** SE2 transform.
+ *
+ */
+struct SE2d
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  /** Initialize a new SE2 transform.
+   *
+   * \param x First translation coordinate.
+   *
+   * \param y Second translation coordinate.
+   *
+   * \param theta Orientation coordinate.
    *
    */
-  struct SE2d
-  {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  SE2d(double x = 0., double y = 0., double theta = 0.) : x(x), y(y), theta(theta) {}
 
-    /** Initialize a new SE2 transform.
-     *
-     * \param x First translation coordinate.
-     *
-     * \param y Second translation coordinate.
-     *
-     * \param theta Orientation coordinate.
-     *
-     */
-    SE2d(double x = 0., double y = 0., double theta = 0.)
-      : x(x), y(y), theta(theta) {}
-  
-    /** Apply SE2 transform in horizontal plane of an SE3 frame.
-     *
-     * \param X_0_a Plucker transform of SE3 frame.
-     *
-     */
-    inline sva::PTransformd operator*(const sva::PTransformd & X_0_a) const
-    {
-      sva::PTransformd X_a_b = asPTransform();
-      return X_a_b * X_0_a;
-    }
-  
-    /** Convert to Plucker transform.
-     *
-     */
-    inline sva::PTransformd asPTransform() const
-    {
-      return {mc_rbdyn::rpyToMat(0., 0., theta), Eigen::Vector3d{x, y, 0.}};
-    }
-  
-    /** Get 2D position.
-     *
-     * \returns pos Position vector {x, y}.
-     *
-     */
-    inline Eigen::Vector2d pos() const
-    {
-      return {x, y};
-    }
-  
-    /** Get 2D orientation vector.
-     *
-     * \returns t Orientation vector {cos(theta), sin(theta)}.
-     *
-     */
-    inline Eigen::Vector2d ori() const
-    {
-      return {std::cos(theta), std::sin(theta)};
-    }
-  
-    /** Get transform in vector form.
-     *
-     * \returns v Vector {x, y, theta} of transform coordinates.
-     *
-     */
-    inline Eigen::Vector3d vector()
-    {
-      return {x, y, theta};
-    }
-  
-    /** Get transform in vector form, with the angle expressed in degrees.
-     *
-     * \returns v Vector {x, y, theta[deg]} of transform coordinates.
-     *
-     */
-    inline Eigen::Vector3d vectorDegrees() const
-    {
-      return {x, y, theta * 180. / M_PI};
-    }
-  
-  public:
-    double x; /**< First translation coordinate. */
-    double y; /**< Second translation coordinate. */
-    double theta; /**< Orientation coordinate. */
-  };
-}
+  /** Apply SE2 transform in horizontal plane of an SE3 frame.
+   *
+   * \param X_0_a Plucker transform of SE3 frame.
+   *
+   */
+  inline sva::PTransformd operator*(const sva::PTransformd & X_0_a) const
+  {
+    sva::PTransformd X_a_b = asPTransform();
+    return X_a_b * X_0_a;
+  }
+
+  /** Convert to Plucker transform.
+   *
+   */
+  inline sva::PTransformd asPTransform() const
+  {
+    return {mc_rbdyn::rpyToMat(0., 0., theta), Eigen::Vector3d{x, y, 0.}};
+  }
+
+  /** Get 2D position.
+   *
+   * \returns pos Position vector {x, y}.
+   *
+   */
+  inline Eigen::Vector2d pos() const
+  {
+    return {x, y};
+  }
+
+  /** Get 2D orientation vector.
+   *
+   * \returns t Orientation vector {cos(theta), sin(theta)}.
+   *
+   */
+  inline Eigen::Vector2d ori() const
+  {
+    return {std::cos(theta), std::sin(theta)};
+  }
+
+  /** Get transform in vector form.
+   *
+   * \returns v Vector {x, y, theta} of transform coordinates.
+   *
+   */
+  inline Eigen::Vector3d vector()
+  {
+    return {x, y, theta};
+  }
+
+  /** Get transform in vector form, with the angle expressed in degrees.
+   *
+   * \returns v Vector {x, y, theta[deg]} of transform coordinates.
+   *
+   */
+  inline Eigen::Vector3d vectorDegrees() const
+  {
+    return {x, y, theta * 180. / M_PI};
+  }
+
+public:
+  double x; /**< First translation coordinate. */
+  double y; /**< Second translation coordinate. */
+  double theta; /**< Orientation coordinate. */
+};
+
+} // namespace utils
 
 using utils::SE2d;

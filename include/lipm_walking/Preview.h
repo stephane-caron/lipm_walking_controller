@@ -31,78 +31,80 @@
 
 namespace lipm_walking
 {
-  /** Solution of a model predictive control problem.
-   *
-   * \note A Preview is mostly an integrator. Its implementation is coupled
-   * with the formulation of state and input trajectories in the
-   * ModelPredictiveControl class.
+
+/** Solution of a model predictive control problem.
+ *
+ * \note A Preview is mostly an integrator. Its implementation is coupled
+ * with the formulation of state and input trajectories in the
+ * ModelPredictiveControl class.
+ *
+ */
+struct Preview
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  /** Initialize with zero state and input trajectories.
    *
    */
-  struct Preview
+  Preview();
+
+  /** Initialize solution from trajectories.
+   *
+   * \param stateTraj State trajectory.
+   *
+   * \param inputTraj Input trajectory.
+   *
+   */
+  Preview(const Eigen::VectorXd & stateTraj, const Eigen::VectorXd & inputTraj);
+
+  /** Integrate playback on reference.
+   *
+   * \param state State to integrate.
+   *
+   * \param dt Duration.
+   *
+   */
+  void integrate(Pendulum & state, double dt);
+
+  /** Playback integration of state reference.
+   *
+   * \param state State to integrate.
+   *
+   * \param dt Duration.
+   *
+   */
+  void integratePlayback(Pendulum & state, double dt);
+
+  /** Post-playback integration of state reference.
+   *
+   * \param state State to integrate.
+   *
+   * \param dt Duration.
+   *
+   */
+  void integratePostPlayback(Pendulum & state, double dt);
+
+  /** Get current playback step.
+   *
+   */
+  unsigned playbackStep() const
   {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    return playbackStep_;
+  }
 
-    /** Initialize with zero state and input trajectories.
-     *
-     */
-    Preview();
+  /** Get current playback time.
+   *
+   */
+  double playbackTime() const
+  {
+    return playbackTime_;
+  }
 
-    /** Initialize solution from trajectories.
-     *
-     * \param stateTraj State trajectory.
-     *
-     * \param inputTraj Input trajectory.
-     *
-     */
-    Preview(const Eigen::VectorXd & stateTraj, const Eigen::VectorXd & inputTraj);
+private:
+  Eigen::VectorXd inputTraj_; /**< Stacked vector of input trajectory */
+  Eigen::VectorXd stateTraj_; /**< Stacked vector of state trajectory */
+  double playbackTime_ = 0.; /**< Current time in the preview window */
+  unsigned playbackStep_ = 0; /**< Current step index in the preview window */
+};
 
-    /** Integrate playback on reference.
-     *
-     * \param state State to integrate.
-     *
-     * \param dt Duration.
-     *
-     */
-    void integrate(Pendulum & state, double dt);
-
-    /** Playback integration of state reference.
-     *
-     * \param state State to integrate.
-     *
-     * \param dt Duration.
-     *
-     */
-    void integratePlayback(Pendulum & state, double dt);
-
-    /** Post-playback integration of state reference.
-     *
-     * \param state State to integrate.
-     *
-     * \param dt Duration.
-     *
-     */
-    void integratePostPlayback(Pendulum & state, double dt);
-
-    /** Get current playback step.
-     *
-     */
-    unsigned playbackStep() const
-    {
-      return playbackStep_;
-    }
-
-    /** Get current playback time.
-     *
-     */
-    double playbackTime() const
-    {
-      return playbackTime_;
-    }
-
-  private:
-    Eigen::VectorXd inputTraj_; /**< Stacked vector of input trajectory */
-    Eigen::VectorXd stateTraj_; /**< Stacked vector of state trajectory */
-    double playbackTime_ = 0.; /**< Current time in the preview window */
-    unsigned playbackStep_ = 0; /**< Current step index in the preview window */
-  };
-}
+} // namespace lipm_walking

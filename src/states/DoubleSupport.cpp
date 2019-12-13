@@ -29,150 +29,158 @@
 
 namespace lipm_walking
 {
-  void states::DoubleSupport::start()
+
+void states::DoubleSupport::start()
+{
+  auto & ctl = controller();
+
+  double phaseDuration = ctl.doubleSupportDuration(); // careful! side effect here
+
+  duration_ = phaseDuration;
+  initLeftFootRatio_ = ctl.leftFootRatio();
+  remTime_ = (phaseDuration > ctl.timeStep) ? phaseDuration : -ctl.timeStep;
+  stateTime_ = 0.;
+  stopDuringThisDSP_ = ctl.pauseWalking;
+  if(phaseDuration > ctl.timeStep)
   {
-    auto & ctl = controller();
-
-    double phaseDuration = ctl.doubleSupportDuration(); // careful! side effect here
-
-    duration_ = phaseDuration;
-    initLeftFootRatio_ = ctl.leftFootRatio();
-    remTime_ = (phaseDuration > ctl.timeStep) ? phaseDuration : -ctl.timeStep;
-    stateTime_ = 0.;
-    stopDuringThisDSP_ = ctl.pauseWalking;
-    if (phaseDuration > ctl.timeStep)
-    {
-      timeSinceLastPreviewUpdate_ = 2 * PREVIEW_UPDATE_PERIOD; // update at transition...
-    }
-    else // ... unless DSP duration is zero
-    {
-      timeSinceLastPreviewUpdate_ = 0.;
-    }
-
-    const std::string & targetSurfaceName = ctl.targetContact().surfaceName;
-    auto actualTargetPose = ctl.controlRobot().surfacePose(targetSurfaceName);
-    ctl.plan.goToNextFootstep(actualTargetPose);
-    if (ctl.isLastDSP()) // called after goToNextFootstep
-    {
-      stopDuringThisDSP_ = true;
-    }
-
-    stabilizer().contactState(ContactState::DoubleSupport);
-    if (ctl.prevContact().surfaceName == "LeftFootCenter")
-    {
-      stabilizer().setContact(stabilizer().leftFootTask, ctl.prevContact());
-      stabilizer().setContact(stabilizer().rightFootTask, ctl.supportContact());
-      targetLeftFootRatio_ = 0.;
-    }
-    else // (ctl.prevContact().surfaceName == "RightFootCenter")
-    {
-      stabilizer().setContact(stabilizer().leftFootTask, ctl.supportContact());
-      stabilizer().setContact(stabilizer().rightFootTask, ctl.prevContact());
-      targetLeftFootRatio_ = 1.;
-    }
-    if (stopDuringThisDSP_)
-    {
-      targetLeftFootRatio_ = 0.5;
-    }
-    stabilizer().addTasks(ctl.solver());
-
-    logger().addLogEntry("rem_phase_time", [this]() { return remTime_; });
-    logger().addLogEntry("support_xmax", [&ctl]() { return std::max(ctl.prevContact().xmax(), ctl.supportContact().xmax()); });
-    logger().addLogEntry("support_xmin", [&ctl]() { return std::min(ctl.prevContact().xmin(), ctl.supportContact().xmin()); });
-    logger().addLogEntry("support_ymax", [&ctl]() { return std::max(ctl.prevContact().ymax(), ctl.supportContact().ymax()); });
-    logger().addLogEntry("support_ymin", [&ctl]() { return std::min(ctl.prevContact().ymin(), ctl.supportContact().ymin()); });
-    logger().addLogEntry("support_zmax", [&ctl]() { return std::max(ctl.prevContact().zmax(), ctl.supportContact().zmax()); });
-    logger().addLogEntry("support_zmin", [&ctl]() { return std::min(ctl.prevContact().zmin(), ctl.supportContact().zmin()); });
-    logger().addLogEntry("walking_phase", []() { return 2.; });
-
-    if (stopDuringThisDSP_)
-    {
-      ctl.pauseWalking = false;
-    }
-
-    runState(); // don't wait till next cycle to update reference and tasks
+    timeSinceLastPreviewUpdate_ = 2 * PREVIEW_UPDATE_PERIOD; // update at transition...
+  }
+  else // ... unless DSP duration is zero
+  {
+    timeSinceLastPreviewUpdate_ = 0.;
   }
 
-  void states::DoubleSupport::teardown()
+  const std::string & targetSurfaceName = ctl.targetContact().surfaceName;
+  auto actualTargetPose = ctl.controlRobot().surfacePose(targetSurfaceName);
+  ctl.plan.goToNextFootstep(actualTargetPose);
+  if(ctl.isLastDSP()) // called after goToNextFootstep
   {
-    stabilizer().removeTasks(controller().solver());
-
-    logger().removeLogEntry("rem_phase_time");
-    logger().removeLogEntry("support_xmax");
-    logger().removeLogEntry("support_xmin");
-    logger().removeLogEntry("support_ymax");
-    logger().removeLogEntry("support_ymin");
-    logger().removeLogEntry("support_zmax");
-    logger().removeLogEntry("support_zmin");
-    logger().removeLogEntry("walking_phase");
+    stopDuringThisDSP_ = true;
   }
 
-  void states::DoubleSupport::runState()
+  stabilizer().contactState(ContactState::DoubleSupport);
+  if(ctl.prevContact().surfaceName == "LeftFootCenter")
   {
-    auto & ctl = controller();
-    double dt = ctl.timeStep;
+    stabilizer().setContact(stabilizer().leftFootTask, ctl.prevContact());
+    stabilizer().setContact(stabilizer().rightFootTask, ctl.supportContact());
+    targetLeftFootRatio_ = 0.;
+  }
+  else // (ctl.prevContact().surfaceName == "RightFootCenter")
+  {
+    stabilizer().setContact(stabilizer().leftFootTask, ctl.supportContact());
+    stabilizer().setContact(stabilizer().rightFootTask, ctl.prevContact());
+    targetLeftFootRatio_ = 1.;
+  }
+  if(stopDuringThisDSP_)
+  {
+    targetLeftFootRatio_ = 0.5;
+  }
+  stabilizer().addTasks(ctl.solver());
 
-    if (remTime_ > 0 && timeSinceLastPreviewUpdate_ > PREVIEW_UPDATE_PERIOD &&
-        !(stopDuringThisDSP_ && remTime_ < PREVIEW_UPDATE_PERIOD))
-    {
-      updatePreview();
-    }
+  logger().addLogEntry("rem_phase_time", [this]() { return remTime_; });
+  logger().addLogEntry("support_xmax",
+                       [&ctl]() { return std::max(ctl.prevContact().xmax(), ctl.supportContact().xmax()); });
+  logger().addLogEntry("support_xmin",
+                       [&ctl]() { return std::min(ctl.prevContact().xmin(), ctl.supportContact().xmin()); });
+  logger().addLogEntry("support_ymax",
+                       [&ctl]() { return std::max(ctl.prevContact().ymax(), ctl.supportContact().ymax()); });
+  logger().addLogEntry("support_ymin",
+                       [&ctl]() { return std::min(ctl.prevContact().ymin(), ctl.supportContact().ymin()); });
+  logger().addLogEntry("support_zmax",
+                       [&ctl]() { return std::max(ctl.prevContact().zmax(), ctl.supportContact().zmax()); });
+  logger().addLogEntry("support_zmin",
+                       [&ctl]() { return std::min(ctl.prevContact().zmin(), ctl.supportContact().zmin()); });
+  logger().addLogEntry("walking_phase", []() { return 2.; });
 
-    double x = clamp(remTime_ / duration_, 0., 1.);
-    ctl.leftFootRatio(x * initLeftFootRatio_ + (1. - x) * targetLeftFootRatio_);
-
-    ctl.preview->integrate(pendulum(), dt);
-    pendulum().completeIPM(ctl.prevContact());
-    pendulum().resetCoMHeight(ctl.plan.comHeight(), ctl.prevContact());
-    stabilizer().run();
-
-    remTime_ -= dt;
-    stateTime_ += dt;
-    timeSinceLastPreviewUpdate_ += dt;
+  if(stopDuringThisDSP_)
+  {
+    ctl.pauseWalking = false;
   }
 
-  bool states::DoubleSupport::checkTransitions()
+  runState(); // don't wait till next cycle to update reference and tasks
+}
+
+void states::DoubleSupport::teardown()
+{
+  stabilizer().removeTasks(controller().solver());
+
+  logger().removeLogEntry("rem_phase_time");
+  logger().removeLogEntry("support_xmax");
+  logger().removeLogEntry("support_xmin");
+  logger().removeLogEntry("support_ymax");
+  logger().removeLogEntry("support_ymin");
+  logger().removeLogEntry("support_zmax");
+  logger().removeLogEntry("support_zmin");
+  logger().removeLogEntry("walking_phase");
+}
+
+void states::DoubleSupport::runState()
+{
+  auto & ctl = controller();
+  double dt = ctl.timeStep;
+
+  if(remTime_ > 0 && timeSinceLastPreviewUpdate_ > PREVIEW_UPDATE_PERIOD
+     && !(stopDuringThisDSP_ && remTime_ < PREVIEW_UPDATE_PERIOD))
   {
-    auto & ctl = controller();
-    if (!stopDuringThisDSP_ && remTime_ < 0.)
-    {
-      output("SingleSupport");
-      return true;
-    }
-    if (stopDuringThisDSP_ && remTime_ < -0.5)
-    {
-      if (!ctl.isLastDSP())
-      {
-        ctl.plan.restorePreviousFootstep(); // current one is for next SSP
-      }
-      output("Standing");
-      return true;
-    }
-    return false;
+    updatePreview();
   }
 
-  void states::DoubleSupport::updatePreview()
+  double x = clamp(remTime_ / duration_, 0., 1.);
+  ctl.leftFootRatio(x * initLeftFootRatio_ + (1. - x) * targetLeftFootRatio_);
+
+  ctl.preview->integrate(pendulum(), dt);
+  pendulum().completeIPM(ctl.prevContact());
+  pendulum().resetCoMHeight(ctl.plan.comHeight(), ctl.prevContact());
+  stabilizer().run();
+
+  remTime_ -= dt;
+  stateTime_ += dt;
+  timeSinceLastPreviewUpdate_ += dt;
+}
+
+bool states::DoubleSupport::checkTransitions()
+{
+  auto & ctl = controller();
+  if(!stopDuringThisDSP_ && remTime_ < 0.)
   {
-    auto & ctl = controller();
-    ctl.mpc().contacts(ctl.prevContact(), ctl.supportContact(), ctl.targetContact());
-    if (stopDuringThisDSP_)
+    output("SingleSupport");
+    return true;
+  }
+  if(stopDuringThisDSP_ && remTime_ < -0.5)
+  {
+    if(!ctl.isLastDSP())
     {
-      ctl.mpc().phaseDurations(0., remTime_, 0.);
+      ctl.plan.restorePreviousFootstep(); // current one is for next SSP
     }
-    else
-    {
-      ctl.mpc().phaseDurations(0., remTime_, ctl.singleSupportDuration());
-    }
-    if (ctl.updatePreview())
-    {
-      timeSinceLastPreviewUpdate_ = 0.;
-    }
-    else
-    {
-      LOG_WARNING("No capture trajectory, resuming walking");
-      stopDuringThisDSP_ = false;
-    }
+    output("Standing");
+    return true;
+  }
+  return false;
+}
+
+void states::DoubleSupport::updatePreview()
+{
+  auto & ctl = controller();
+  ctl.mpc().contacts(ctl.prevContact(), ctl.supportContact(), ctl.targetContact());
+  if(stopDuringThisDSP_)
+  {
+    ctl.mpc().phaseDurations(0., remTime_, 0.);
+  }
+  else
+  {
+    ctl.mpc().phaseDurations(0., remTime_, ctl.singleSupportDuration());
+  }
+  if(ctl.updatePreview())
+  {
+    timeSinceLastPreviewUpdate_ = 0.;
+  }
+  else
+  {
+    LOG_WARNING("No capture trajectory, resuming walking");
+    stopDuringThisDSP_ = false;
   }
 }
+
+} // namespace lipm_walking
 
 EXPORT_SINGLE_STATE("DoubleSupport", lipm_walking::states::DoubleSupport)
