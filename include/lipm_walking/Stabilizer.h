@@ -30,7 +30,6 @@
 #include <mc_tasks/CoMTask.h>
 #include <mc_tasks/CoPTask.h>
 
-#include <Eigen/QR>
 #include <eigen-quadprog/QuadProg.h>
 #include <lipm_walking/Contact.h>
 #include <lipm_walking/Pendulum.h>
