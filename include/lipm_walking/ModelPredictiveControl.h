@@ -45,18 +45,18 @@ namespace lipm_walking
 /** Model predictive control problem.
  *
  * This implementation is based on "Trajectory free linear model predictive
- * control for stable walking in the presence of strong perturbations"
- * (Wieber, Humanoids 2006) with the addition of terminal constraints.
+ * control for stable walking in the presence of strong perturbations" (Wieber,
+ * Humanoids 2006) with the addition of terminal constraints.
  *
  */
 struct ModelPredictiveControl
 {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  static constexpr double SAMPLING_PERIOD = 0.1; // [s]
-  static constexpr unsigned INPUT_SIZE = 2; // input is 2D CoM jerk
-  static constexpr unsigned NB_STEPS = 16; // number of sampling steps
-  static constexpr unsigned STATE_SIZE = 6; // state is CoM [pos, vel, accel]
+  static constexpr double SAMPLING_PERIOD = 0.1; /**< Duration of each sampling step in [s] */
+  static constexpr unsigned INPUT_SIZE = 2; /**< Input is the 2D horizontal CoM jerk */
+  static constexpr unsigned NB_STEPS = 16; /**< Number of sampling steps */
+  static constexpr unsigned STATE_SIZE = 6; /**< State is the 6D stacked vector of CoM positions, velocities and accelerations */
 
   /** Initialize new problem.
    *
@@ -156,14 +156,6 @@ struct ModelPredictiveControl
     initState_ << pendulum.com().head<2>(), pendulum.comd().head<2>(), pendulum.comdd().head<2>();
   }
 
-  /** Get solution vector.
-   *
-   */
-  std::shared_ptr<Preview> solution()
-  {
-    return solution_;
-  }
-
   /** Get index of inequality constraints
    *
    * \param i Timestep in preview horizon.
@@ -179,36 +171,36 @@ struct ModelPredictiveControl
     return indexToHrep_[i];
   }
 
-  unsigned nbInitSupportSteps() const
-  {
-    return nbInitSupportSteps_;
-  }
-
-  unsigned nbDoubleSupportSteps() const
-  {
-    return nbDoubleSupportSteps_;
-  }
-
-  std::string phaseLabel() const
-  {
-    std::stringstream label;
-    label << "ss" << nbInitSupportSteps_ << "-"
-          << "ds" << nbDoubleSupportSteps_ << "-"
-          << "ts" << nbTargetSupportSteps_ << "-"
-          << "nds" << nbNextDoubleSupportSteps_;
-    return label.str();
-  }
-
+  /** Support contact in the first single-support phase.
+   *
+   */
   const Contact & initContact() const
   {
     return initContact_;
   }
 
-  const Contact & targetContact() const
+  /** Number of sampling steps in the preview spent in the first single-support
+   * phase.
+   *
+   */
+  unsigned nbInitSupportSteps() const
   {
-    return targetContact_;
+    return nbInitSupportSteps_;
   }
 
+  /**
+   * Number of sampling steps in the preview spent in the first double-support
+   * phase.
+   *
+   */
+  unsigned nbDoubleSupportSteps() const
+  {
+    return nbDoubleSupportSteps_;
+  }
+
+  /** Support contact in the third single-support phase.
+   *
+   */
   const Contact & nextContact() const
   {
     return nextContact_;
@@ -222,6 +214,22 @@ struct ModelPredictiveControl
   void sole(const Sole & sole)
   {
     sole_ = sole;
+  }
+
+  /** Get solution vector.
+   *
+   */
+  const std::shared_ptr<Preview> solution() const
+  {
+    return solution_;
+  }
+
+  /** Support contact in the second single-support phase.
+   *
+   */
+  const Contact & targetContact() const
+  {
+    return targetContact_;
   }
 
 private:
@@ -259,20 +267,20 @@ private:
   copra::SolverFlag solver_ = copra::SolverFlag::QLD; /**< Quadratic programming solver */
   double buildAndSolveTime_ = 0.; /**< Time in [s] taken to build and solve the MPC problem */
   double solveTime_ = 0.; /**< Time in [s] taken to solve the MPC problem */
-  std::shared_ptr<Preview> solution_ = nullptr;
-  std::shared_ptr<copra::ControlCost> jerkCost_ = nullptr;
-  std::shared_ptr<copra::PreviewSystem> previewSystem_ = nullptr;
-  std::shared_ptr<copra::TrajectoryConstraint> termDCMCons_ = nullptr;
-  std::shared_ptr<copra::TrajectoryConstraint> termZMPCons_ = nullptr;
-  std::shared_ptr<copra::TrajectoryConstraint> zmpCons_ = nullptr;
-  std::shared_ptr<copra::TrajectoryCost> velCost_ = nullptr;
-  std::shared_ptr<copra::TrajectoryCost> zmpCost_ = nullptr;
+  std::shared_ptr<Preview> solution_ = nullptr; /**< Placeholder for solution trajectories */
+  std::shared_ptr<copra::ControlCost> jerkCost_ = nullptr; /**< Jerk term in the MPC cost function */
+  std::shared_ptr<copra::PreviewSystem> previewSystem_ = nullptr; /**< Linear model predictive control problem for copra */
+  std::shared_ptr<copra::TrajectoryConstraint> termDCMCons_ = nullptr; /**< Terminal DCM constraint */
+  std::shared_ptr<copra::TrajectoryConstraint> termZMPCons_ = nullptr; /**< Terminal ZMP constraint */
+  std::shared_ptr<copra::TrajectoryConstraint> zmpCons_ = nullptr; /**< ZMP support area constraints */
+  std::shared_ptr<copra::TrajectoryCost> velCost_ = nullptr; /**< CoM velocity term in the MPC cost function */
+  std::shared_ptr<copra::TrajectoryCost> zmpCost_ = nullptr; /**< ZMP term in the MPC cost function */
   unsigned indexToHrep_[NB_STEPS + 1]; /**< Mapping from timestep index to ZMP inequality constraints */
   unsigned nbDoubleSupportSteps_ = 0; /**< Number of discretization steps for the double support phase */
   Sole sole_; /**< Sole dimensions of the robot model */
-  unsigned nbInitSupportSteps_ = 0;
-  unsigned nbNextDoubleSupportSteps_ = 0;
-  unsigned nbTargetSupportSteps_ = 0;
+  unsigned nbInitSupportSteps_ = 0; /**< Number of sampling steps in the preview spent in the first single-support phase */
+  unsigned nbNextDoubleSupportSteps_ = 0; /**< Number of sampling steps in the preview spent on a potential second double-support phase */
+  unsigned nbTargetSupportSteps_ = 0; /**< Number of sampling steps in the preview spent on the second single-support phase */
 };
 
 } // namespace lipm_walking
