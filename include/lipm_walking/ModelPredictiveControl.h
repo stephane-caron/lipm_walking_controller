@@ -58,8 +58,6 @@ struct ModelPredictiveControl
   static constexpr unsigned NB_STEPS = 16; // number of sampling steps
   static constexpr unsigned STATE_SIZE = 6; // state is CoM [pos, vel, accel]
 
-  using RefVec = Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1>;
-
   /** Initialize new problem.
    *
    */
@@ -245,35 +243,36 @@ public:
   double zmpWeight = 1000.; /**< Weight of reference ZMP tracking cost */
 
 private:
+  using RefVector = Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1>;
+  using StateMatrix = Eigen::Matrix<double, 2, STATE_SIZE>;
+
   Contact initContact_; /**< First support contact */
   Contact nextContact_; /**< Third (optional) support contact */
   Contact targetContact_; /**< Second support contact */
-  Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1> velRef_; /**< Stacked vector of reference CoM velocities */
-  Eigen::Matrix<double, 2 * (NB_STEPS + 1), 1> zmpRef_; /**< Stacked vector of reference ZMPs */
+  RefVector velRef_ = RefVector::Zero(); /**< Stacked vector of reference CoM velocities */
+  RefVector zmpRef_ = RefVector::Zero(); /**< Stacked vector of reference ZMPs */
   Eigen::Matrix<double, 2 * (NB_STEPS + 1), STATE_SIZE *(NB_STEPS + 1)> velCostMat_;
-  Eigen::Matrix<double, 2, STATE_SIZE>
-      dcmFromState_; /**< Linear map to extract the DCM of a CoM state (position, velocity, acceleration) */
-  Eigen::Matrix<double, 2, STATE_SIZE>
-      zmpFromState_; /**< Linear map to compute the ZMP of a CoM state (position, velocity, acceleration) */
+  StateMatrix dcmFromState_ = StateMatrix::Zero(); /**< Linear map to extract the DCM of a CoM state (position, velocity, acceleration) */
+  StateMatrix zmpFromState_ = StateMatrix::Zero(); /**< Linear map to compute the ZMP of a CoM state (position, velocity, acceleration) */
   Eigen::VectorXd initState_; /**< Initial CoM state (position, velocity, acceleration) */
   HrepXd hreps_[4]; /**< Halfspace representation for ZMP inequality constraints */
   copra::SolverFlag solver_ = copra::SolverFlag::QLD; /**< Quadratic programming solver */
   double buildAndSolveTime_ = 0.; /**< Time in [s] taken to build and solve the MPC problem */
   double solveTime_ = 0.; /**< Time in [s] taken to solve the MPC problem */
   std::shared_ptr<Preview> solution_ = nullptr;
-  std::shared_ptr<copra::ControlCost> jerkCost_;
-  std::shared_ptr<copra::PreviewSystem> previewSystem_;
-  std::shared_ptr<copra::TrajectoryConstraint> termDCMCons_;
-  std::shared_ptr<copra::TrajectoryConstraint> termZMPCons_;
-  std::shared_ptr<copra::TrajectoryConstraint> zmpCons_;
-  std::shared_ptr<copra::TrajectoryCost> velCost_;
-  std::shared_ptr<copra::TrajectoryCost> zmpCost_;
+  std::shared_ptr<copra::ControlCost> jerkCost_ = nullptr;
+  std::shared_ptr<copra::PreviewSystem> previewSystem_ = nullptr;
+  std::shared_ptr<copra::TrajectoryConstraint> termDCMCons_ = nullptr;
+  std::shared_ptr<copra::TrajectoryConstraint> termZMPCons_ = nullptr;
+  std::shared_ptr<copra::TrajectoryConstraint> zmpCons_ = nullptr;
+  std::shared_ptr<copra::TrajectoryCost> velCost_ = nullptr;
+  std::shared_ptr<copra::TrajectoryCost> zmpCost_ = nullptr;
   unsigned indexToHrep_[NB_STEPS + 1]; /**< Mapping from timestep index to ZMP inequality constraints */
-  unsigned nbDoubleSupportSteps_; /**< Number of discretization steps for the double support phase */
+  unsigned nbDoubleSupportSteps_ = 0; /**< Number of discretization steps for the double support phase */
   Sole sole_; /**< Sole dimensions of the robot model */
-  unsigned nbInitSupportSteps_;
-  unsigned nbNextDoubleSupportSteps_;
-  unsigned nbTargetSupportSteps_;
+  unsigned nbInitSupportSteps_ = 0;
+  unsigned nbNextDoubleSupportSteps_ = 0;
+  unsigned nbTargetSupportSteps_ = 0;
 };
 
 } // namespace lipm_walking
