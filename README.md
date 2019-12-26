@@ -22,13 +22,8 @@ See the [documentation](https://scaron.info/doc/lipm_walking_controller/docker.h
 
 ## Installation
 
-The controller has been tested on Ubuntu 14.04 with ROS Indigo and Ubuntu 16.04 with ROS Kinetic. See the instructions to [build from source](https://scaron.info/doc/lipm_walking_controller/build.html) in the documentation.
+The controller has been tested on Ubuntu 14.04 with ROS Indigo and Ubuntu 16.04 with ROS Kinetic. Compilation requires [catkin](http://wiki.ros.org/catkin/Tutorials/create_a_workspace) and the following JRL dependencies:
 
-### Dependencies
-
-Compilation requires:
-
-* [ROS](http://www.ros.org/) with a working [catkin workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace)
 * [Eigen3ToPython](https://github.com/jrl-umi3218/Eigen3ToPython): Python bindings for Eigen
 * [SpaceVecAlg](https://github.com/jrl-umi3218/SpaceVecAlg): spatial vector algebra
 * [RBDyn](https://github.com/jrl-umi3218/RBDyn/): rigid body dynamics
@@ -38,13 +33,13 @@ Compilation requires:
 * [sch-core-python](https://github.com/jrl-umi3218/sch-core-python): Python bindings for sch-core
 * [Tasks](https://github.com/jrl-umi3218/Tasks/): inverse kinematics
 * [mc\_rbdyn\_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf): robot model loader
-* [copra](https://github.com/vsamy/copra): linear model predictive control
+* [copra](https://github.com/jrl-umi3218/copra): linear model predictive control
+* [mc\_rtc](https://github.com/jrl-umi3218/mc_rtc): robot controller library (includes mc\_control, mc\_rbdyn, mc\_solver and mc\_tasks)
+* [mc\_rtc\_data](https://github.com/jrl-umi3218/mc_rtc_data): object descriptions for mc\_rtc
+* [mc\_rtc\_msgs](https://github.com/jrl-umi3218/mc_rtc_msgs): ROS messages for mc\_rtc
+* [mc\_rtc\_ros](https://github.com/jrl-umi3218/mc_rtc_ros): ROS plugin and RViz panel for mc\_rtc
 
-The following dependencies are not publicly released but available upon request to [Pierre Gergondet](mailto:pierre.gergondet@gmail.com):
-
-* [mc\_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc): robot controller library (includes mc\_control, mc\_rbdyn, mc\_solver and mc\_tasks)
-* [mc\_rtc\_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros): ROS tools for mc\_rtc
-* [mc\_rtc\_ros\_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data): ROS environment and object descriptions for mc\_rtc
+See the instructions to [build from source](https://scaron.info/doc/lipm_walking_controller/build.html) in the documentation.
 
 ## Usage
 
