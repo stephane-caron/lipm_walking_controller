@@ -37,7 +37,7 @@ As an example, until version 1.3 of the controller we introduced a modeling erro
 <tr><td>CoM: <i>Ay</i></td><td>Improves ZMP control but increases lateral position compliance</td></tr>
 </table>
 
-You can debug them with the ``Tracking DCM X/Y`` and ``Tracking DCM-ZMP X/Y`` plots, except for the foot *DFz* admittance which is better checked in ``Foot force both``.
+You can debug them with the ``Tracking DCM X/Y`` and ``Tracking DCM-ZMP X/Y`` plots, except for the foot *DFz* admittance which is better checked in ``Foot force both``. The *DFz* damping gain is an optional parameter that can be used for [vertical vibration suppression on HRP-4](https://doi.org/10.1109/ICRA.2013.6630789), however it is not indispensable and we left it to zero in our experiments with this robot.
 
 \section tests Standard tests
 
