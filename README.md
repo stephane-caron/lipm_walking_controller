@@ -22,8 +22,6 @@ See the [documentation](https://scaron.info/doc/lipm_walking_controller/docker.h
 
 ## Dependencies
 
-The controller has been tested on Ubuntu 14.04 with ROS Indigo and Ubuntu 16.04 with ROS Kinetic. Compilation requires [catkin](http://wiki.ros.org/catkin/Tutorials/create_a_workspace) and the following JRL dependencies:
-
 The controller has been tested on Ubuntu 14.04 with ROS Indigo and Ubuntu 16.04 with ROS Kinetic. It builds on the shoulders of the following software:
 
 * [ROS](http://www.ros.org/): robotics middleware
