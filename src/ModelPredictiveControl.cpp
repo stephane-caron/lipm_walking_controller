@@ -310,7 +310,6 @@ void ModelPredictiveControl::updateVelCost()
       double w = static_cast<double>(i2) / (nbTargetSupportSteps_ + nbNextDoubleSupportSteps_);
       w = clamp(w, 0., 1.);
       R = slerp(R_1, R_2, w).topLeftCorner<2, 2>();
-      ;
       v = (1. - w) * v_1 + w * v_2;
     }
     velCostMat_.block<2, STATE_SIZE>(2 * i, STATE_SIZE * i).block<2, 2>(0, 2) = R;

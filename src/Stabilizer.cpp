@@ -778,6 +778,9 @@ void Stabilizer::updateFootForceDifferenceControl()
   dfzHeightError_ = (LTz_d - RTz_d) - (LTz - RTz);
   vdcHeightError_ = (LTz_d + RTz_d) - (LTz + RTz);
 
+  // The ``dfzDamping`` gain is used for vertical foot force damping. This is
+  // an optional feature that we didn't use in practice with HRP-4 or HRP-2Kai.
+  // See https://github.com/stephane-caron/lipm_walking_controller/issues/50
   double dz_ctrl = dfzAdmittance_ * dfzForceError_ - dfzDamping_ * dfzHeightError_;
   double dz_vdc = vdcFrequency_ * vdcHeightError_;
   sva::MotionVecd velF = {{0., 0., 0.}, {0., 0., dz_ctrl}};
