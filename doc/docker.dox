@@ -54,7 +54,7 @@ host:~$ docker exec -it ${CONTAINER} bash
 ayumi:~$ roslaunch lipm_walking_controller display.launch robot:=jvrc1
 \endcode
 
-Open Choreonoid as follows:
+The robot model will appear [in white](https://user-images.githubusercontent.com/4472769/72120198-07b2bd80-330c-11ea-9f28-cddae5f6e054.png) at first, this is expected. Then, start the controller in a Choreonoid simulation as follows:
 
 \code
 host:~$ docker exec -it ${CONTAINER} bash
