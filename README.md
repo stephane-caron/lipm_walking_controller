@@ -18,7 +18,7 @@ docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X
     lipm_walking --floor
 ```
 
-This image runs the exact controller we used in 2019 for experiments and industrial demonstrations. For up-to-date code, check out the [maintained version from jrl-umi3218](https://jrl-umi3218.github.io/lipm_walking_controller/).
+This image runs the exact controller we used in 2019 for experiments and industrial demonstrations. For more recent developments, check out the [maintained version from jrl-umi3218](https://jrl-umi3218.github.io/lipm_walking_controller/).
 
 ## Dependencies
 
