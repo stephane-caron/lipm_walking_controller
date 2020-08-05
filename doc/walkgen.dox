@@ -1,0 +1,178 @@
+namespace lipm_walking {
+
+/** \page walkgen Walking pattern generation
+
+Walking pattern generation produces reference trajectories that the Stabilizer will then try to track at best.
+
+These reference trajectories consist of positions for the CoM and swing foot, but also forces such as the ZMP and centroidal momentum. In this controller, we generate the CoM trajectory by solving linear model predictive control (LMPC) problems, a specific kind of quadratic programs (QP). In this tutorial, we will update ModelPredictiveControl to switch the LMPC input from CoM jerk (as in [Wieber (2006)](https://hal.inria.fr/docs/00/39/04/62/PDF/Preview.pdf)) to ZMP velocity (as in [Scianca et al. (2019)](https://arxiv.org/pdf/1901.08505.pdf)).
+
+\section comJerk CoM jerk formulation
+
+We use the [copra](https://github.com/vsamy/copra) library to build and solve our model predictive control problems. See [this post](https://vsamy.github.io/en/blog/copra-example-cpp) for an introduction to the [discretization](https://en.wikipedia.org/wiki/Discretization) of continuous-time state-space models and a corresponding example with copra. In the initial ModelPredictiveControl, our discrete-time state-space model is a triple integrator with the CoM jerk \f$u_k\f$ as input:
+
+\f[
+    \begin{align}
+        x_k & =
+        \begin{bmatrix}
+            {c}_{k} \\
+            \dot{c}_{k} \\
+            \ddot{c}_{k}
+        \end{bmatrix} &
+        x_{k+1}
+        =
+        \begin{bmatrix}
+            I & T I & T^2 / 2 I \\
+            0 & I & T I \\
+            0 & 0 & I
+        \end{bmatrix}
+        x_k
+        +
+        \begin{bmatrix}
+            T^3 / 6 I \\
+            T^2 / 2 I \\
+            T I
+        \end{bmatrix}
+        u_k
+    \end{align}
+\f]
+
+Here our vector \f$c_k\f$ of horizontal CoM coordinates has dimension two (_x_ and _y_ axes of the inertial frame), so that \f$I\f$ is the \f$2 \times 2\f$ identity matrix. The sampling period \f$T\f$ is set to 100 ms with \f$N = 16\f$ discretization steps that give us a receding horizon of 1.6 s. (These are standard values from the literature, go ahead and try some others!) We define this preview system in the constructor:
+
+\code{.cpp}
+ModelPredictiveControl::ModelPredictiveControl()
+{
+  constexpr double T = SAMPLING_PERIOD;
+  double S = T * T / 2; // "square"
+  double C = T * T * T / 6; // "cube"
+  Eigen::Matrix<double, STATE_SIZE, STATE_SIZE> stateMatrix;
+  stateMatrix <<
+    1, 0, T, 0, S, 0,
+    0, 1, 0, T, 0, S,
+    0, 0, 1, 0, T, 0,
+    0, 0, 0, 1, 0, T,
+    0, 0, 0, 0, 1, 0,
+    0, 0, 0, 0, 0, 1;
+  Eigen::Matrix<double, STATE_SIZE, INPUT_SIZE> inputMatrix;
+  inputMatrix <<
+    C, 0,
+    0, C,
+    S, 0,
+    0, S,
+    T, 0,
+    0, T;
+  Eigen::VectorXd biasVector = Eigen::VectorXd::Zero(STATE_SIZE);
+  initState_ = Eigen::VectorXd::Zero(STATE_SIZE);
+  previewSystem_ = std::make_shared<copra::PreviewSystem>(stateMatrix, inputMatrix, biasVector, initState_, NB_STEPS);
+}
+\endcode
+
+\section zmpPos ZMP formulation
+
+Let's check out what happens when the MPC input is the ZMP position \f$z\f$ (second-order) rather than the CoM jerk (third-order). The discretization of the input function in the MPC problem formulation implies that our ZMP trajectory \f$z(t)\f$ will be piecewise-constant. From the [linear inverted pendulum model](https://scaron.info/teaching/linear-inverted-pendulum-model.html), the acceleration of the center of mass in the horizontal plane (we drop the _z_ coordinate for simplicity):
+
+\f[
+    \ddot{c} = \omega^2 (c - z)
+\f]
+
+This is a second-order non-homogeneous [linear differential equation](https://en.wikipedia.org/wiki/Linear_differential_equation) with constant coefficients. We can solve it analytically:
+
+\f[
+    \begin{align}
+        c(t) & = c(0) \cosh(\omega t) + \dot{c}(0) \frac{\sinh(\omega t)}{\omega} + z(0) (1 - \cosh(\omega t)) \\
+        \dot{c}(t) & = c(0) \omega \sinh(\omega t) + \dot{c}(0) \cosh(\omega t) - z(0) \omega \sinh(\omega t)
+    \end{align}
+\f]
+
+You can check out [this summary about the capture point](https://scaron.info/teaching/capture-point.html) to learn more about the structure of this solution. Having the analytical solution gives us a straightforward discretization our state-space model:
+
+\f[
+    \begin{align}
+        x_k & =
+        \begin{bmatrix}
+            c_{k} \\
+            \dot{c}_{k}
+        \end{bmatrix} &
+        x_{k+1}
+        =
+        \begin{bmatrix}
+            \cosh(\omega t) I & {\sinh(\omega t)} I / \omega \\
+            \omega \sinh(\omega t) I & \cosh(\omega t) I 
+        \end{bmatrix}
+        x_k
+        +
+        \begin{bmatrix}
+            (1 - \cosh(\omega t)) I \\
+            -\omega \sinh(\omega t) I
+        \end{bmatrix}
+        u_k
+    \end{align}
+\f]
+
+Yet, piecewise-constant ZMP trajectories are not nice in practice. With such an implementation, the ModelPredictiveControl trajectory generator would provide discontinuous force targets to the Stabilizer, each jump being tracked with delay coming from admittance control and mechanical flexibilities. To avoid this, we want to generate trajectories that are as smooth as possible. This is possible, for instance, by using the [ZMP velocity as control input](https://comanoid.cnrs.fr/publications_files/2016/2016_Scianca_Humanoids.pdf).
+
+\section stairSwing More natural stair climbing
+
+Try putting the following in the "jvrc1" entry of your configuration "plans":
+
+\code{.json}
+      "airbus_staircase":
+      {
+        "com_height": 0.84,
+        "init_dsp_duration": 0.6,
+        "single_support_duration": 1.4,
+        "double_support_duration": 0.2,
+        "final_dsp_duration": 0.6,
+        "swing_height": 0.42,
+        "landing_duration": 0.1,
+        "takeoff_duration": 0.42,
+        "torso_pitch": 0.2,
+        "contacts":
+        [
+          {
+            "pose": { "translation": [-0.02,  0.105, 0.000] },
+            "surface": "LeftFootCenter",
+            "swing": { "height": 0.24 }
+          },
+          {
+            "pose": { "translation": [-0.02, -0.105, 0.000] },
+            "surface": "RightFootCenter",
+            "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
+          },
+          {
+            "pose": { "translation": [0.24,   0.105, 0.185] },
+            "surface": "LeftFootCenter",
+            "swing": { "takeoff_offset": [-0.02, 0.0, 0.0] }
+          },
+          {
+            "pose": { "translation": [0.48,  -0.105, 0.370] },
+            "surface": "RightFootCenter",
+            "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
+          },
+          {
+            "pose": { "translation": [0.74,   0.105, 0.555] },
+            "surface": "LeftFootCenter",
+            "swing": { "takeoff_offset": [-0.02, 0.0, 0.0] }
+          },
+          {
+            "pose": { "translation": [1.0,  -0.105, 0.740] },
+            "surface": "RightFootCenter",
+            "swing": { "height": 0.2, "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
+          },
+          { "pose": { "translation": [1.25,   0.105, 0.885] }, "surface": "LeftFootCenter"  },
+          { "pose": { "translation": [1.25,  -0.105, 0.885] }, "surface": "RightFootCenter" }
+        ],
+        "mpc":
+        {
+          "weights":
+          {
+            "jerk": 1.0,
+            "vel": [10.0, 300.0],
+            "zmp": 1000.0
+          }
+        }
+      },
+\endcode
+
+*/
+
+}
