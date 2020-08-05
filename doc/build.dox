@@ -2,7 +2,15 @@ namespace lipm_walking {
 
 /** \page build Building from source
 
-In what follows, we assume we are starting from a fresh and up-to-date Ubuntu 16.04 system:
+\section notice Important notice
+
+This page is for archival purposes only. For up-to-date content and a simpler installation from packages, check out the maintained version of the controller at [jrl-umi3218/lipm_walking_controller](https://github.com/jrl-umi3218/lipm_walking_controller). We don't recommended using these old instructions any more. In particular, Choreonoid and its dependencies are a tough nut to crack ;) We rather encourage you to **install from the packages of the maintained repository**.
+
+\section ubuntu Old instructions for Ubuntu 16.04
+
+The following instructions are outdated. They assume you have access to the [GitLab server at LIRMM](https://gite.lirmm.fr/).
+
+Let us start from a fresh Ubuntu 16.04 system:
 
 \code
 ayumi:~$ sudo apt-get update
@@ -10,7 +18,7 @@ ayumi:~$ sudo apt-get -y upgrade
 ayumi:~$ sudo apt-get -y install cmake cython doxygen g++ git gfortran libboost1.58-all-dev libeigen3-dev libgeos++-dev libnanomsg-dev libtinyxml2-dev python-coverage python-nose python-numpy python-pip python-setuptools
 \endcode
 
-\section jrl JRL dependencies
+\subsection jrl JRL dependencies
 
 Suppose our username is ``ayumi`` and we keep source software repositories in ``~/Software``. We install dependencies from [jrl-umi3218](https://github.com/jrl-umi3218/) repositories following the standard CMake pipeline, starting with Eigen3ToPython:
 
@@ -36,7 +44,7 @@ Apply this process to all dependencies in the following order:
 
 \note These links and other links below point to the commits used at the time of writing these instructions. If anything breaks in the process, you always have the option to clone these specific commits rather than the latest ``master``.
 
-\section ros ROS dependencies
+\subsection ros ROS dependencies
 
 The walking controller depends on ROS for its GUI. Make sure you install ROS Kinetic following the [official instructions](https://wiki.ros.org/kinetic/Installation/Ubuntu), that is:
 
@@ -82,7 +90,7 @@ From this state, we are ready to build mc_rtc. Make sure you source catkin devel
 ayumi:~$ echo "source ~/Software/catkin_ws/devel/setup.bash" >> ~/.bashrc
 \endcode
 
-\section rtc Building mc_rtc
+\subsection rtc Building mc_rtc
 
 Once ROS data packages have been built, apply the CMake pipeline to our last dependency:
 
@@ -102,7 +110,7 @@ ayumi:~$ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/lib" >> ~/.
 ayumi:~$ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/lib/mc_controller" >> ~/.bashrc
 \endcode
 
-\section controller Building the controller
+\subsection controller Building the controller
 
 Now that all dependencies are installed, link the controller in your catkin workspace and follow the standard catkin workflow:
 
@@ -119,7 +127,7 @@ ayumi:~$ sudo chown -R ayumi:ayumi /usr/local/lib/mc_controller
 ayumi:~/Software/catkin_ws/$ catkin_make install
 \endcode
 
-\section choreonoid_build Building Choreonoid
+\subsection choreonoid_build Building Choreonoid
 
 You can test the controller in simulation using Choreonoid and the AIST dynamics simulator. First, install the following packages:
 
@@ -175,7 +183,7 @@ ayumi:~/Software/choreonoid/build/$ make -j4
 ayumi:~/Software/choreonoid/build/$ sudo make install
 \endcode
 
-\section jvrc Simulation with the JVRC-1 model
+\subsection jvrc Simulation with the JVRC-1 model
 
 We will need an interface to communicate with our simulated robots. Install one of the following:
 
@@ -210,7 +218,7 @@ You should now be able to run the simulation by (note that you need to be in tha
 ayumi:/usr/local/share/hrpsys/samples/JVRC1$ choreonoid --start-simulation sim_mc.cnoid
 \endcode
 
-\section config Configuring and running the controller
+\subsection config Configuring and running the controller
 
 Write the following in your ``~/.config/mc_rtc/mc_rtc.conf`` configuration:
 
