@@ -5,20 +5,22 @@
 
 [![Stair climbing by the HRP-4 humanoid robot](https://scaron.info/images/stair-climbing.jpg)](https://www.youtube.com/watch?v=vFCFKAunsYM&t=22)
 
-Source code of the walking and stair climbing controller used in the experiments of [Stair Climbing Stabilization of the HRP-4 Humanoid Robot using Whole-body Admittance Control](https://hal.archives-ouvertes.fr/hal-01875387/document), as well as in an industrial demonstrator at the [Airbus Saint-Nazaire factory](https://cordis.europa.eu/project/rcn/194280/brief/en?WT.mc_id=exp).
+Source code of the walking and stair climbing controller used in the experiments of [Stair Climbing Stabilization of the HRP-4 Humanoid Robot using Whole-body Admittance Control](https://hal.archives-ouvertes.fr/hal-01875387/document), as well as in an industrial demonstrator at the [Airbus Saint-Nazaire factory](https://hal-lirmm.ccsd.cnrs.fr/lirmm-02303117/document).
+
+This repository is meant for learning and sharing of experimental knowledge. It keeps walking components in the same place, and in the simple form they had in 2019. Feel free to start discussions in the issue tracker! If you want to take part in development, go to the [active fork at jrl-umi3218](https://jrl-umi3218.github.io/lipm_walking_controller/).
 
 ## Getting started
 
 The easiest way to try the controller in action is to run its Docker image from an Ubuntu Linux distribution:
 
-```
+```sh
 xhost +local:docker
 docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
     stephanecaron/lipm_walking_controller \
     lipm_walking --floor
 ```
 
-This image runs the exact controller we used in 2019 for experiments and industrial demonstrations. For more recent developments, check out the [maintained version from jrl-umi3218](https://jrl-umi3218.github.io/lipm_walking_controller/).
+This image runs the exact controller we used in 2019 during experiments and industrial demonstrations.
 
 ## Dependencies
 
@@ -38,28 +40,34 @@ The controller has been tested on Ubuntu 14.04 with ROS Indigo and Ubuntu 16.04 
 * [copra](https://github.com/vsamy/copra): linear model predictive control
 * [mc\_rtc](https://github.com/jrl-umi3218/mc_rtc): robot controller library
 
-Instructions to build from source are available from the [maintained fork from jrl-umi3218](https://jrl-umi3218.github.io/lipm_walking_controller/doxygen/HEAD/build.html).
+Instructions to build from source are available for the [active fork at jrl-umi3218](https://jrl-umi3218.github.io/lipm_walking_controller/doxygen/HEAD/build.html).
 
 ## Usage
 
 Make sure the controller is enabled in your mc\_rtc configuration:
+
 ```json
 {
   "MainRobot": "JVRC1",
   "Enabled": ["LIPMWalking"]
 }
 ```
+
 Launch RViz for the JVRC-1 model by:
+
 ```sh
 roslaunch lipm_walking_controller display.launch robot:=jvrc1
 ```
+
 Finally, start the controller from your mc\_rtc interface. Here is the example
 of the [Choreonoid](https://choreonoid.org/en/) project installed in the
 Docker image:
+
 ```sh
 cd /usr/local/share/hrpsys/samples/JVRC1
 choreonoid --start-simulation sim_mc.cnoid
 ```
+
 You should end up with the following windows:
 ![Choreonoid and RViz GUI of the controller](https://user-images.githubusercontent.com/1189580/64157945-ead71c80-ce37-11e9-9081-7936702c5fbc.png)
 See the [Graphical user interface](https://github.com/stephane-caron/lipm_walking_controller/wiki/Graphical-user-interface) page of the
