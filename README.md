@@ -69,7 +69,9 @@ choreonoid --start-simulation sim_mc.cnoid
 ```
 
 You should end up with the following windows:
+
 ![Choreonoid and RViz GUI of the controller](https://user-images.githubusercontent.com/1189580/64157945-ead71c80-ce37-11e9-9081-7936702c5fbc.png)
+
 See the [Graphical user interface](https://github.com/stephane-caron/lipm_walking_controller/wiki/Graphical-user-interface) page of the
 wiki for further instructions on how to use this GUI.
 
