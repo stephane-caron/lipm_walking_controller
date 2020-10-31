@@ -14,9 +14,7 @@ xhost +local:docker
 docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix:rw stephanecaron/lipm_walking_controller lipm_walking --floor
 \endcode
 
-Alternatively, you can follow the instructions to \ref build "build from source".
-
-Learn how the code is organized on the \ref overview "code overview" page.
+Learn how the code is organized on the \ref overview "code overview" page. If you have questions that are not already answered in the <a href="https://github.com/stephane-caron/lipm_walking_controller/wiki#frequently-asked-questions">controller FAQ</a>, go ahead and ask them in the <a href="https://github.com/stephane-caron/lipm_walking_controller/issues">issue tracker</a>.
 
 */
 
