@@ -47,10 +47,7 @@ Instructions to build an active development version of the controller from sourc
 Make sure the controller is enabled in your mc\_rtc configuration:
 
 ```json
-{
-  "MainRobot": "JVRC1",
-  "Enabled": ["LIPMWalking"]
-}
+{"MainRobot": "JVRC1", "Enabled": ["LIPMWalking"]}
 ```
 
 Launch RViz for the JVRC-1 model by:
@@ -72,7 +69,7 @@ You should end up with the following windows:
 
 ![Choreonoid and RViz GUI of the controller](https://user-images.githubusercontent.com/1189580/64157945-ead71c80-ce37-11e9-9081-7936702c5fbc.png)
 
-See the [Graphical user interface](https://github.com/stephane-caron/lipm_walking_controller/wiki/Graphical-user-interface) page of the
+See the [Graphical user interface](https://github.com/stephane-caron/lipm_walking_controller/wiki/How-to-use-the-graphical-user-interface%3F) page of the
 wiki for further instructions on how to use this GUI.
 
 ## Thanks
