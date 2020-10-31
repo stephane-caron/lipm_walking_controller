@@ -2,9 +2,9 @@ namespace lipm_walking {
 
 /** \page walkgen Walking pattern generation
 
-Walking pattern generation produces reference trajectories that the Stabilizer will then try to track at best.
+This page is the unfinished draft of accompanying notes for a tutorial I gave in December 2019.
 
-These reference trajectories consist of positions for the CoM and swing foot, but also forces such as the ZMP and centroidal momentum. In this controller, we generate the CoM trajectory by solving linear model predictive control (LMPC) problems, a specific kind of quadratic programs (QP). In this tutorial, we will update ModelPredictiveControl to switch the LMPC input from CoM jerk (as in [Wieber (2006)](https://hal.inria.fr/docs/00/39/04/62/PDF/Preview.pdf)) to ZMP velocity (as in [Scianca et al. (2019)](https://arxiv.org/pdf/1901.08505.pdf)).
+Walking pattern generation produces reference trajectories that the Stabilizer will then try to track at best. These reference trajectories consist of positions for the CoM and swing foot, but also forces such as the ZMP that parameterizes centroidal momentum. In this controller, we generate the CoM trajectory by solving linear model predictive control (LMPC) problems, a specific kind of quadratic programs (QP). In what follows, we outline how to update ModelPredictiveControl to switch the formulation of this problem from a CoM jerk input (as in [Wieber (2006)](https://hal.inria.fr/docs/00/39/04/62/PDF/Preview.pdf)) to a ZMP velocity input (as in [Scianca et al. (2019)](https://arxiv.org/pdf/1901.08505.pdf)). 
 
 \section comJerk CoM jerk formulation
 
