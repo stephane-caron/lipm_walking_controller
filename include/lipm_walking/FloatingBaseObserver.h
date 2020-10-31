@@ -58,7 +58,9 @@ struct FloatingBaseObserver
    * The anchor frame is a weighted average of foot frames ("LeftFoot" or
    * "RightFoot") over the feet currently in contact. In single support, in
    * thus coincides with the foot frame. In double support, it interpolates
-   * from one support foot to the next following the \ref leftFootRatio_.
+   * from one support foot to the next following the left foot ratio.
+   *
+   * \sa leftFootRatio
    */
   sva::PTransformd getAnchorFrame(const mc_rbdyn::Robot & robot);
 
