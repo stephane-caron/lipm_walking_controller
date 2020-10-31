@@ -7,7 +7,7 @@
 
 Source code of the walking and stair climbing controller used in the experiments of [Stair Climbing Stabilization of the HRP-4 Humanoid Robot using Whole-body Admittance Control](https://hal.archives-ouvertes.fr/hal-01875387/document), as well as in an industrial demonstrator at the [Airbus Saint-Nazaire factory](https://hal-lirmm.ccsd.cnrs.fr/lirmm-02303117/document).
 
-This repository is meant for learning and sharing of experimental knowledge. It keeps walking components in the same place, and in the simple form they had in 2019. Feel free to start discussions in the issue tracker! If you want to take part in development, go to the [active fork at jrl-umi3218](https://github.com/jrl-umi3218/lipm_walking_controller).
+This repository is meant for learning and sharing of experimental knowledge. It keeps walking components in the same place, and in the simple form they had in 2019. If you have questions, go ahead and ask them in the issue tracker, after checking that they are not already addressed in the [documentation](https://scaron.info/doc/lipm_walking_controller/) ;) And if you want to take part in development, go to the [active fork at jrl-umi3218](https://github.com/jrl-umi3218/lipm_walking_controller).
 
 ## Getting started
 
@@ -40,7 +40,7 @@ The controller has been tested on Ubuntu 14.04 with ROS Indigo and Ubuntu 16.04 
 * [copra](https://github.com/vsamy/copra): linear model predictive control
 * [mc\_rtc](https://github.com/jrl-umi3218/mc_rtc): robot controller library
 
-Instructions to build from source are available for the [active fork at jrl-umi3218](https://jrl-umi3218.github.io/lipm_walking_controller/doxygen/HEAD/build.html).
+Instructions to build an active development version of the controller from source are available for the [jrl-umi3218 fork](https://jrl-umi3218.github.io/lipm_walking_controller/doxygen/HEAD/build.html).
 
 ## Usage
 
