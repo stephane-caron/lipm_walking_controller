@@ -23,7 +23,7 @@ The ``Controller`` class has some main attributes that you will see everywhere i
 
 As a general rule, look out for documentation in header files or on the [API documentation](https://scaron.info/doc/lipm_walking_controller/).
 
-\section fsm Finite state machine
+\section fsm Walking state machine
 
 The last instruction in the controller's ``run()`` function calls ``mc_control::fsm::Controller::run()``, which runs the main function of the current state in the finite state machine (FSM). Check out how the FSM works in the [FSM wiki page](https://gite.lirmm.fr/multi-contact/mc_rtc/wikis/FSMController). The four states in the walking controller's FSM are described in the [Graphical user interface](https://github.com/stephane-caron/lipm_walking_controller/wiki/Graphical-user-interface) guide:
 
