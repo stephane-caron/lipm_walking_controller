@@ -541,7 +541,13 @@ sva::ForceVecd Stabilizer::computeDesiredWrench()
   }
   else
   {
-    zmpError_ = pendulum_.zmp() - measuredZMP_; // XXX: both in same plane?
+    // This ZMP error formula is correct in single support but incorrect in
+    // double support with non-coplanar contacts (stair climbing): the pendulum
+    // ZMP is computed in the previous contact frame, while the measured ZMP is
+    // computed in an average of both contact frames. Not noticed in 2019 stair
+    // climbing with HRP-4 since we didn't use a DCM derivator with this robot.
+    // See https://github.com/stephane-caron/lipm_walking_controller/issues/56
+    zmpError_ = pendulum_.zmp() - measuredZMP_;
     zmpError_.z() = 0.;
     dcmDerivator_.update(omega * (dcmError_ - zmpError_));
     dcmIntegrator_.append(dcmError_);
