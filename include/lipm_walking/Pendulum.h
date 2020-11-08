@@ -58,8 +58,11 @@ struct Pendulum
    *
    * \param plane Contact plane in which the ZMP is considered.
    *
-   * \note The current CoM position and acceleration are used to compute the
-   * ZMP in the desired plane.
+   * The current (pendulum) CoM position and acceleration are used to compute
+   * the ZMP in the desired plane. When walking on horizontal ground or
+   * climbing stairs, we call this function after \see resetCoMHeight to make
+   * sure that the pendulum CoM is at the desired height above plane, and thus
+   * that this function leaves the natural frequency \ref omega_ untouched.
    *
    */
   void completeIPM(const Contact & plane);
@@ -102,6 +105,12 @@ struct Pendulum
    * \param height CoM height above contact plane.
    *
    * \param contact Contact plane.
+   *
+   * We call this function before \see completeIPM when using the smooth
+   * continuous trajectory generator implemented in \ref
+   * ModelPredictiveControl. The combination of these two functions preserves
+   * continuity of the horizontal coordinates of the ZMP trajectory, while
+   * adapting its height to the contact height.
    *
    */
   void resetCoMHeight(double height, const Contact & contact);
