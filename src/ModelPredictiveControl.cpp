@@ -152,7 +152,7 @@ void ModelPredictiveControl::phaseDurations(double initSupportDuration,
   nbTargetSupportSteps_ =
       std::min(static_cast<unsigned>(std::round(targetSupportDuration / T)), NB_STEPS - nbStepsSoFar);
   nbStepsSoFar += nbTargetSupportSteps_;
-  if(nbTargetSupportSteps_ > 0) // full preview
+  if(nbTargetSupportSteps_ > 0) // full preview mode
   {
     nbNextDoubleSupportSteps_ = NB_STEPS - nbStepsSoFar; // always positive
   }
@@ -195,7 +195,7 @@ void ModelPredictiveControl::computeZMPRef()
   Eigen::Vector2d p_0 = initContact_.anklePos(sole_).head<2>();
   Eigen::Vector2d p_1 = targetContact_.anklePos(sole_).head<2>();
   Eigen::Vector2d p_2 = nextContact_.anklePos(sole_).head<2>();
-  if(nbTargetSupportSteps_ < 1) // stop during first DSP
+  if(nbTargetSupportSteps_ < 1) // half preview mode (@see phaseDurations)
   {
     p_1 = 0.5 * (initContact_.anklePos(sole_) + targetContact_.anklePos(sole_)).head<2>();
   }
@@ -222,7 +222,7 @@ void ModelPredictiveControl::updateTerminalConstraint()
 {
   Eigen::MatrixXd E_dcm = Eigen::MatrixXd::Zero(2, STATE_SIZE * (NB_STEPS + 1));
   Eigen::MatrixXd E_zmp = Eigen::MatrixXd::Zero(2, STATE_SIZE * (NB_STEPS + 1));
-  if(nbTargetSupportSteps_ < 1) // half preview
+  if(nbTargetSupportSteps_ < 1) // half preview mode (@see phaseDurations)
   {
     unsigned i = nbInitSupportSteps_ + nbDoubleSupportSteps_;
     E_dcm.block<2, 6>(0, 6 * i) = dcmFromState_;
@@ -289,7 +289,7 @@ void ModelPredictiveControl::updateVelCost()
   Eigen::Vector2d v_0 = initContact_.refVel.head<2>();
   Eigen::Vector2d v_1 = targetContact_.refVel.head<2>();
   Eigen::Vector2d v_2 = nextContact_.refVel.head<2>();
-  if(nbTargetSupportSteps_ < 1) // stop during first DSP
+  if(nbTargetSupportSteps_ < 1) // half preview mode (@see phaseDurations)
   {
     v_1 = {0., 0.};
   }

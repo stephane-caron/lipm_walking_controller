@@ -100,6 +100,9 @@ struct ModelPredictiveControl
    *
    * If their sum exceeds total duration, phase durations are trimmed
    * starting from the last one.
+   *
+   * \note Do not call this function with initSupportDuration +
+   * doubleSupportDuration greater than the total duration.
    */
   void phaseDurations(double initSupportDuration, double doubleSupportDuration, double targetSupportDuration);
 
