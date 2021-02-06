@@ -235,6 +235,23 @@ struct ModelPredictiveControl
   }
 
 private:
+  /** Compute the ZMP reference trajectory.
+   *
+   * The ZMP reference trajectory consists of straight lines connecting one
+   * foot ankle frame to the next during walking. Keeping the ZMP at the ankle
+   * frame minimizes ankle joint torques (see e.g. "Optimizing foot centers of
+   * pressure through force distribution in a humanoid robot", Wensing et al.,
+   * 2013). Alternatively, keeping the ZMP reference at the sole center frame
+   * would reduce the risk of foot tilting, at the cost of larger ankle
+   * torques.
+   *
+   * On HRP robot, there is one extra reason for keeping the ZMP at the ankle
+   * frame: it reduces the restoring wrench of the foot flexibility mechanism
+   * (Fig. 3.11 of "Introduction to Humanoid Robotics", Kajita et al., 2014)
+   * and thus the deflection of the unobserved joint between the ankle frame
+   * and the ground.
+   *
+   */
   void computeZMPRef();
 
   void updateTerminalConstraint();
