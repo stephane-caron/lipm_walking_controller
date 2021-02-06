@@ -337,7 +337,6 @@ private:
    *
    */
   void distributeWrench(const sva::ForceVecd & desiredWrench);
-  void distributeWrenchQuadProg(const sva::ForceVecd & desiredWrench);
 
   /** Project desired wrench to single support foot.
    *
@@ -347,8 +346,6 @@ private:
    *
    */
   void saturateWrench(const sva::ForceVecd & desiredWrench, std::shared_ptr<mc_tasks::force::CoPTask> & footTask);
-  void saturateWrenchQuadProg(const sva::ForceVecd & desiredWrench,
-                              std::shared_ptr<mc_tasks::force::CoPTask> & footTask);
 
   /** Reset admittance, damping and stiffness for every foot in contact.
    *
