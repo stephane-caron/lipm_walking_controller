@@ -771,6 +771,11 @@ void Stabilizer::updateFootForceDifferenceControl()
     return;
   }
 
+  // In what follows, vertical foot forces are expressed in their respective
+  // foot sole frames, but foot force difference control expects them to be
+  // written in the world frame, so the following lines are wrong (they miss a
+  // frame transform). Thanks to @Saeed-Mansouri for pointing out this bug
+  // <https://github.com/stephane-caron/lipm_walking_controller/discussions/72>.
   double LFz_d = leftFootTask->targetWrench().force().z();
   double RFz_d = rightFootTask->targetWrench().force().z();
   double LFz = leftFootTask->measuredWrench().force().z();
