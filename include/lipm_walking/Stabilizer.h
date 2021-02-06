@@ -180,6 +180,14 @@ struct Stabilizer
    *
    * \param contact Target contact location.
    *
+   * \note Foot damping control, as described in "Biped walking stabilization
+   * based on linear inverted pendulum tracking", has an additional time
+   * constant to return to the nominal foot orientation ("neutral point", see
+   * equation 14). In this stabilizer, this time constant corresponds to the
+   * stiffness of the contact task, i.e. the position tracking gain. We
+   * configure the task with high damping and low stiffness so that its top
+   * priority is to track desired velocities (themselves set by the CoPTask),
+   * and if possible return to the nominal foot pose.
    */
   void setContact(std::shared_ptr<mc_tasks::force::CoPTask> footTask, const Contact & contact);
 
