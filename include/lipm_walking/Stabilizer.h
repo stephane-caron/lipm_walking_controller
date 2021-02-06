@@ -182,12 +182,12 @@ struct Stabilizer
    *
    * \note Foot damping control, as described in "Biped walking stabilization
    * based on linear inverted pendulum tracking", has an additional time
-   * constant to return to the nominal foot orientation ("neutral point", see
-   * equation 14). In this stabilizer, this time constant corresponds to the
-   * stiffness of the contact task, i.e. the position tracking gain. We
-   * configure the task with high damping and low stiffness so that its top
-   * priority is to track desired velocities (themselves set by the CoPTask),
-   * and if possible return to the nominal foot pose.
+   * constant to return to the nominal foot orientation ("neutral point"). In
+   * this stabilizer, this time constant corresponds to the stiffness of the
+   * contact task, i.e. the position tracking gain. We configure the task with
+   * high damping and low stiffness so that its top priority is to track
+   * desired velocities (themselves set by the CoPTask), and if possible return
+   * to the nominal foot pose.
    */
   void setContact(std::shared_ptr<mc_tasks::force::CoPTask> footTask, const Contact & contact);
 
@@ -370,6 +370,23 @@ private:
    * stabilization based on linear inverted pendulum tracking" (Kajita et
    * al., IROS 2010).
    *
+   * \note We control the difference between vertical foot forces rather than
+   * the vertical forces themselves, because the latter are sensitive to
+   * modeling errors. Imagine for instance that the robot model underestimates
+   * the total robot mass, resulting in a desired vertical force lower than
+   * what it should be. Even at rest, the robot will measure a larger force
+   * than the desired one: the foot will go up (admittance control) to
+   * instantaneously reduce the measured force, which works in the short term
+   * but will result in the robot crouching forever.
+   *
+   * See Section IV of <https://hal.archives-ouvertes.fr/hal-02289919/document>
+   * for some related points.
+   *
+   * The underlying idea behind the difference here is to control forces via
+   * motions in the nullspace of the contact Jacobian. See "Multi-Contact
+   * Stabilization of a Humanoid Robot for Realizing Dynamic Contact
+   * Transitions on Non-coplanar Surfaces" (Morisawa et al., 2019), equations
+   * (20) and (21), for insights into this more general approach.
    */
   void updateFootForceDifferenceControl();
 
