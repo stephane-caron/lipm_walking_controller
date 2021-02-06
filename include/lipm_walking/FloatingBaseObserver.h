@@ -85,7 +85,7 @@ struct FloatingBaseObserver
    */
   void updateRobot(mc_rbdyn::Robot & robot);
 
-  /** Get the orientation of the IMU with respect to the inertial frame.
+  /** Get the orientation of the IMU with respect to the world frame.
    *
    * \note Although this estimation is currently stored in the body sensor of
    * the control robot, it is an actual sensor reading.

@@ -234,7 +234,7 @@ struct Stabilizer
    *
    * \param comd Velocity of the center of mass.
    *
-   * \param wrench Net contact wrench in the inertial frame.
+   * \param wrench Net contact wrench in the world frame.
    *
    * \param leftFootRatio Desired force distribution ratio for left foot.
    *
@@ -281,7 +281,7 @@ struct Stabilizer
 
   /** ZMP target after wrench distribution.
    *
-   * \returns zmp ZMP target in the inertial frame.
+   * \returns zmp ZMP target in the world frame.
    *
    */
   Eigen::Vector3d zmp() const

@@ -36,7 +36,7 @@ We use the [copra](https://github.com/vsamy/copra) library to build and solve ou
     \end{align}
 \f]
 
-Here our vector \f$c_k\f$ of horizontal CoM coordinates has dimension two (_x_ and _y_ axes of the inertial frame), so that \f$I\f$ is the \f$2 \times 2\f$ identity matrix. The sampling period \f$T\f$ is set to 100 ms with \f$N = 16\f$ discretization steps that give us a receding horizon of 1.6 s. (These are standard values from the literature, go ahead and try some others!) We define this preview system in the constructor:
+Here our vector \f$c_k\f$ of horizontal CoM coordinates has dimension two (_x_ and _y_ axes of the world frame), so that \f$I\f$ is the \f$2 \times 2\f$ identity matrix. The sampling period \f$T\f$ is set to 100 ms with \f$N = 16\f$ discretization steps that give us a receding horizon of 1.6 s. (These are standard values from the literature, go ahead and try some others!) We define this preview system in the constructor:
 
 \code{.cpp}
 ModelPredictiveControl::ModelPredictiveControl()

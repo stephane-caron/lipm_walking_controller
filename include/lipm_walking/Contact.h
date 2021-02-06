@@ -68,7 +68,7 @@ struct Contact
 
   /** Define from Plücker transform.
    *
-   * \param pose Plücker transform from inertial to contact frame.
+   * \param pose Plücker transform from world to contact frame.
    *
    */
   Contact(const sva::PTransformd & pose) : pose(pose) {}
@@ -322,7 +322,7 @@ public:
   mc_rtc::Configuration
       swingConfig; /**< Additional configuration for swing foot trajectories that originate from this contact. */
   std::string surfaceName = ""; /**< Name of the contact surface in robot model. */
-  sva::PTransformd pose; /**< Plücker transform of the contact in the inertial frame. */
+  sva::PTransformd pose; /**< Plücker transform of the contact in the world frame. */
   unsigned id = 0; /**< Index of contact in footstep plan. */
 };
 

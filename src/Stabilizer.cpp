@@ -573,8 +573,8 @@ void Stabilizer::distributeWrench(const sva::ForceVecd & desiredWrench)
   // Variables
   // ---------
   // x = [w_l_0 w_r_0] where
-  // w_l_0: spatial force vector of left foot contact in inertial frame
-  // w_r_0: spatial force vector of right foot contact in inertial frame
+  // w_l_0: spatial force vector of left foot contact in world frame
+  // w_r_0: spatial force vector of right foot contact in world frame
   //
   // Objective
   // ---------
@@ -692,7 +692,7 @@ void Stabilizer::saturateWrench(const sva::ForceVecd & desiredWrench,
   // Variables
   // ---------
   // x = [w_0] where
-  // w_0: spatial force vector of foot contact in inertial frame
+  // w_0: spatial force vector of foot contact in world frame
   //
   // Objective
   // ---------
@@ -777,6 +777,7 @@ void Stabilizer::updateFootForceDifferenceControl()
   double RFz = rightFootTask->measuredWrench().force().z();
   dfzForceError_ = (LFz_d - RFz_d) - (LFz - RFz);
 
+  // Vertical height differences, computed in the world frame
   double LTz_d = leftFootTask->targetPose().translation().z();
   double RTz_d = rightFootTask->targetPose().translation().z();
   double LTz = leftFootTask->surfacePose().translation().z();
