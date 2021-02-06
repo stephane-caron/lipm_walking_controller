@@ -117,6 +117,9 @@ struct Contact
    *
    * \param sole Sole dimensions.
    *
+   * \note We call this frame "ankle" for short, but it is rather the
+   * projection of the ankle joint frame onto the sole, along the z-axis of the
+   * sole frame.
    */
   Eigen::Vector3d anklePos(const Sole & sole) const
   {
