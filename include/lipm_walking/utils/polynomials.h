@@ -81,13 +81,12 @@ struct PolynomialBase
    * \returns length Arc length of the curve between ``P(t_start)`` and
    * ``P(t_end)``.
    *
-   * \note This function uses 5-point Gauss-Legendre quadrature [1]. It is
-   * adapted from the Unreal Engine's ``GetSplineLength`` [2] pointed out in
-   * ``jj``'s post on Medium [3].
-   *
-   * [1] https://en.wikipedia.org/wiki/Gaussian_quadrature
-   * [2] https://api.unrealengine.com/INT/BlueprintAPI/Spline/GetSplineLength/
-   * [3] https://medium.com/@all2one/how-to-compute-the-length-of-a-spline-e44f5f04c40
+   * \note This function uses 5-point Gauss-Legendre quadrature
+   * <https://en.wikipedia.org/wiki/Gaussian_quadrature>. It is adapted from
+   * the Unreal Engine's ``GetSplineLength``
+   * <https://api.unrealengine.com/INT/BlueprintAPI/Spline/GetSplineLength/>
+   * pointed out in jj's post on Medium
+   * <https://medium.com/@all2one/how-to-compute-the-length-of-a-spline-e44f5f04c40>.
    *
    */
   double arcLength(double t_start, double t_end) const

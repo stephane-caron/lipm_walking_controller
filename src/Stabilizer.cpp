@@ -39,8 +39,8 @@ namespace lipm_walking
 {
 
 // Repeat static constexpr declarations
-// Fixes https://github.com/stephane-caron/lipm_walking_controller/issues/21
-// See also https://stackoverflow.com/q/8016780
+// Fixes <https://github.com/stephane-caron/lipm_walking_controller/issues/21>.
+// See also <https://stackoverflow.com/q/8016780>.
 constexpr double Stabilizer::MAX_AVERAGE_DCM_ERROR;
 constexpr double Stabilizer::MAX_COM_ADMITTANCE;
 constexpr double Stabilizer::MAX_COP_ADMITTANCE;
@@ -546,7 +546,7 @@ sva::ForceVecd Stabilizer::computeDesiredWrench()
     // ZMP is computed in the previous contact frame, while the measured ZMP is
     // computed in an average of both contact frames. Not noticed in 2019 stair
     // climbing with HRP-4 since we didn't use a DCM derivator with this robot.
-    // See https://github.com/stephane-caron/lipm_walking_controller/issues/56
+    // See <https://github.com/stephane-caron/lipm_walking_controller/issues/56>.
     zmpError_ = pendulum_.zmp() - measuredZMP_;
     zmpError_.z() = 0.;
     dcmDerivator_.update(omega * (dcmError_ - zmpError_));
@@ -563,7 +563,7 @@ sva::ForceVecd Stabilizer::computeDesiredWrench()
 
   // Previous implementation (up to v1.3):
   // return {pendulum_.com().cross(desiredForce), desiredForce};
-  // See https://github.com/stephane-caron/lipm_walking_controller/issues/28
+  // See <https://github.com/stephane-caron/lipm_walking_controller/issues/28>.
 
   return {measuredCoM_.cross(desiredForce), desiredForce};
 }
@@ -786,7 +786,7 @@ void Stabilizer::updateFootForceDifferenceControl()
 
   // The ``dfzDamping`` gain is used for vertical foot force damping. This is
   // an optional feature that we didn't use in practice with HRP-4 or HRP-2Kai.
-  // See https://github.com/stephane-caron/lipm_walking_controller/issues/50
+  // See <https://github.com/stephane-caron/lipm_walking_controller/issues/50>.
   double dz_ctrl = dfzAdmittance_ * dfzForceError_ - dfzDamping_ * dfzHeightError_;
   double dz_vdc = vdcFrequency_ * vdcHeightError_;
   sva::MotionVecd velF = {{0., 0., 0.}, {0., 0., dz_ctrl}};

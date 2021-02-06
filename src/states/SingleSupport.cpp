@@ -151,7 +151,7 @@ void states::SingleSupport::updateSwingFoot()
       // The linear velocity in swingFoot_.vel() is expressed in the world
       // frame, but refVelB expects a body velocity, so the following lines are
       // wrong (they miss a frame transform). Thanks to @mmurooka for pointing
-      // out this bug: https://github.com/jrl-umi3218/lipm_walking_controller/issues/29
+      // out this bug <https://github.com/jrl-umi3218/lipm_walking_controller/issues/29>.
       swingFootTask->refVelB(swingFoot_.vel());
       swingFootTask->refAccel(swingFoot_.accel());
     }

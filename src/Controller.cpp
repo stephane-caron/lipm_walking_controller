@@ -434,8 +434,8 @@ bool Controller::run()
 
   // update pelvis and torso orientations based on the anchor frame estimate
   // note that these two tasks contribute to stabilization because the anchor
-  // frame orientation changes when foot frames comply with the ground
-  // see https://github.com/stephane-caron/lipm_walking_controller/issues/32
+  // frame orientation changes when foot frames comply with the ground, see
+  // <https://github.com/stephane-caron/lipm_walking_controller/issues/32>.
   sva::PTransformd X_0_a = floatingBaseObs_.getAnchorFrame(controlRobot());
   pelvisOrientation_ = X_0_a.rotation();
   pelvisTask->orientation(pelvisOrientation_);

@@ -62,9 +62,9 @@ struct Pendulum
    * the ZMP in the desired plane. When walking on horizontal ground or
    * climbing stairs, we call this function after \see resetCoMHeight to make
    * sure that the pendulum CoM is at the desired height above plane, and thus
-   * that this function leaves the natural frequency \ref omega_ untouched.
-   *
-   * \see https://github.com/stephane-caron/lipm_walking_controller/issues/57#issuecomment-723582127
+   * that this function leaves the natural frequency \ref omega_ untouched. See
+   * <https://github.com/stephane-caron/lipm_walking_controller/discussions/57>
+   * for a more detailed discussion on this.
    *
    */
   void completeIPM(const Contact & plane);
@@ -112,9 +112,9 @@ struct Pendulum
    * continuous trajectory generator implemented in \ref
    * ModelPredictiveControl. The combination of these two functions preserves
    * continuity of the horizontal coordinates of the ZMP trajectory, while
-   * adapting its height to the contact height.
-   *
-   * \see https://github.com/stephane-caron/lipm_walking_controller/issues/57#issuecomment-723582127
+   * adapting its height to the contact height. See
+   * <https://github.com/stephane-caron/lipm_walking_controller/discussions/57>
+   * for a more detailed discussion on this.
    *
    */
   void resetCoMHeight(double height, const Contact & contact);
