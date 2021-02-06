@@ -191,8 +191,7 @@ struct ModelPredictiveControl
     return nbInitSupportSteps_;
   }
 
-  /**
-   * Number of sampling steps in the preview spent in the first double-support
+  /** Number of sampling steps in the preview spent in the first double-support
    * phase.
    *
    */

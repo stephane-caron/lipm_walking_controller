@@ -387,6 +387,7 @@ private:
    * Stabilization of a Humanoid Robot for Realizing Dynamic Contact
    * Transitions on Non-coplanar Surfaces" (Morisawa et al., 2019), equations
    * (20) and (21), for insights into this more general approach.
+   *
    */
   void updateFootForceDifferenceControl();
 
