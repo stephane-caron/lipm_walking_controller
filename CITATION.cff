@@ -12,7 +12,7 @@ url: "https://github.com/stephane-caron/lipm_walking_controller"
 license: "BSD-2-Clause"
 preferred-citation:
   type: conference-paper
-  title: "Stair Climbing Stabilization of the {HRP}-4 Humanoid Robot using Whole-body Admittance Control"
+  title: "Stair Climbing Stabilization of the HRP-4 Humanoid Robot using Whole-body Admittance Control"
   authors:
   - family-names: "Caron"
     given-names: "Stéphane"
