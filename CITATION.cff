@@ -9,7 +9,7 @@ version: 1.6
 doi: 10.1109/ICRA.2019.8794348
 date-released: 2018-09-17
 url: "https://github.com/stephane-caron/lipm_walking_controller"
-license: "BSD-3-Clause"
+license: "BSD-2-Clause"
 preferred-citation:
   type: conference-paper
   title: "Stair Climbing Stabilization of the {HRP}-4 Humanoid Robot using Whole-body Admittance Control"
