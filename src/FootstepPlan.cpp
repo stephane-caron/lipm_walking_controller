@@ -175,6 +175,13 @@ void FootstepPlan::updateInitialTransform(const sva::PTransformd & X_0_lf,
   sva::PTransformd X_0_mid = sva::interpolate(X_0_lf, X_0_rf, 0.5);
   sva::PTransformd X_0_old = sva::interpolate(contacts_[0].pose, contacts_[1].pose, 0.5);
   sva::PTransformd X_delta = makeHorizontal(X_0_old.inv() * X_0_mid);
+
+  // BUG here: https://github.com/jrl-umi3218/lipm_walking_controller/issues/37
+  // This function should but does not update the reference velocity (refVel)
+  // for each contact. Thanks to @Saeed-Mansouri for pointing out this bug. The
+  // velocity used by \ref ModelPredictiveControl::updateVelCost() is then in
+  // the wrong frame.
+
   for(unsigned i = 2; i < contacts_.size(); i++)
   {
     // X_0_nc = X_old_c X_0_new = X_0_c X_old_0 X_0_new
