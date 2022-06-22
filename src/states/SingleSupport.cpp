@@ -152,7 +152,7 @@ void states::SingleSupport::updateSwingFoot()
       // frame, but refVelB expects a body velocity, so the following lines are
       // wrong (they miss a frame transform). Thanks to @mmurooka for pointing
       // out this bug <https://github.com/jrl-umi3218/lipm_walking_controller/issues/29>.
-      swingFootTask->refVelB(swingFoot_.vel());
+      swingFootTask->refVelB(swingFoot_.vel()); // this is wrong!
       swingFootTask->refAccel(swingFoot_.accel());
     }
     else // (stabilizer().contactState() != ContactState::DoubleSupport)

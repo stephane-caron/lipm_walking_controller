@@ -766,8 +766,12 @@ void Stabilizer::updateFootForceDifferenceControl()
     dfzForceError_ = 0.;
     dfzHeightError_ = 0.;
     vdcHeightError_ = 0.;
-    leftFootTask->refVelB({{0., 0., 0.}, {0., 0., 0.}});
-    rightFootTask->refVelB({{0., 0., 0.}, {0., 0., 0.}});
+    // The linear velocity of the swing foot task will be overwritten by the
+    // following two lines, which will degrade swing foot tracking performance.
+    // Thanks to @Saeed-Mansouri for pointing out this bug
+    // <https://github.com/jrl-umi3218/lipm_walking_controller/issues/41>.
+    leftFootTask->refVelB({{0., 0., 0.}, {0., 0., 0.}}); // this is wrong!
+    rightFootTask->refVelB({{0., 0., 0.}, {0., 0., 0.}}); // this is wrong!
     return;
   }
 
