@@ -105,6 +105,9 @@ struct FootstepPlan
    *
    * \param initHeight Height of first two contacts after transform.
    *
+   * \note This function does not, but should update contacts_[i].refVel as
+   * well. Thanks to @Saeed-Mansouri for pointing out this issue
+   * <https://github.com/jrl-umi3218/lipm_walking_controller/issues/37>.
    */
   void updateInitialTransform(const sva::PTransformd & X_0_lf, const sva::PTransformd & X_0_rf, double initHeight);
 
