@@ -68,7 +68,7 @@ ModelPredictiveControl::ModelPredictiveControl()
 
 \section zmpPos ZMP formulation
 
-Let's check out what happens when the MPC input is the ZMP position \f$z\f$ (second-order) rather than the CoM jerk (third-order). The discretization of the input function in the MPC problem formulation implies that our ZMP trajectory \f$z(t)\f$ will be piecewise-constant. From the [linear inverted pendulum model](https://scaron.info/teaching/linear-inverted-pendulum-model.html), the acceleration of the center of mass in the horizontal plane (we drop the _z_ coordinate for simplicity):
+Let's check out what happens when the MPC input is the ZMP position \f$z\f$ (second-order) rather than the CoM jerk (third-order). The discretization of the input function in the MPC problem formulation implies that our ZMP trajectory \f$z(t)\f$ will be piecewise-constant. From the [linear inverted pendulum model](https://scaron.info/robot-locomotion/linear-inverted-pendulum-model.html), the acceleration of the center of mass in the horizontal plane (we drop the _z_ coordinate for simplicity):
 
 \f[
     \ddot{c} = \omega^2 (c - z)
@@ -83,7 +83,7 @@ This is a second-order non-homogeneous [linear differential equation](https://en
     \end{align}
 \f]
 
-You can check out [this summary about the capture point](https://scaron.info/teaching/capture-point.html) to learn more about the structure of this solution. Having the analytical solution gives us a straightforward discretization our state-space model:
+You can check out [this summary about the capture point](https://scaron.info/robot-locomotion/capture-point.html) to learn more about the structure of this solution. Having the analytical solution gives us a straightforward discretization our state-space model:
 
 \f[
     \begin{align}
