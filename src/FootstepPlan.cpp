@@ -172,10 +172,6 @@ void FootstepPlan::updateInitialTransform(const sva::PTransformd & X_0_lf,
                                           const sva::PTransformd & X_0_rf,
                                           double initHeight)
 {
-  // Note that this function does not, but should update contacts_[i].refVel as
-  // well. Thanks to @Saeed-Mansouri for pointing out this issue
-  // <https://github.com/jrl-umi3218/lipm_walking_controller/issues/37>.
-
   sva::PTransformd X_0_mid = sva::interpolate(X_0_lf, X_0_rf, 0.5);
   sva::PTransformd X_0_old = sva::interpolate(contacts_[0].pose, contacts_[1].pose, 0.5);
   sva::PTransformd X_delta = makeHorizontal(X_0_old.inv() * X_0_mid);
