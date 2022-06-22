@@ -8,7 +8,7 @@
 
 Source code of the walking and stair climbing controller used in the experiments of [Stair Climbing Stabilization of the HRP-4 Humanoid Robot using Whole-body Admittance Control](https://hal.archives-ouvertes.fr/hal-01875387/document), as well as in an industrial demonstrator at the [Airbus Saint-Nazaire factory](https://hal-lirmm.ccsd.cnrs.fr/lirmm-02303117/document).
 
-This repository is meant for learning and sharing of experimental knowledge. It keeps walking components in the same place, and in the simple form they had in 2019. If you have questions, go ahead and ask them in the [discussions](https://github.com/stephane-caron/lipm_walking_controller/discussions) forum, after checking that they are not already answered in the [frequently asked questions](https://github.com/stephane-caron/lipm_walking_controller/wiki) ;) If you want to take part in future development, reach out for the [active fork at jrl-umi3218](https://github.com/jrl-umi3218/lipm_walking_controller).
+This repository is meant for learning and sharing of experimental knowledge. It keeps walking components in the same place, and in the simple form they had in 2019. If you have questions, go ahead and ask them in the [discussions](https://github.com/stephane-caron/lipm_walking_controller/discussions) forum, after checking that they are not already answered in the [frequently asked questions](https://github.com/stephane-caron/lipm_walking_controller/wiki) ;) If you want to take part in future development, reach out for the [fork at jrl-umi3218](https://github.com/jrl-umi3218/lipm_walking_controller).
 
 ## Trying the controller
 
@@ -65,6 +65,17 @@ We end up with three windows: one for RViz (left), one for Choreonoid (top right
 See the [Graphical user interface](https://github.com/stephane-caron/lipm_walking_controller/wiki/How-to-use-the-graphical-user-interface%3F) page of the
 wiki for further instructions on how to interact with the controller in RViz.
 
+## Known bugs
+
+This repository is an archive of the code as it ran in 2019, bugs included. Here is a non-exhaustive list of the big ones that have been found since then:
+
+- Swing foot velocities and accelerations computed in incorrect frames [#29](https://github.com/jrl-umi3218/lipm_walking_controller/issues/29)
+- Missing transformation in foot force difference control [#72](https://github.com/stephane-caron/lipm_walking_controller/discussions/72)
+- Missing contact reference velocity update [#37](https://github.com/jrl-umi3218/lipm_walking_controller/issues/37)
+- Overwritten swing foot task velocities [#41](https://github.com/jrl-umi3218/lipm_walking_controller/issues/41)
+
+Head over to the [fork at jrl-umi3218](https://github.com/jrl-umi3218/lipm_walking_controller) for updates.
+
 ## Thanks
 
-To [@gergondet](https://github.com/gergondet) and [@arntanguy](https://github.com/arntanguy) for developing and helping with the mc\_rtc framework.
+Thanks to [@gergondet](https://github.com/gergondet) and [@arntanguy](https://github.com/arntanguy) for developing and helping with the mc\_rtc framework, to [@mmurooka](https://github.com/mmurooka) and [@Saeed-Mansouri](https://github.com/Saeed-Mansouri) (Best Debugger Award! 🏅) for pointing out bugs and contributing to the discussion around the project.
