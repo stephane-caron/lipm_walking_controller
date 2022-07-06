@@ -78,4 +78,9 @@ Head over to the [fork at jrl-umi3218](https://github.com/jrl-umi3218/lipm_walki
 
 ## Thanks
 
-Thanks to [@gergondet](https://github.com/gergondet) and [@arntanguy](https://github.com/arntanguy) for developing and helping with the mc\_rtc framework, to [@mmurooka](https://github.com/mmurooka) and [@Saeed-Mansouri](https://github.com/Saeed-Mansouri) (Best Debugger Award! 🏅) for pointing out bugs and contributing to the discussion around the project.
+Thanks to:
+
+- [@gergondet](https://github.com/gergondet) for developing and helping with mc\_rtc
+- [@arntanguy](https://github.com/arntanguy) for developing and helping with mc\_rtc
+- [@Saeed-Mansouri](https://github.com/Saeed-Mansouri) for bug hunting and discussion around the project - *Best Debugger Award* 🏅
+- [@mmurooka](https://github.com/mmurooka) for bug hunting and discussion around the project
