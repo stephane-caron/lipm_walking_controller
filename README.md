@@ -1,5 +1,11 @@
 # LIPM Walking Controller
 
+[**Trying the controller**](https://github.com/stephane-caron/lipm_walking_controller#trying-the-controller)
+| [**Dependencies**](https://github.com/stephane-caron/lipm_walking_controller#dependencies)
+| [**Usage**](https://github.com/stephane-caron/lipm_walking_controller#usage)
+| [**Known bugs**](https://github.com/stephane-caron/lipm_walking_controller#known-bugs)
+| [**Thanks**](https://github.com/stephane-caron/lipm_walking_controller#thanks)
+
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-green.svg)](https://opensource.org/licenses/BSD-2-Clause)
 [![Documentation](https://img.shields.io/badge/doxygen-online-brightgreen?logo=read-the-docs&style=flat)](https://scaron.info/doc/lipm_walking_controller/)
 ![Status](https://img.shields.io/badge/status-archive-lightgrey.svg)
