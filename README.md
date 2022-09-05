@@ -14,7 +14,7 @@
 
 Source code of the walking and stair climbing controller used in the experiments of [Stair Climbing Stabilization of the HRP-4 Humanoid Robot using Whole-body Admittance Control](https://hal.archives-ouvertes.fr/hal-01875387/document), as well as in an industrial demonstrator at the [Airbus Saint-Nazaire factory](https://hal-lirmm.ccsd.cnrs.fr/lirmm-02303117/document).
 
-This repository is meant for learning and sharing of experimental knowledge. It keeps walking components in the same place, and in the simple form they had in 2019. If you have questions, go ahead and ask them in the [discussions](https://github.com/stephane-caron/lipm_walking_controller/discussions) forum, after checking that they are not already answered in the [frequently asked questions](https://github.com/stephane-caron/lipm_walking_controller/wiki) ;) If you want to take part in future development, reach out for the [fork at jrl-umi3218](https://github.com/jrl-umi3218/lipm_walking_controller).
+This repository is meant for learning and sharing of experimental knowledge. It keeps walking components in the same place, and in the simple form they had in 2019. If you have questions, go ahead and ask them in the [discussions](https://github.com/stephane-caron/lipm_walking_controller/discussions) forum, after checking that they are not already answered in the [frequently asked questions](https://github.com/stephane-caron/lipm_walking_controller/wiki) ;) If you want to check out follow-up developments, go to [jrl-umi3218/lipm_walking_controller](https://github.com/jrl-umi3218/lipm_walking_controller) or [mehdi-benallegue/lipm_walking_controller](https://github.com/mehdi-benallegue/lipm_walking_controller/tree/rebase_stabilizer_ana).
 
 ## Trying the controller
 
@@ -80,7 +80,7 @@ This repository is an archive of the code as it ran in 2019, bugs included. Here
 - Missing contact reference velocity update [#37](https://github.com/jrl-umi3218/lipm_walking_controller/issues/37)
 - Overwritten swing foot task velocities [#41](https://github.com/jrl-umi3218/lipm_walking_controller/issues/41)
 
-Head over to the [fork at jrl-umi3218](https://github.com/jrl-umi3218/lipm_walking_controller) for updates.
+Head over to [jrl-umi3218/lipm_walking_controller](https://github.com/jrl-umi3218/lipm_walking_controller) or [mehdi-benallegue/lipm_walking_controller](https://github.com/mehdi-benallegue/lipm_walking_controller/tree/rebase_stabilizer_ana) for follow-up developments.
 
 ## Thanks
 
