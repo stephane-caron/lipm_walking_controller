@@ -32,7 +32,7 @@ This image runs the exact controller we used in 2019 during experiments and indu
 
 ## Checking the logs
 
-You can check a log file from HRP-4 climbing stairs during the industrial demonstrators by running:
+You can check a log file from HRP-4 climbing stairs during the industrial demonstrator by running:
 
 ```sh
 python ./logs/display_logs.py
