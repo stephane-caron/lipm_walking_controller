@@ -25,18 +25,19 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import os
 import signal
 import sys
 
-from PyQt5 import QtGui, QtWidgets
-
 from mc_log_ui import MCLogUI, get_icon
+from PyQt5 import QtGui, QtWidgets
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(get_icon()))
     gui = MCLogUI()
-    files = ["2019-02-21_stair_climbing.flat"]
+    this_dir = os.path.dirname(__file__)
+    files = [os.path.join(this_dir, "2019-02-21_stair_climbing.flat")]
     if len(sys.argv) > 1:
         files.extend(sys.argv[1:])
     for fpath in files:
@@ -56,7 +57,7 @@ if __name__ == "__main__":
         "– Swing foot Z\n"
     )
     msg.setIconPixmap(
-        QtGui.QPixmap("./mc_log_ui/icons/icon.png").scaled(64, 64)
+        QtGui.QPixmap(os.path.join(this_dir, "mc_log_ui", "icons", "icon.png")).scaled(64, 64)
     )
     msg.exec_()
 
