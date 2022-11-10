@@ -1,6 +1,7 @@
 # LIPM Walking Controller
 
 [**Trying the controller**](https://github.com/stephane-caron/lipm_walking_controller#trying-the-controller)
+| [**Logs**](https://github.com/stephane-caron/lipm_walking_controller#checking-the-logs)
 | [**Dependencies**](https://github.com/stephane-caron/lipm_walking_controller#dependencies)
 | [**Usage**](https://github.com/stephane-caron/lipm_walking_controller#usage)
 | [**Known bugs**](https://github.com/stephane-caron/lipm_walking_controller#known-bugs)
@@ -28,6 +29,16 @@ docker run -it --rm --user ayumi -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X
 ```
 
 This image runs the exact controller we used in 2019 during experiments and industrial demonstrations. Replace `--floor` with `--staircase` for stair climbing.
+
+## Checking the logs
+
+You can check a log file from HRP-4 climbing stairs during the industrial demonstrators by running:
+
+```sh
+python ./logs/display_logs.py
+```
+
+Check out the pre-defined plots from the "User plots" menu. The ones we use the most are ``Tracking DCM-ZMP X/Y``, ``Foot force both`` and ``Swing foot Z``.
 
 ## Dependencies
 
