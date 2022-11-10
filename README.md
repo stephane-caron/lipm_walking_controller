@@ -15,11 +15,11 @@
 
 Source code of the walking and stair climbing controller used in the experiments of [Stair Climbing Stabilization of the HRP-4 Humanoid Robot using Whole-body Admittance Control](https://hal.archives-ouvertes.fr/hal-01875387/document), as well as in an industrial demonstrator at the [Airbus Saint-Nazaire factory](https://hal-lirmm.ccsd.cnrs.fr/lirmm-02303117/document).
 
-This repository is meant for learning and sharing of experimental knowledge. It keeps walking components in the same place, and in the simple form they had in 2019. If you have questions, go ahead and ask them in the [discussions](https://github.com/stephane-caron/lipm_walking_controller/discussions) forum, after checking that they are not already answered in the [frequently asked questions](https://github.com/stephane-caron/lipm_walking_controller/wiki) ;) If you want to check out follow-up developments, go to [jrl-umi3218/lipm_walking_controller](https://github.com/jrl-umi3218/lipm_walking_controller) or [mehdi-benallegue/lipm_walking_controller](https://github.com/mehdi-benallegue/lipm_walking_controller/tree/rebase_stabilizer_ana).
+This repository is meant for learning and sharing of experimental knowledge. It keeps walking components in the same place, and in their state from 2019. Ask any question you may ahve in the [discussions](https://github.com/stephane-caron/lipm_walking_controller/discussions) forum, after checking of course that they are not already answered in the [frequently asked questions](https://github.com/stephane-caron/lipm_walking_controller/wiki) ;) If you are looking for follow-up developments, go to [jrl-umi3218/lipm_walking_controller](https://github.com/jrl-umi3218/lipm_walking_controller) or [mehdi-benallegue/lipm_walking_controller](https://github.com/mehdi-benallegue/lipm_walking_controller/tree/rebase_stabilizer_ana).
 
 ## Trying the controller
 
-You can try the controller directly by running its Docker image:
+You can try a snapshot of the controller directly by running its Docker image:
 
 ```sh
 xhost +local:docker
@@ -79,8 +79,7 @@ We end up with three windows: one for RViz (left), one for Choreonoid (top right
 
 ![Choreonoid and RViz GUI of the controller](https://user-images.githubusercontent.com/1189580/64157945-ead71c80-ce37-11e9-9081-7936702c5fbc.png)
 
-See the [Graphical user interface](https://github.com/stephane-caron/lipm_walking_controller/wiki/How-to-use-the-graphical-user-interface%3F) page of the
-wiki for further instructions on how to interact with the controller in RViz.
+See the [Graphical user interface](https://github.com/stephane-caron/lipm_walking_controller/wiki/How-to-use-the-graphical-user-interface%3F) page of the wiki for further instructions on how to interact with the controller in RViz.
 
 ## Known bugs
 
