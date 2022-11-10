@@ -1,6 +1,6 @@
 # Stair climbing logs
 
-You can check a log file from HRP-4 climbing stairs during the industrial demonstrators by running the following command from this directory:
+You can check a log file from HRP-4 climbing stairs during the industrial demonstrator by running the following command from this directory:
 
 ```sh
 python ./display_logs.py
