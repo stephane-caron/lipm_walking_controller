@@ -1,4 +1,4 @@
-# Checking the logs
+# Stair climbing logs
 
 You can check a log file from HRP-4 climbing stairs during the industrial demonstrators by running the following command from this directory:
 
